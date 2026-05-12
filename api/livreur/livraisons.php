@@ -8,7 +8,7 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/commandes.php';
 
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'Livreur') {
-    header('Location: index.php');
+    header('Location: /api/index.php');
     exit;
 }
 

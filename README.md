@@ -55,8 +55,8 @@ Le projet est construit de manière modulaire, marquant l'évolution entre la co
   * **Fin :** 05/04/2026 - commit `2a3d045`
   
 * **Phase 3 : Interactivité et Requêtes Asynchrones**
-  *  **Début :** 06/04/2026
-  *  **Fin :** 24/04/2026
+  *  **Début :** 06/04/2026 - commit `0250fa4`
+  *  **Fin :** 24/04/2026 - commit ``
 
 * **Phase 4 : Standardisation, Sécurité et Soutenance Finale**
   *  **Début :** 24/04/2026
@@ -97,23 +97,17 @@ Le projet est construit de manière modulaire, marquant l'évolution entre la co
 
 Pour faire fonctionner l'application dynamique en local (spécialement sous Windows via WSL/Ubuntu), vous aurez besoin de :
 * PHP 8.0 ou supérieur.
-* MySQL (Serveur de base de données).
-* Extension PHP-MySQL activée (`pdo_mysql`).
+* Un ordinateur sous linux ou équipé avec WSL.
 
 ---
 
 ## 🚀 Installation et Lancement (Guide Complet)
 
 ### 1. Installation de l'environnement sous WSL (Ubuntu)
-Ouvrez votre terminal WSL (Ubuntu) et installez les paquets nécessaires :
+Ouvrez votre terminal WSL (Ubuntu) ou votre invite de commandes et installez les paquets nécessaires :
 ```bash
 sudo apt update
-sudo apt install php php-mysql
-```
-
-Démarrez ensuite le service MySQL (indispensable sous WSL à chaque redémarrage) :
-```bash
-sudo service mysql start
+sudo apt install php
 ```
 
 ### 2. Récupérer le projet
@@ -122,22 +116,7 @@ git clone [https://github.com/the-night7/yumland-mi2a.git](https://github.com/th
 cd yumland-mi2a
 ```
 
-### 3. Configurer la base de données (MySQL)
-L'application utilise un utilisateur MySQL dédié. Connectez-vous d'abord en administrateur :
-```bash
-sudo mysql
-```
-
-Puis copiez-collez ce bloc de commandes pour préparer votre base :
-```sql
-CREATE DATABASE IF NOT EXISTS yumland_mi2a CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-CREATE USER 'yumland'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Miam123!_Yumland';
-GRANT ALL PRIVILEGES ON yumland_mi2a.* TO 'yumland'@'localhost';
-FLUSH PRIVILEGES;
-EXIT;
-```
-
-### 4. Démarrer le serveur web
+### 3. Démarrer le serveur web
 Dans le dossier racine du projet (là où se trouve `router.php`), lancez le serveur local :
 ```bash
 php -S localhost:8000 router.php
