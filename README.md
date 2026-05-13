@@ -38,7 +38,7 @@ L'application repose sur une architecture dynamique PHP/MySQL où chaque interfa
 
 ## 🏗️ Architecture Technique
 *   **Langage Back-End** : PHP 8
-*   **Base de Données** : MySQL (hébergée sur Aiven)
+*   **Base de Données** : MySQL (hébergée sur **Aiven** — aucune installation locale requise)
 *   **Hébergement** : Vercel (avec configuration `vercel.json` pour le routing)
 *   **Développement Local** : Serveur PHP interne avec un `router.php` simulant l'environnement Vercel.
 *   **Paiement** : Interface externe CYBank (plateforme-smc.fr).
@@ -53,16 +53,16 @@ Le projet est construit de manière modulaire, marquant l'évolution entre la co
 * **Phase 2 : Serveur et Base de Données (Back-End)**
   * **Début :** 22/02/2026 - commit `0c5ee9ca`
   * **Fin :** 05/04/2026 - commit `2a3d045`
-  
+
 * **Phase 3 : Interactivité et Requêtes Asynchrones**
-  *  **Début :** 06/04/2026 - commit `0250fa4`
-  *  **Fin :** 24/04/2026 - commit ``
+  * **Début :** 06/04/2026 - commit `0250fa4`
+  * **Fin :** 24/04/2026 - commit `<!-- TODO : compléter le hash de fin de phase 3 -->`
 
 * **Phase 4 : Standardisation, Sécurité et Soutenance Finale**
-  *  **Début :** 24/04/2026
-  *  **Fin :** À venir...
+  * **Début :** 24/04/2026
+  * **Fin :** À venir...
 
-## � Organisation du Projet
+## 📂 Organisation du Projet
 
 ```text
 📦 yumland-mi2a
@@ -77,12 +77,14 @@ Le projet est construit de manière modulaire, marquant l'évolution entre la co
 │   ├── 📄 ajouter_panier.php    # Endpoint AJAX pour le panier
 │   ├── 📄 commander.php         # Processus de commande et redirection vers CYBank
 │   ├── 📄 index.php             # Page d'accueil dynamique
-│   ├── 📄 init_db.php           # Script de création des tables SQL
+│   ├── 📄 init_db.php           # Script de création des tables SQL (via PHP)
 │   ├── 📄 login.php             # Endpoint AJAX pour la connexion
-│   ├── 📄 retour_paiement.php    # Endpoint de retour de CYBank
+│   ├── 📄 retour_paiement.php   # Endpoint de retour de CYBank
 │   └── ...
 ├── 📂 consigne/                   # Documents du cahier des charges
 ├── 📂 docs/                       # Livrables (Charte graphique, CR...)
+│   ├── 📄 comptes-test.md       # Identifiants de test par rôle (Client, Resto, Livreur, Admin)
+│   └── ...
 ├── 📂 public/                     # Ressources Front-End (CSS, JS, images)
 │   ├── 📂 css/
 │   ├── 📂 images/
@@ -90,21 +92,25 @@ Le projet est construit de manière modulaire, marquant l'évolution entre la co
 ├── 📄 .gitignore
 ├── 📄 README.md                   # Ce fichier
 ├── 📄 router.php                  # Routeur pour le développement local (simule Vercel)
+├── 📄 schema.sql                  # Structure de la base de données (export Aiven)
+├── 📄 seed.sql                    # Données de démonstration
 └── 📄 vercel.json                 # Configuration de déploiement pour Vercel
 ```
 
-## ⚙️ Prérequis (Phase 2)
+## ⚙️ Prérequis
 
-Pour faire fonctionner l'application dynamique en local (spécialement sous Windows via WSL/Ubuntu), vous aurez besoin de :
+Pour lancer l'application en local, vous avez uniquement besoin de :
 * PHP 8.0 ou supérieur.
-* Un ordinateur sous linux ou équipé avec WSL.
+* Un terminal Linux, macOS, ou Windows avec WSL (Ubuntu).
+
+> **ℹ️ Base de données** : la BDD MySQL est hébergée sur **Aiven** (cloud). Aucune installation ni configuration MySQL locale n'est nécessaire. Les identifiants de connexion sont déjà inclus dans `api/includes/` (fichier de config).
 
 ---
 
-## 🚀 Installation et Lancement (Guide Complet)
+## 🚀 Installation et Lancement
 
-### 1. Installation de l'environnement sous WSL (Ubuntu)
-Ouvrez votre terminal WSL (Ubuntu) ou votre invite de commandes et installez les paquets nécessaires :
+### 1. Installer PHP (si nécessaire)
+Ouvrez votre terminal (WSL/Ubuntu ou Linux natif) :
 ```bash
 sudo apt update
 sudo apt install php
@@ -112,15 +118,35 @@ sudo apt install php
 
 ### 2. Récupérer le projet
 ```bash
-git clone [https://github.com/the-night7/yumland-mi2a.git](https://github.com/the-night7/yumland-mi2a.git)
+git clone https://github.com/the-night7/yumland-mi2a.git
 cd yumland-mi2a
 ```
 
 ### 3. Démarrer le serveur web
-Dans le dossier racine du projet (là où se trouve `router.php`), lancez le serveur local :
+Dans le dossier racine du projet (là où se trouve `router.php`), lancez :
 ```bash
 php -S localhost:8000 router.php
 ```
 *(Laissez ce terminal ouvert en arrière-plan pendant la navigation)*
+
+Ouvrez ensuite votre navigateur à l'adresse : **http://localhost:8000**
+
+---
+
+## 🔑 Comptes de Test
+
+Des comptes de démonstration sont disponibles pour tester chaque rôle de l'application.
+Consultez le fichier **[`docs/comptes-test.md`](docs/comptes-test.md)** pour les identifiants (email + mot de passe) de chaque profil en plus des boutons sur l'interface de connexion :
+
+| Rôle | Fichier de référence |
+|---|---|
+| 👤 Client | `docs/comptes-test.md` |
+| 👨‍🍳 Restaurateur | `docs/comptes-test.md` |
+| 🚴 Livreur | `docs/comptes-test.md` |
+| 🛡️ Administrateur | `docs/comptes-test.md` |
+
+---
+
+To-Do List des choses à compléter : [docs/todolist.md](docs/todolist.md)
 
 Projet réalisé dans le cadre de l'UE Sciences - Module Informatique 4 - CY Tech - 2025/2026.
