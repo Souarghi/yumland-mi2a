@@ -288,4 +288,30 @@ function getProduitById($id, $produits) {
     });
 </script>
 
+<!-- CARTE INTERACTIVE — Localisation du restaurant -->
+<div class="menu-container" style="margin-top: 0; padding-top: 0;">
+    <h2><i class="fas fa-map-marker-alt"></i> Nous trouver</h2>
+    <p style="color: #555; margin-bottom: 1rem;">Le Grand Miam — commandez en ligne ou venez nous rendre visite !</p>
+    <div id="map" style="height: 380px; border-radius: 8px; border: 1px solid #ddd;"></div>
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Coordonnées du restaurant — à ajuster selon l'adresse réelle
+        var lat = 49.0443, lng = 2.0828;
+        var map = L.map('map').setView([lat, lng], 16);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        L.marker([lat, lng])
+            .addTo(map)
+            .bindPopup('<strong>Le Grand Miam</strong><br>Steakhouse & Burgers XXL')
+            .openPopup();
+    });
+</script>
+
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
