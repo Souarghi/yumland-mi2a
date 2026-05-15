@@ -40,40 +40,6 @@ $pageTitle = 'Gestion des Commandes';
 include_once __DIR__ . '/../includes/header.php';
 ?>
 
-<style>
-    /* Intégration du design HTML Mockup (Cuisine - Le Grand Miam) */
-    .resto-header { background: #222; padding: 1rem; color: white; text-align: center; border-radius: 8px; margin-bottom: 20px; }
-    .resto-header h1 { margin: 0; font-size: 2rem; color: white; }
-    .resto-time { color: #ff6b00; font-size: 1.2rem; font-weight: bold; margin-top: 10px; display: block; }
-
-    .kitchen-board { display: flex; flex-wrap: wrap; gap: 20px; min-height: 70vh; }
-    @media (min-width: 900px) { .kitchen-board { flex-wrap: nowrap; } }
-    
-    .column { flex: 1; min-width: 300px; background: #f9f9f9; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); padding: 15px; }
-    .column h2 { padding: 15px; margin: -15px -15px 15px -15px; text-align: center; color: white; border-top-left-radius: 8px; border-top-right-radius: 8px; font-size: 1.3rem; }
-    
-    .col-waiting h2 { background: var(--color-primary, #d32f2f); }
-    .col-prep h2 { background: #f57c00; }
-    .col-ready h2 { background: #388e3c; }
-    
-    .order-card { background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .col-waiting .order-card { border-left: 5px solid var(--color-primary, #d32f2f); }
-    .col-prep .order-card { border-left: 5px solid #f57c00; }
-    .col-ready .order-card { border-left: 5px solid #388e3c; }
-
-    .order-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; font-size: 1.2rem; font-weight: bold; color: #333; }
-    .order-items { list-style: none; padding: 0; margin: 0 0 15px 0; }
-    .order-items li { margin-bottom: 8px; font-size: 1.05rem; }
-    
-    .item-qty { font-weight: bold; background: #eee; padding: 2px 6px; border-radius: 4px; margin-right: 5px; }
-    .item-opts { display: block; font-size: 0.85rem; color: var(--color-primary, #d32f2f); margin-left: 30px; font-style: italic; }
-    
-    .btn-move { width: 100%; padding: 12px; font-size: 1.1rem; border: none; border-radius: 4px; font-weight: bold; color: white; cursor: pointer; transition: opacity 0.2s; margin-top: 10px; }
-    .btn-move:hover { opacity: 0.9; }
-    .btn-start { background: #f57c00; }
-    .btn-ready { background: #388e3c; }
-    .btn-deliver { background: #222; }
-</style>
 
 <section class="restaurateur-section">
     <div class="container" style="max-width: 1400px;">
