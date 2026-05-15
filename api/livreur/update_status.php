@@ -2,8 +2,7 @@
 // api/livreur/update_status.php
 // Endpoint AJAX — Phase 3 : Interface Livreur
 header('Content-Type: application/json');
-session_start();
-
+// La session est démarrée centralement dans config.php
 require_once __DIR__ . '/../includes/config.php';
 
 // Sécurité : Seul un Livreur (ou Admin) peut valider la livraison
