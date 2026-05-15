@@ -131,52 +131,6 @@ $pageTitle = 'Redirection CY BANK';
 include_once __DIR__ . '/includes/header.php';
 ?>
 
-<style>
-    .redirect-wrapper {
-        background-color: var(--color-bg, #FDFBF7); /* Crème Sauce */
-        min-height: calc(100vh - 200px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .redirect-container {
-        background: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 15px 35px rgba(45, 45, 45, 0.15); /* Ombre charbon */
-        border-top: 6px solid var(--color-primary, #D32F2F); /* Rouge Grill */
-        padding: 50px 30px;
-        text-align: center;
-        max-width: 500px;
-        width: 100%;
-    }
-    .redirect-container h2 {
-        color: var(--color-secondary, #2D2D2D); /* Noir Charbon */
-        margin-bottom: 10px;
-        font-family: 'Oswald', sans-serif;
-        text-transform: uppercase;
-    }
-    .spinner {
-        font-size: 4rem;
-        color: var(--color-primary, #D32F2F);
-        margin-bottom: 20px;
-        animation: spin 1.2s linear infinite;
-    }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-    
-    .btn-force {
-        display: inline-block;
-        margin-top: 25px;
-        padding: 12px 25px;
-        background: var(--color-primary, #D32F2F);
-        color: var(--color-bg, #FDFBF7);
-        text-decoration: none;
-        border-radius: 4px;
-        font-weight: bold;
-        transition: transform 0.2s, background 0.2s;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    .btn-force:hover { background: #B71C1C; transform: scale(1.02); }
-</style>
 
 <div class="redirect-wrapper">
     <div class="redirect-container">
