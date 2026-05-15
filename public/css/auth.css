@@ -1,0 +1,38 @@
+.auth-container { background: white; padding: 40px !important; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border-top: 5px solid var(--color-primary, #d32f2f); }
+.auth-form .form-group input { padding: 12px 15px; font-size: 1.1rem; border-radius: 6px; border: 1px solid #ddd; width: 100%; box-sizing: border-box; transition: border-color 0.3s; }
+.auth-form .form-group input:focus { border-color: var(--color-primary, #d32f2f); outline: none; }
+.btn-login-modern { width: 100%; padding: 15px; font-size: 1.2rem; font-weight: bold; border-radius: 8px; background: linear-gradient(135deg, var(--color-primary, #d32f2f), #b71c1c); color: white; border: none; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3); margin-top: 15px; }
+.btn-login-modern:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(211, 47, 47, 0.4); }
+
+/* Utilitaires pour l'auth */
+.auth-container-center { max-width: 500px; margin: 0 auto; }
+.auth-alert-info { margin-bottom: 20px; background-color: var(--color-accent); color: var(--color-secondary); border: none; }
+.auth-alert-custom { padding: 10px; margin-bottom: 15px; border: 1px solid transparent; }
+.auth-alert-danger { color: red; border-color: red; }
+.auth-alert-success { color: green; border-color: green; }
+.auth-links-center { text-align: center; margin-top: 15px; }
+.auth-links-top { margin-top: 20px; }
+
+/* Mot de passe & Barre de progression */
+.password-wrapper { position: relative; }
+.password-input { width: 100%; padding-right: 40px !important; }
+.btn-toggle-password { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 0; font-size: 1.2rem; }
+.pwd-input-wrapper { display: flex; align-items: center; gap: 8px; }
+.pwd-input-flex { flex: 1; }
+.pwd-counter { color: #888; }
+.pwd-strength-bar { margin-top: 6px; height: 5px; border-radius: 3px; background: #e0e0e0; overflow: hidden; display: none; }
+.pwd-strength-fill { height: 100%; width: 0%; border-radius: 3px; transition: width 0.3s ease, background-color 0.3s ease; }
+.pwd-strength-label { display: none; font-size: 0.78rem; margin-top: 3px; }
+
+/* Encadré Comptes de test */
+.test-accounts-box { margin-top: 30px; padding: 15px; background: var(--color-bg); border-left: 4px solid var(--color-primary); }
+.test-accounts-title { font-size: 1.1rem; margin-bottom: 10px; color: var(--color-secondary); }
+.test-accounts-desc { font-size: 0.9rem; color: #666; margin-bottom: 15px; }
+.test-accounts-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.test-accounts-row.last { margin-bottom: 0; }
+.btn-test-account { padding: 6px 12px; font-size: 0.85rem; }
+
+.bg-client { background: #006064; }
+.bg-admin { background: #880e4f; }
+.bg-resto { background: #e65100; }
+.bg-livreur { background: #2e7d32; }

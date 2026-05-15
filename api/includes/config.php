@@ -68,24 +68,42 @@ try {
 
 } catch (PDOException $e) {
     // Message d'erreur personnalisé en cas de mise en veille de la BDD Aiven (Plan Gratuit)
-    $errorMsg = '<div style="font-family: sans-serif; max-width: 600px; margin: 50px auto; padding: 30px; border: 3px solid #D32F2F; border-radius: 8px; background-color: #FDFBF7; color: #2D2D2D; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">';
-    $errorMsg .= '<h2 style="color: #D32F2F; margin-top: 0; text-transform: uppercase;">⚠️ Base de données en veille</h2>';
-    $errorMsg .= '<p style="font-size: 1.1rem; line-height: 1.5;">Notre application utilise un plan gratuit pour la base de données SQL. Celle-ci se désactive automatiquement après quelques jours d\'inactivité.</p>';
-    $errorMsg .= '<p style="font-size: 1.2rem;"><strong>Pas de panique, il faut simplement la réactiver !</strong></p>';
-    $errorMsg .= '<p>Veuillez nous envoyer un message pour que nous puissions la relancer immédiatement :</p>';
-    $errorMsg .= '<div style="background: white; padding: 15px; border-radius: 6px; margin: 20px 0; border: 1px solid #eee; text-align: left; display: inline-block;">';
-    $errorMsg .= '<p style="margin: 5px 0;">📞 <strong>Myriam Bensaid</strong> : 06 68 39 92 06</p>';
-    $errorMsg .= '<p style="margin: 5px 0;">📞 <strong>Sheryne Ouarghi</strong> : 06 17 67 77 02</p>';
-    $errorMsg .= '<p style="margin: 10px 0 0 0; font-size: 0.9em; color: #666; font-style: italic;">(Ou contactez-nous via Teams / Mail de l\'école)</p>';
-    $errorMsg .= '</div>';
+    http_response_code(503); // Service Unavailable
+    $errorTitle = 'Base de données en veille';
+
+    $errorContent = '<div class="db-error-container">';
+    $errorContent .= '<h2>⚠️ ' . $errorTitle . '</h2>';
+    $errorContent .= '<p class="error-intro">Notre application utilise un plan gratuit pour la base de données SQL. Celle-ci se désactive automatiquement après quelques jours d\'inactivité.</p>';
+    $errorContent .= '<p class="error-solution">Pas de panique, il faut simplement la réactiver !</p>';
+    $errorContent .= '<p>Veuillez nous envoyer un message pour que nous puissions la relancer immédiatement :</p>';
+    $errorContent .= '<div class="contact-box">';
+    $errorContent .= '<p>📞 <strong>Myriam Bensaid</strong> : 06 68 39 92 06</p>';
+    $errorContent .= '<p>📞 <strong>Sheryne Ouarghi</strong> : 06 17 67 77 02</p>';
+    $errorContent .= '<p class="contact-note">(Ou contactez-nous via Teams / Mail de l\'école)</p>';
+    $errorContent .= '</div>';
     
     if (DEBUG_MODE) {
-        $errorMsg .= '<hr style="margin-top: 20px; border: 0; border-top: 1px solid #ccc;">';
-        $errorMsg .= '<p style="font-size: 0.8rem; color: #666; text-align: left;"><strong>Erreur technique :</strong> ' . htmlspecialchars($e->getMessage()) . '</p>';
+        $errorContent .= '<hr>';
+        $errorContent .= '<p class="debug-info"><strong>Erreur technique :</strong> ' . htmlspecialchars($e->getMessage()) . '</p>';
     }
-    $errorMsg .= '</div>';
+    $errorContent .= '</div>';
     
-    die($errorMsg);
+    // On génère une page HTML complète pour pouvoir lier le CSS
+    $fullPageError = <<<HTML
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$errorTitle - Le Grand Miam</title>
+    <link rel="stylesheet" href="/css/errors.css">
+</head>
+<body>
+    $errorContent
+</body>
+</html>
+HTML;
+    die($fullPageError);
 }
 
 /**
@@ -93,7 +111,7 @@ try {
  */
 function debug($var) {
     if (DEBUG_MODE) {
-        echo '<pre style="background:#f4f4f4; padding:10px; border:1px solid #ccc; font-size:12px;">';
+        echo '<pre class="debug-pre">';
         print_r($var);
         echo '</pre>';
     }

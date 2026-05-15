@@ -38,7 +38,7 @@ function registerUser($userData) {
         }
 
         // Insérer le nouvel utilisateur (On ignore le 'username' car il n'est pas dans la table SQL)
-        $stmt = $pdo->prepare("INSERT INTO Utilisateurs (nom, prenom, email, mot_de_passe, role, tel, adresse) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO Utilisateurs (nom, prenom, email, mot_de_passe, role, tel, rue, code_postal, ville, complement) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $userData['nom'],
             $userData['prenom'],
@@ -46,7 +46,10 @@ function registerUser($userData) {
             password_hash($userData['password'], PASSWORD_DEFAULT),
             'Client', // Rôle par défaut
             $userData['telephone'] ?? '',
-            $userData['adresse'] ?? ''
+            $userData['rue'] ?? '',
+            $userData['code_postal'] ?? '',
+            $userData['ville'] ?? '',
+            $userData['complement'] ?? ''
         ]);
         return true;
     } catch (PDOException $e) {

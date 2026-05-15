@@ -1,0 +1,72 @@
+/*
+ * Feuille de style pour les pages d'erreur critiques (ex: connexion BDD)
+ */
+
+body {
+    background-color: #fdfbf7;
+    font-family: sans-serif;
+    color: #2D2D2D;
+    margin: 0;
+    padding: 20px;
+}
+
+.db-error-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 30px;
+    border: 3px solid #D32F2F;
+    border-radius: 8px;
+    background-color: #FDFBF7;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.db-error-container h2 {
+    color: #D32F2F;
+    margin-top: 0;
+    text-transform: uppercase;
+}
+
+.db-error-container .error-intro {
+    font-size: 1.1rem;
+    line-height: 1.5;
+}
+
+.db-error-container .error-solution {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.db-error-container .contact-box {
+    background: white;
+    padding: 15px;
+    border-radius: 6px;
+    margin: 20px 0;
+    border: 1px solid #eee;
+    text-align: left;
+    display: inline-block;
+}
+
+.db-error-container .contact-box p {
+    margin: 5px 0;
+}
+
+.db-error-container .contact-box .contact-note {
+    margin: 10px 0 0 0;
+    font-size: 0.9em;
+    color: #666;
+    font-style: italic;
+}
+
+.db-error-container hr {
+    margin-top: 20px;
+    border: 0;
+    border-top: 1px solid #ccc;
+}
+
+.db-error-container .debug-info {
+    font-size: 0.8rem;
+    color: #666;
+    text-align: left;
+    word-wrap: break-word;
+}

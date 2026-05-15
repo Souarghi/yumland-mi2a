@@ -1,0 +1,31 @@
+/* Permet au footer de toujours rester collé en bas de l'écran */
+html, body { height: 100%; margin: 0; }
+body { display: flex; flex-direction: column; min-height: 100vh; }
+main { flex: 1 0 auto; position: relative; z-index: 1 !important; }
+
+/* Forçage ultra-prioritaire UNIQUEMENT pour le header principal */
+header.main-site-header { position: sticky !important; top: 0 !important; z-index: 999999 !important; background-color: rgba(255, 255, 255, 0.98) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+
+/* Design du menu déroulant (Avatar client) */
+.nav-links .dropdown { position: relative; display: inline-block; }
+.nav-links .dropdown-toggle { cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 4px; transition: background 0.2s; }
+.nav-links .dropdown-toggle:hover { background: rgba(0,0,0,0.05); }
+.nav-links .dropdown-menu { display: none; position: absolute; top: 100%; right: 0; background-color: var(--color-bg, #ffffff); min-width: 230px; box-shadow: 0px 8px 24px rgba(0,0,0,0.15); z-index: 999999 !important; border-radius: 8px; padding: 10px 0; list-style: none; border: 1px solid #eee; margin-top: 0; }
+.nav-links .dropdown:hover .dropdown-menu { display: block; }
+.nav-links .dropdown-menu.show { display: block !important; }
+.nav-links .dropdown-menu li { width: 100%; margin: 0; }
+.nav-links .dropdown-menu li a { color: var(--color-secondary, #333); padding: 12px 20px; text-decoration: none; display: block; transition: all 0.2s ease-in-out; font-weight: normal; }
+.nav-links .dropdown-menu li a:hover { background-color: #f8f9fa; color: var(--color-primary, #d32f2f); padding-left: 25px; }
+
+/* --- MODE DYSLEXIE (Accessibilité) --- */
+.dyslexic-mode *:not(i):not(.fas):not(.fa):not(.far) { font-family: 'OpenDyslexic', 'Comic Sans MS', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif !important; letter-spacing: 0.05em !important; word-spacing: 0.1em !important; line-height: 1.6 !important; }
+
+/* Boutons Header Spécifiques */
+.btn-nav-cuisine { font-size: 1.1rem; padding: 12px 18px; background: #e65100; color: white; border-radius: 8px; font-weight: bold; }
+.btn-nav-courses { font-size: 1.1rem; padding: 12px 18px; background: #2e7d32; color: white; border-radius: 8px; font-weight: bold; }
+.btn-accessibility { background:none; border:1px solid var(--color-grey-light); border-radius:20px; padding:4px 10px; cursor:pointer; font-size:0.8rem; color: inherit; }
+.accessibility-container { display:flex; flex-direction:column; gap:5px; align-items:flex-end; }
+.cart-icon-custom { font-size: 1.2rem; }
+
+/* Utilitaire de debug global */
+.debug-pre { background:#f4f4f4; padding:10px; border:1px solid #ccc; font-size:12px; }

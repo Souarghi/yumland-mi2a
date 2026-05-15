@@ -67,8 +67,8 @@ function getProduitById($id, $produits) {
     <p class="intro-text">Steakhouse, Grillades & Burgers XXL - Une expérience culinaire unique</p>
     
     <!-- Barre de recherche et filtre -->
-    <div class="search-filter" style="margin-bottom:2rem; display: flex; gap: 1rem; align-items: center;">
-        <input type="text" id="searchInput" placeholder="Rechercher un plat…" onkeyup="applyFilters()" class="filter-input" style="flex-grow: 1;">
+    <div class="search-filter">
+        <input type="text" id="searchInput" placeholder="Rechercher un plat…" onkeyup="applyFilters()" class="filter-input">
         <select id="categoryFilter" onchange="applyFilters()" class="filter-input">
             <option value="all">Toutes catégories</option>
             <option value="Entrées">Entrées</option>
@@ -158,7 +158,7 @@ function getProduitById($id, $produits) {
             <li><strong>PLAT</strong> (au choix) : Burger "Le Grand Miam", Le Pavé du Chef ou Veggie Grill</li>
             <li><strong>BOISSON</strong> : Coca-Cola, Fanta, Sprite (33cl), Verre de vin (12cl) ou Café</li>
         </ul>
-        <button class="btn-primary" style="margin-top: 10px;" 
+        <button class="btn-primary"
                 data-id="<?= $menuLunch['id_produit'] ?>" 
                 data-nom="<?= htmlspecialchars($menuLunch['nom'], ENT_QUOTES) ?>" 
                 data-options='<?= htmlspecialchars($menuLunch['options_config'], ENT_QUOTES) ?>'
@@ -175,7 +175,7 @@ function getProduitById($id, $produits) {
             <li><strong>DESSERT</strong> : Sundae Vanille ou Compote de fruits</li>
             <li><strong>BOISSON</strong> : Sirop à l'eau ou Jus de pomme</li>
         </ul>
-        <button class="btn-primary" style="margin-top: 10px;" 
+        <button class="btn-primary"
                 data-id="<?= $menuCowboy['id_produit'] ?>" 
                 data-nom="<?= htmlspecialchars($menuCowboy['nom'], ENT_QUOTES) ?>" 
                 data-options='<?= htmlspecialchars($menuCowboy['options_config'], ENT_QUOTES) ?>'
@@ -193,7 +193,7 @@ function getProduitById($id, $produits) {
             <li><strong>DESSERT</strong> : Cheesecake, Brioche Perdue ou Coupe de Glace</li>
             <li><strong>BOISSON INCLUSE</strong> : Pinte de Bière (50cl) ou Soft au choix (50cl)</li>
         </ul>
-        <button class="btn-primary" style="margin-top: 10px;" 
+        <button class="btn-primary"
                 data-id="<?= $menuGrill['id_produit'] ?>" 
                 data-nom="<?= htmlspecialchars($menuGrill['nom'], ENT_QUOTES) ?>" 
                 data-options='<?= htmlspecialchars($menuGrill['options_config'], ENT_QUOTES) ?>'

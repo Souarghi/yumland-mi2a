@@ -16,11 +16,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $nom = trim($_POST['nom'] ?? '');
     $prenom = trim($_POST['prenom'] ?? '');
     $tel = trim($_POST['tel'] ?? '');
-    $adresse = trim($_POST['adresse'] ?? '');
+    $rue = trim($_POST['rue'] ?? '');
+    $code_postal = trim($_POST['code_postal'] ?? '');
+    $ville = trim($_POST['ville'] ?? '');
+    $complement = trim($_POST['complement'] ?? '');
 
     try {
-        $stmt = $pdo->prepare("UPDATE Utilisateurs SET nom = ?, prenom = ?, tel = ?, adresse = ? WHERE id_user = ?");
-        $stmt->execute([$nom, $prenom, $tel, $adresse, $user_id]);
+        $stmt = $pdo->prepare("UPDATE Utilisateurs SET nom = ?, prenom = ?, tel = ?, rue = ?, code_postal = ?, ville = ?, complement = ? WHERE id_user = ?");
+        $stmt->execute([$nom, $prenom, $tel, $rue, $code_postal, $ville, $complement, $user_id]);
         
         // Mettre à jour le nom en session au cas où il a changé
         $_SESSION['user_name'] = $nom;
@@ -52,6 +55,8 @@ if ($miams_historique < 1000) {
 
 $currentPage = 'profil';
 $pageTitle = 'Mon Profil';
+
+$additionalCss = ['/css/profil.css'];
 include_once __DIR__ . '/../includes/header.php';
 ?>
 <script src="/js/profil.js" defer></script>
@@ -59,10 +64,10 @@ include_once __DIR__ . '/../includes/header.php';
 <section class="container form-page">
     <div class="form-container card-style">
         <h2>⚙️ Paramètres du compte</h2>
-        <div style="background: var(--color-bg); padding: 15px; border-left: 4px solid var(--color-accent); margin-bottom: 20px;">
-            <h3 style="margin-bottom: 5px;">Club Le Grand Miam</h3>
+        <div class="profil-stats-box">
+            <h3 class="profil-stats-title">Club Le Grand Miam</h3>
             <p>Solde Miams actuel : <strong><?= htmlspecialchars($miams) ?> 🍔</strong></p>
-            <p style="font-size: 0.9em; color: #666;">Total Miams cumulés (à vie) : <?= htmlspecialchars($miams_historique) ?></p>
+            <p class="profil-stats-historique">Total Miams cumulés (à vie) : <?= htmlspecialchars($miams_historique) ?></p>
             <p>Statut fidélité : <strong><?= $statut_miams ?></strong></p>
         </div>
         
@@ -75,21 +80,35 @@ include_once __DIR__ . '/../includes/header.php';
         <form action="/api/client/profil.php" method="POST" id="profile-form">
             <input type="hidden" name="action" value="update_profile">
             
-            <div class="form-group" style="margin-bottom: 15px;">
+            <div class="form-group form-group-spacing">
                 <label for="nom">Nom :</label>
                 <input type="text" data-field="nom" value="<?= htmlspecialchars($user['nom'] ?? '') ?>" disabled>
             </div>
-            <div class="form-group" style="margin-bottom: 15px;">
+            <div class="form-group form-group-spacing">
                 <label for="prenom">Prénom :</label>
                 <input type="text" data-field="prenom" value="<?= htmlspecialchars($user['prenom'] ?? '') ?>" disabled>
             </div>
-            <div class="form-group" style="margin-bottom: 15px;">
+            <div class="form-group form-group-spacing">
                 <label for="tel">Téléphone :</label>
                 <input type="text" data-field="tel" value="<?= htmlspecialchars($user['tel'] ?? '') ?>" disabled>
             </div>
-            <div class="form-group" style="margin-bottom: 25px;">
-                <label for="adresse">Adresse de livraison par défaut :</label>
-                <input type="text" data-field="adresse" value="<?= htmlspecialchars($user['adresse'] ?? '') ?>" disabled>
+            <div class="form-group form-group-spacing">
+                <label for="rue">Rue / Numéro :</label>
+                <input type="text" data-field="rue" value="<?= htmlspecialchars($user['rue'] ?? '') ?>" disabled>
+            </div>
+            <div class="form-row form-row-spacing">
+                <div class="form-group flex-1">
+                    <label for="code_postal">Code Postal :</label>
+                    <input type="text" data-field="code_postal" value="<?= htmlspecialchars($user['code_postal'] ?? '') ?>" disabled>
+                </div>
+                <div class="form-group flex-2">
+                    <label for="ville">Ville :</label>
+                    <input type="text" data-field="ville" value="<?= htmlspecialchars($user['ville'] ?? '') ?>" disabled>
+                </div>
+            </div>
+            <div class="form-group form-group-spacing-lg">
+                <label for="complement">Complément d'adresse (Bâtiment, Étage...) :</label>
+                <input type="text" data-field="complement" value="<?= htmlspecialchars($user['complement'] ?? '') ?>" disabled>
             </div>
             <div id="profil-message"></div>
             <button type="button" id="btn-edit-profil">✏️ Modifier</button>

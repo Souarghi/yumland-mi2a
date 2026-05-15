@@ -56,11 +56,11 @@ Le projet est construit de manière modulaire, marquant l'évolution entre la co
 
 * **Phase 3 : Interactivité et Requêtes Asynchrones**
   * **Début :** 06/04/2026 - commit `0250fa4`
-  * **Fin :** 24/04/2026 - commit `<!-- TODO : compléter le hash de fin de phase 3 -->`
+  * **Fin :** 24/04/2026 - commit `7b4e9a2`
 
 * **Phase 4 : Standardisation, Sécurité et Soutenance Finale**
   * **Début :** 24/04/2026
-  * **Fin :** À venir...
+  * **Fin :** 15/05/2026 - Version Finale `v3.0`
 
 ## 📂 Organisation du Projet
 

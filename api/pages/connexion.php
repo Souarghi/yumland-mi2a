@@ -14,61 +14,22 @@ $csrf_token = generateCSRFToken();
 $currentPage = 'connexion';
 $pageTitle = 'Connexion';
 
+// Ajout de la feuille de style spécifique
+$additionalCss = ['/css/auth.css'];
+
 // Inclure le header
 include_once __DIR__ . '/../includes/header.php';
 ?>
 
-<style>
-    /* Styles spécifiques de la page d'authentification */
-    .auth-container {
-        background: white;
-        padding: 40px !important;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        border-top: 5px solid var(--color-primary, #d32f2f);
-    }
-    .auth-form .form-group input {
-        padding: 12px 15px;
-        font-size: 1.1rem;
-        border-radius: 6px;
-        border: 1px solid #ddd;
-        width: 100%;
-        box-sizing: border-box;
-        transition: border-color 0.3s;
-    }
-    .auth-form .form-group input:focus {
-        border-color: var(--color-primary, #d32f2f);
-        outline: none;
-    }
-    .btn-login-modern {
-        width: 100%; 
-        padding: 15px; 
-        font-size: 1.2rem; 
-        font-weight: bold; 
-        border-radius: 8px; 
-        background: linear-gradient(135deg, var(--color-primary, #d32f2f), #b71c1c); 
-        color: white; 
-        border: none; 
-        cursor: pointer; 
-        transition: transform 0.2s, box-shadow 0.2s; 
-        box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3);
-        margin-top: 15px;
-    }
-    .btn-login-modern:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(211, 47, 47, 0.4);
-    }
-</style>
-
 <section class="auth-section">
     <div class="container">
-        <div class="auth-container" style="max-width: 500px; margin: 0 auto;">
+        <div class="auth-container auth-container-center">
             <h2>Connexion</h2>
             
             <div id="login-error" class="alert alert-danger" style="display: none;"></div>
             
             <?php if (isset($_GET['error']) && $_GET['error'] === 'must_login'): ?>
-                <div class="alert alert-info" style="margin-bottom: 20px; background-color: var(--color-accent); color: var(--color-secondary); border: none;">
+                <div class="alert alert-info auth-alert-info">
                     ⚠️ <strong>Accès requis :</strong> Vous devez vous connecter ou créer un compte pour valider votre panier et procéder au paiement.
                 </div>
             <?php endif; ?>
@@ -78,41 +39,41 @@ include_once __DIR__ . '/../includes/header.php';
                 
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required autocomplete="username">
+                    <input type="email" id="email" name="email" value="<?= htmlspecialchars($_GET['email'] ?? '') ?>" required autocomplete="username">
                 </div>
                 
                 <div class="form-group">
                     <label for="password">Mot de passe</label>
-                    <div style="position: relative;">
-                        <input type="password" id="password" name="password" required autocomplete="current-password" style="width: 100%; padding-right: 40px;">
-                        <button type="button" class="toggle-password" data-target="password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 0; font-size: 1.2rem;">👁️</button>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" name="password" required autocomplete="current-password" class="password-input">
+                        <button type="button" class="toggle-password btn-toggle-password" data-target="password">👁️</button>
                     </div>
                 </div>
                 
                 <button type="submit" class="btn-login-modern">Se connecter 🔐</button>
             </form>
             
-            <div class="auth-links" style="text-align: center; margin-top: 15px;">
+            <div class="auth-links auth-links-center">
                 <p>Pas encore de compte ? <a href="/api/pages/inscription.php">S'inscrire</a></p>
             </div>
 
-            <div class="test-accounts card-style" style="margin-top: 30px; padding: 15px; background: var(--color-bg); border-left: 4px solid var(--color-primary);">
-                <h3 style="font-size: 1.1rem; margin-bottom: 10px; color: var(--color-secondary);">🧪 Accès rapides (Démo)</h3>
-                <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">Cliquez sur un profil pour auto-remplir les identifiants :</p>
+            <div class="test-accounts card-style test-accounts-box">
+                <h3 class="test-accounts-title">🧪 Accès rapides (Démo)</h3>
+                <p class="test-accounts-desc">Cliquez sur un profil pour auto-remplir les identifiants :</p>
                 
-                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
-                    <button type="button" class="btn-primary" style="padding: 6px 12px; font-size: 0.85rem; background: #006064;" onclick="fillLogin('client1@example.com', 'password')">👤 Client 1</button>
-                    <button type="button" class="btn-primary" style="padding: 6px 12px; font-size: 0.85rem; background: #006064;" onclick="fillLogin('client2@example.com', 'password')">👤 Client 2</button>
-                    <button type="button" class="btn-primary" style="padding: 6px 12px; font-size: 0.85rem; background: #006064;" onclick="fillLogin('client3@example.com', 'password')">👤 Client 3</button>
-                    <button type="button" class="btn-primary" style="padding: 6px 12px; font-size: 0.85rem; background: #006064;" onclick="fillLogin('client4@example.com', 'password')">👤 Client 4</button>
-                    <button type="button" class="btn-primary" style="padding: 6px 12px; font-size: 0.85rem; background: #006064;" onclick="fillLogin('client5@example.com', 'password')">👤 Client 5</button>
+                <div class="test-accounts-row">
+                    <button type="button" class="btn-primary btn-test-account bg-client" onclick="fillLogin('client1@example.com', 'password')">👤 Client 1</button>
+                    <button type="button" class="btn-primary btn-test-account bg-client" onclick="fillLogin('client2@example.com', 'password')">👤 Client 2</button>
+                    <button type="button" class="btn-primary btn-test-account bg-client" onclick="fillLogin('client3@example.com', 'password')">👤 Client 3</button>
+                    <button type="button" class="btn-primary btn-test-account bg-client" onclick="fillLogin('client4@example.com', 'password')">👤 Client 4</button>
+                    <button type="button" class="btn-primary btn-test-account bg-client" onclick="fillLogin('client5@example.com', 'password')">👤 Client 5</button>
                 </div>
                 
-                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                    <button type="button" class="btn-primary" style="padding: 6px 12px; font-size: 0.85rem; background: #880e4f;" onclick="fillLogin('admin1@grandmiam.com', 'password')">🛡️ Admin 1</button>
-                    <button type="button" class="btn-primary" style="padding: 6px 12px; font-size: 0.85rem; background: #880e4f;" onclick="fillLogin('admin2@grandmiam.com', 'password')">🛡️ Admin 2</button>
-                    <button type="button" class="btn-primary" style="padding: 6px 12px; font-size: 0.85rem; background: #e65100;" onclick="fillLogin('resto@grandmiam.com', 'password')">👨‍🍳 Chef</button>
-                    <button type="button" class="btn-primary" style="padding: 6px 12px; font-size: 0.85rem; background: #2e7d32;" onclick="fillLogin('livreur1@grandmiam.com', 'password')">🛵 Livreur</button>
+                <div class="test-accounts-row last">
+                    <button type="button" class="btn-primary btn-test-account bg-admin" onclick="fillLogin('admin1@grandmiam.com', 'password')">🛡️ Admin 1</button>
+                    <button type="button" class="btn-primary btn-test-account bg-admin" onclick="fillLogin('admin2@grandmiam.com', 'password')">🛡️ Admin 2</button>
+                    <button type="button" class="btn-primary btn-test-account bg-resto" onclick="fillLogin('resto@grandmiam.com', 'password')">👨‍🍳 Chef</button>
+                    <button type="button" class="btn-primary btn-test-account bg-livreur" onclick="fillLogin('livreur1@grandmiam.com', 'password')">🛵 Livreur</button>
                 </div>
             </div>
         </div>

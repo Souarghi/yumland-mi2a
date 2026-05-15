@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const msgBox    = document.getElementById("profil-message");
 
   // Champs éditables
-  const fields = ["nom", "prenom", "tel", "adresse"];
+  const fields = ["nom", "prenom", "tel", "rue", "code_postal", "ville", "complement"];
 
   // Valeurs originales (pour annulation)
   let originalValues = {};
@@ -65,8 +65,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await response.json();
 
         if (msgBox) {
+          msgBox.className = data.success ? 'success' : 'error';
           msgBox.textContent = data.message;
-          msgBox.style.color = data.success ? "green" : "red";
         }
 
         if (data.success) {
@@ -80,7 +80,10 @@ document.addEventListener("DOMContentLoaded", () => {
           cancelBtn.style.display = "none";
         }
       } catch (err) {
-        if (msgBox) { msgBox.textContent = "Erreur réseau."; msgBox.style.color = "red"; }
+        if (msgBox) {
+          msgBox.className = 'error';
+          msgBox.textContent = "Erreur réseau.";
+        }
       }
     });
   }

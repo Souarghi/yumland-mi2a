@@ -18,6 +18,7 @@ $telephone_val = '';
 $rue_val = '';
 $cp_val = '';
 $ville_val = '';
+$complement_val = '';
 
 // Traitement du formulaire d'inscription
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -36,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $rue_val = trim($_POST['rue'] ?? '');
         $cp_val = trim($_POST['code_postal'] ?? '');
         $ville_val = trim($_POST['ville'] ?? '');
+        $complement_val = trim($_POST['complement'] ?? '');
         
         // Validation des champs
         if (empty($password) || empty($confirm_password) || empty($email_val) || empty($nom_val) || empty($prenom_val) || empty($rue_val) || empty($cp_val) || empty($ville_val)) {
@@ -56,7 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'telephone' => $telephone_val,
                 'rue' => $rue_val,
                 'code_postal' => $cp_val,
-                'ville' => $ville_val
+                'ville' => $ville_val,
+                'complement' => $complement_val
             ];
             
             // Appel à la base de données
@@ -78,6 +81,9 @@ $csrf_token = generateCSRFToken();
 $currentPage = 'inscription';
 $pageTitle = 'Inscription';
 
+// Ajout de la feuille de style spécifique
+$additionalCss = ['/css/auth.css'];
+
 // Inclure le header
 include_once __DIR__ . '/../includes/header.php';
 ?>
@@ -88,13 +94,13 @@ include_once __DIR__ . '/../includes/header.php';
             <h2>Créer un compte</h2>
             
             <?php if (!empty($error)): ?>
-                <div class="alert alert-danger" style="color: red; padding: 10px; border: 1px solid red; margin-bottom: 15px;">
+                <div class="alert alert-danger auth-alert-custom auth-alert-danger">
                     <?= htmlspecialchars($error) ?>
                 </div>
             <?php endif; ?>
             
             <?php if (!empty($success)): ?>
-                <div class="alert alert-success" style="color: green; padding: 10px; border: 1px solid green; margin-bottom: 15px;">
+                <div class="alert alert-success auth-alert-custom auth-alert-success">
                     <?= htmlspecialchars($success) ?>
                     <p><a href="/api/pages/connexion.php">Se connecter</a></p>
                 </div>
@@ -122,20 +128,20 @@ include_once __DIR__ . '/../includes/header.php';
                     <div class="form-row">
                         <div class="form-group">
                             <label for="password">Mot de passe *</label>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <input type="password" id="password" name="password" required autocomplete="new-password" style="flex: 1;">
+                            <div class="pwd-input-wrapper">
+                                <input type="password" id="password" name="password" required autocomplete="new-password" class="pwd-input-flex">
                                 <button type="button" class="toggle-password" data-target="password">👁️</button>
                             </div>
-                            <small id="pwd-counter" style="color: #888;">0 / 8 — minimum 8 caractères</small>
-                            <div id="pwd-strength-bar" style="margin-top: 6px; height: 5px; border-radius: 3px; background: #e0e0e0; overflow: hidden; display: none;">
-                                <div id="pwd-strength-fill" style="height: 100%; width: 0%; border-radius: 3px; transition: width 0.3s ease, background-color 0.3s ease;"></div>
+                            <small id="pwd-counter" class="pwd-counter">0 / 8 — minimum 8 caractères</small>
+                            <div id="pwd-strength-bar" class="pwd-strength-bar">
+                                <div id="pwd-strength-fill" class="pwd-strength-fill"></div>
                             </div>
-                            <small id="pwd-strength-label" style="display: none; font-size: 0.78rem; margin-top: 3px;"></small>
+                            <small id="pwd-strength-label" class="pwd-strength-label"></small>
                         </div>
                         <div class="form-group">
                             <label for="confirm_password">Confirmer le mot de passe *</label>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <input type="password" id="confirm_password" name="confirm_password" required autocomplete="new-password" style="flex: 1;">
+                            <div class="pwd-input-wrapper">
+                                <input type="password" id="confirm_password" name="confirm_password" required autocomplete="new-password" class="pwd-input-flex">
                                 <button type="button" class="toggle-password" data-target="confirm_password">👁️</button>
                             </div>
                         </div>
@@ -149,6 +155,11 @@ include_once __DIR__ . '/../includes/header.php';
                     <div class="form-group">
                         <label for="rue">Rue / Numéro *</label>
                         <input type="text" id="rue" name="rue" value="<?= htmlspecialchars($rue_val) ?>" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="complement">Complément (Bâtiment, Étage...)</label>
+                        <input type="text" id="complement" name="complement" value="<?= htmlspecialchars($complement_val) ?>">
                     </div>
                     
                     <div class="form-row">
@@ -165,7 +176,7 @@ include_once __DIR__ . '/../includes/header.php';
                     <button type="submit" class="btn-primary">S'inscrire</button>
                 </form>
                 
-                <div class="auth-links" style="margin-top: 20px;">
+                <div class="auth-links auth-links-top">
                     <p>Déjà inscrit ? <a href="/api/pages/connexion.php">Se connecter</a></p>
                 </div>
             <?php endif; ?>

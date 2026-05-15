@@ -1,0 +1,19 @@
+/*
+ * Feuille de style pour la page Carte (/api/pages/carte.php)
+ */
+
+.search-filter {
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap; /* Pour une meilleure responsivité */
+}
+
+.search-filter #searchInput {
+    flex-grow: 1;
+}
+
+.menu-formule .btn-primary {
+    margin-top: 10px;
+}

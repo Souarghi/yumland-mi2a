@@ -120,19 +120,19 @@ include_once __DIR__ . '/../includes/header.php';
         <h1>Mes Commandes</h1>
         
         <?php if (isset($_GET['success']) && $_GET['success'] === 'commande_validee'): ?>
-            <div class="alert alert-success" style="margin-bottom: 20px; color: green; border: 1px solid green; padding: 10px; background: #e8f5e9; border-radius: 4px;">
+            <div class="alert alert-success">
                 ✅ Votre commande a bien été validée et payée !
             </div>
         <?php endif; ?>
         
         <?php if (isset($_GET['success']) && $_GET['success'] === 'commande_modifiee'): ?>
-            <div class="alert alert-success" style="margin-bottom: 20px; color: green; border: 1px solid green; padding: 10px; background: #e8f5e9; border-radius: 4px;">
+            <div class="alert alert-success">
                 ✏️ Votre commande a été mise à jour avec succès ! Le Chef a reçu les modifications.
             </div>
         <?php endif; ?>
         
         <?php if (isset($_GET['success']) && $_GET['success'] === 'adresse_modifiee'): ?>
-            <div class="alert alert-success" style="margin-bottom: 20px; color: green; border: 1px solid green; padding: 10px; background: #e8f5e9; border-radius: 4px;">
+            <div class="alert alert-success">
                 📍 L'adresse de livraison a été mise à jour avec succès !
             </div>
         <?php endif; ?>
@@ -161,20 +161,20 @@ include_once __DIR__ . '/../includes/header.php';
                             </p>
                             <p><strong>Mode:</strong> <?= htmlspecialchars($commande['mode_retrait'] ?? 'Livraison') ?></p>
                             <?php if (($commande['mode_retrait'] ?? 'livraison') === 'livraison'): ?>
-                                <div style="margin-bottom: 10px;">
+                                <div class="adresse-container">
                                     <strong>Adresse:</strong> 
                                     <span id="display-addr-<?= $commande['id_commande'] ?>"><?= htmlspecialchars(!empty($commande['adresse_livraison']) ? $commande['adresse_livraison'] : ($commande['client_adresse'] ?? 'Non spécifiée')) ?></span>
                                     
                                     <?php if (!in_array($commande['statut'], ['En livraison', 'Livrée', 'Annulée'])): ?>
-                                        <button type="button" id="btn-edit-addr-<?= $commande['id_commande'] ?>" onclick="document.getElementById('form-edit-addr-<?= $commande['id_commande'] ?>').style.display='block'; this.style.display='none'; document.getElementById('display-addr-<?= $commande['id_commande'] ?>').style.display='none';" style="background: none; border: none; color: var(--color-primary); cursor: pointer; text-decoration: underline; font-size: 0.9em; padding: 0 5px;">✏️ Modifier</button>
+                                        <button type="button" id="btn-edit-addr-<?= $commande['id_commande'] ?>" class="btn-edit-inline" onclick="document.getElementById('form-edit-addr-<?= $commande['id_commande'] ?>').style.display='block'; this.style.display='none'; document.getElementById('display-addr-<?= $commande['id_commande'] ?>').style.display='none';">✏️ Modifier</button>
                                         
-                                        <form id="form-edit-addr-<?= $commande['id_commande'] ?>" method="POST" style="display: none; margin-top: 5px;">
+                                        <form id="form-edit-addr-<?= $commande['id_commande'] ?>" method="POST" class="form-edit-inline">
                                             <input type="hidden" name="action" value="modifier_adresse">
                                             <input type="hidden" name="id_commande" value="<?= $commande['id_commande'] ?>">
-                                            <div style="display: flex; gap: 5px;">
-                                                <input type="text" name="nouvelle_adresse" value="<?= htmlspecialchars(!empty($commande['adresse_livraison']) ? $commande['adresse_livraison'] : ($commande['client_adresse'] ?? '')) ?>" required style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;">
-                                                <button type="submit" style="padding: 6px 12px; background: #2ecc71; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">OK</button>
-                                                <button type="button" onclick="document.getElementById('form-edit-addr-<?= $commande['id_commande'] ?>').style.display='none'; document.getElementById('btn-edit-addr-<?= $commande['id_commande'] ?>').style.display='inline-block'; document.getElementById('display-addr-<?= $commande['id_commande'] ?>').style.display='inline';" style="padding: 6px 12px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer;">Annuler</button>
+                                            <div class="form-group">
+                                                <input type="text" name="nouvelle_adresse" value="<?= htmlspecialchars(!empty($commande['adresse_livraison']) ? $commande['adresse_livraison'] : ($commande['client_adresse'] ?? '')) ?>" required>
+                                                <button type="submit" class="btn-confirm">OK</button>
+                                                <button type="button" class="btn-cancel" onclick="document.getElementById('form-edit-addr-<?= $commande['id_commande'] ?>').style.display='none'; document.getElementById('btn-edit-addr-<?= $commande['id_commande'] ?>').style.display='inline-block'; document.getElementById('display-addr-<?= $commande['id_commande'] ?>').style.display='inline';">Annuler</button>
                                             </div>
                                         </form>
                                     <?php endif; ?>
@@ -201,7 +201,7 @@ include_once __DIR__ . '/../includes/header.php';
                                         $options = json_decode($detail['options_choisies'], true);
                                         if (!empty($options)): 
                                         ?>
-                                            <span class="item-options" style="display: block; font-size: 0.85em; color: var(--color-primary); margin-left: 15px;">
+                                            <span class="item-options">
                                                 <em>↳ <?= htmlspecialchars(implode(', ', $options)) ?></em>
                                             </span>
                                         <?php endif; ?>
@@ -210,12 +210,12 @@ include_once __DIR__ . '/../includes/header.php';
                             </ul>
                         </div>
                         
-                        <div class="commande-actions" style="display: flex; gap: 10px; margin-top: 15px;">
+                        <div class="commande-actions">
                             <?php if ($commande['statut'] === 'En attente'): ?>
-                                <form method="POST" style="margin: 0;" onsubmit="return confirm('Voulez-vous modifier cette commande ? Son contenu sera placé dans votre panier pour que vous puissiez l\'éditer librement.');">
+                                <form method="POST" onsubmit="return confirm('Voulez-vous modifier cette commande ? Son contenu sera placé dans votre panier pour que vous puissiez l\'éditer librement.');">
                                     <input type="hidden" name="action" value="modifier_panier">
                                     <input type="hidden" name="id_commande" value="<?= $commande['id_commande'] ?>">
-                                    <button type="submit" class="btn-primary" style="padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 5px; background-color: #f39c12;">
+                                    <button type="submit" class="btn-action btn-modifier">
                                         <i class="fas fa-edit"></i> Modifier
                                     </button>
                                 </form>
@@ -223,15 +223,15 @@ include_once __DIR__ . '/../includes/header.php';
                             
                             <?php if ($commande['statut'] === 'Livrée'): ?>
                                 <?php if (in_array($commande['id_commande'], $commandes_notees)): ?>
-                                    <span class="btn-secondary" style="padding: 10px 15px; border: 1px solid #ccc; color: #999; background: #f9f9f9; border-radius: 4px; cursor: not-allowed;" title="Vous avez déjà noté cette commande.">✅ Avis laissé</span>
+                                    <span class="btn-avis-laisse" title="Vous avez déjà noté cette commande.">✅ Avis laissé</span>
                                 <?php else: ?>
-                                    <a href="/api/client/noter.php?commande_id=<?= $commande['id_commande'] ?>" class="btn-secondary" style="padding: 10px 15px; border: 1px solid var(--color-coal-black); color: var(--color-coal-black); text-decoration: none; border-radius: 4px;">⭐ Noter</a>
+                                    <a href="/api/client/noter.php?commande_id=<?= $commande['id_commande'] ?>" class="btn-noter">⭐ Noter</a>
                                 <?php endif; ?>
                             <?php endif; ?>
-                            <form method="POST" style="margin: 0;">
+                            <form method="POST">
                                 <input type="hidden" name="action" value="recommander">
                                 <input type="hidden" name="id_commande" value="<?= $commande['id_commande'] ?>">
-                                <button type="submit" class="btn-primary" style="padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                                <button type="submit" class="btn-primary btn-action">
                                     <i class="fas fa-sync-alt"></i> Recommander
                                 </button>
                             </form>
