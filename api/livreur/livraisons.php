@@ -1,9 +1,5 @@
 <?php
-// session_start() doit être le premier appel, avant tout output
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
+// La session est démarrée centralement dans config.php
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/commandes.php';
 
