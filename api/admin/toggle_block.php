@@ -2,7 +2,7 @@
 // api/admin/toggle_block.php
 // Endpoint AJAX — Bloquer/Débloquer un utilisateur (Phase 3)
 header('Content-Type: application/json');
-session_start();
+// La session est démarrée centralement dans config.php
 
 // Vérification : seul un admin peut appeler cet endpoint
 $role = $_SESSION['role'] ?? $_SESSION['user_role'] ?? $_SESSION['type'] ?? '';
