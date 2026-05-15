@@ -2,14 +2,13 @@
 // api/client/update_profil_ajax.php
 // Endpoint AJAX pour la modification du profil (Phase 3)
 header('Content-Type: application/json');
-session_start();
+// La session est démarrée centralement dans config.php
+require_once __DIR__ . '/../includes/config.php';
 
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'Non connecté.']);
     exit;
 }
-
-require_once __DIR__ . '/../includes/config.php'; // ton fichier de connexion PDO
 
 $user_id = $_SESSION['user_id'];
 $data = json_decode(file_get_contents('php://input'), true);
