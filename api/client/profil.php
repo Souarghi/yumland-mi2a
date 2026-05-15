@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/avis.php';
 
 // L'utilisateur doit être connecté pour accéder à cette page
 if (!isLoggedIn()) {
@@ -22,8 +23,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $complement = trim($_POST['complement'] ?? '');
 
     try {
-        $stmt = $pdo->prepare("UPDATE Utilisateurs SET nom = ?, prenom = ?, tel = ?, rue = ?, code_postal = ?, ville = ?, complement = ? WHERE id_user = ?");
-        $stmt->execute([$nom, $prenom, $tel, $rue, $code_postal, $ville, $complement, $user_id]);
+        updateUserProfil($user_id, [
+            'nom'         => $nom,
+            'prenom'      => $prenom,
+            'tel'         => $tel,
+            'rue'         => $rue,
+            'code_postal' => $code_postal,
+            'ville'       => $ville,
+            'complement'  => $complement,
+        ]);
         
         // Mettre à jour le nom en session au cas où il a changé
         $_SESSION['user_name'] = $nom;
@@ -36,9 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 
 // Récupération des informations actuelles de l'utilisateur
-$stmt = $pdo->prepare("SELECT * FROM Utilisateurs WHERE id_user = ?");
-$stmt->execute([$user_id]);
-$user = $stmt->fetch();
+$user = getUserById($user_id);
 
 // Détermination du statut Miams
 $miams = $user['solde_miams'] ?? 0;
