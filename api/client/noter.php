@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/avis.php';
 
 // L'utilisateur doit être connecté
 if (!isLoggedIn()) {
@@ -19,14 +20,7 @@ $message = '';
 $messageType = 'success';
 
 // Vérifier que la commande existe, appartient à l'utilisateur et est terminée
-$stmt = $pdo->prepare("SELECT c.*, 
-        (SELECT GROUP_CONCAT(CONCAT(cc.quantite, 'x ', p.nom) SEPARATOR ', ')
-         FROM Contenu_Commandes cc 
-         JOIN Produits p ON cc.id_produit = p.id_produit 
-         WHERE cc.id_commande = c.id_commande) AS plats_commandes
-    FROM Commandes c WHERE id_commande = ? AND id_client = ? AND statut = 'Livrée'");
-$stmt->execute([$commande_id, $user_id]);
-$commande = $stmt->fetch();
+$commande = getCommandeForNoting($commande_id, $user_id);
 
 if (!$commande) {
     // Si la commande n'est pas "Livrée" ou n'existe pas, on redirige vers le profil
@@ -44,34 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $note_globale = round(($delivery_note + $food_note) / 2);
 
     try {
-        // Enregistrement de l'avis dans la table Avis (modifiée pour 2 notes)
-        $tableExists = $pdo->query("SHOW TABLES LIKE 'Avis'")->rowCount() > 0;
-        if (!$tableExists) {
-            $pdo->exec("CREATE TABLE Avis (
-                id_avis INT AUTO_INCREMENT PRIMARY KEY,
-                id_commande INT NOT NULL,
-                id_client INT NOT NULL,
-                note_globale INT,
-                note_livreur INT,
-                note_nourriture INT,
-                commentaire TEXT,
-                date_avis DATETIME DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE KEY unique_commande (id_commande)
-            )");
-            $pdo->exec("DROP TABLE IF EXISTS Evaluations");
-        } else {
-            try {
-                $pdo->exec("ALTER TABLE Avis ADD COLUMN note_globale INT AFTER id_client");
-            } catch (Exception $e) {
-                // La colonne existe déjà
-            }
-            $pdo->exec("DROP TABLE IF EXISTS Evaluations");
-        }
-        
-        // Ajout ou mise à jour de l'avis
-        $stmtInsert = $pdo->prepare("INSERT INTO Avis (id_commande, id_client, note_globale, note_livreur, note_nourriture, commentaire) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE note_globale = ?, note_livreur = ?, note_nourriture = ?, commentaire = ?");
-        $stmtInsert->execute([$commande_id, $user_id, $note_globale, $delivery_note, $food_note, $commentaire, $note_globale, $delivery_note, $food_note, $commentaire]);
-        
+        saveAvis($commande_id, $user_id, $delivery_note, $food_note, $commentaire);
         $message = "⭐ Merci pour votre retour ! Votre avis a été enregistré avec succès.";
     } catch (Exception $e) {
         $message = "Erreur lors de l'enregistrement de votre avis.";
@@ -84,38 +51,6 @@ $pageTitle = 'Noter la commande #' . $commande_id;
 include_once __DIR__ . '/../includes/header.php';
 ?>
 
-<style>
-    .stars {
-        display: flex;
-        gap: 5px;
-        font-size: 2rem;
-        cursor: pointer;
-        color: #ccc; /* Étoiles vides */
-        margin-bottom: 20px;
-    }
-    .star.active {
-        color: #f39c12; /* Étoiles pleines (dorées) */
-    }
-    .form-group label {
-        display: block;
-        text-align: left;
-        font-weight: bold;
-        margin-bottom: 8px;
-    }
-    .readonly-input {
-        width: 100%;
-        padding: 10px;
-        background-color: #f5f5f5;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        color: #555;
-    }
-    h3 {
-        margin-top: 15px;
-        margin-bottom: 10px;
-        font-size: 1.1rem;
-    }
-</style>
 
 <section class="container form-page">
     <div class="form-container card-style">
@@ -137,12 +72,12 @@ include_once __DIR__ . '/../includes/header.php';
                 <input type="hidden" name="action" value="noter">
                 <input type="hidden" name="commande_id" value="<?= htmlspecialchars($commande_id) ?>">
                 
-                <div class="form-group" style="margin-bottom: 15px;">
+                <div class="form-group noter-form-group" style="margin-bottom: 15px;">
                     <label for="order-id">Identifiant de la commande :</label>
                     <input type="text" id="order-id" class="readonly-input" value="#CMD-<?= htmlspecialchars($commande_id) ?>" readonly>
                 </div>
 
-                <h3>Note du livreur :</h3>
+                <h3 class="noter-section-title">Note du livreur :</h3>
                 <div class="stars" id="delivery-star-rating">
                     <span class="star" data-value="1">★</span>
                     <span class="star" data-value="2">★</span>
@@ -152,7 +87,7 @@ include_once __DIR__ . '/../includes/header.php';
                 </div>
                 <input type="hidden" id="delivery-rating-value" name="delivery_note" value="0">
 
-                <h3>Note de la nourriture :</h3>
+                <h3 class="noter-section-title">Note de la nourriture :</h3>
                 <div class="stars" id="food-star-rating">
                     <span class="star" data-value="1">★</span>
                     <span class="star" data-value="2">★</span>
@@ -162,7 +97,7 @@ include_once __DIR__ . '/../includes/header.php';
                 </div>
                 <input type="hidden" id="food-rating-value" name="food_note" value="0">
 
-                <div class="form-group" style="margin-bottom: 25px;">
+                <div class="form-group noter-form-group" style="margin-bottom: 25px;">
                     <label for="comment">Votre commentaire :</label>
                     <textarea id="comment" name="commentaire" rows="4" style="width: 100%; padding: 10px;" placeholder="Le burger était-il assez chaud ? Le livreur sympa ?"></textarea>
                 </div>
