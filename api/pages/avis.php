@@ -2,30 +2,14 @@
 // api/pages/avis.php
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/avis.php';
 
 $currentPage = 'avis';
 $pageTitle = 'Avis Clients';
 include_once __DIR__ . '/../includes/header.php';
 
-// Récupérer les avis avec infos clients et commandes
-$avis_list = [];
-try {
-    $tableExists = $pdo->query("SHOW TABLES LIKE 'Avis'")->rowCount() > 0;
-    if ($tableExists) {
-        $stmt = $pdo->query("
-            SELECT a.*, u.nom, u.prenom, c.date_commande,
-            (SELECT GROUP_CONCAT(CONCAT(cc.quantite, 'x ', p.nom) SEPARATOR ', ')
-             FROM Contenu_Commandes cc 
-             JOIN Produits p ON cc.id_produit = p.id_produit 
-             WHERE cc.id_commande = a.id_commande) AS plats_commandes
-            FROM Avis a
-            JOIN Utilisateurs u ON a.id_client = u.id_user
-            JOIN Commandes c ON a.id_commande = c.id_commande
-            ORDER BY a.date_avis DESC
-        ");
-        $avis_list = $stmt->fetchAll();
-    }
-} catch (Exception $e) {}
+// Récupérer les avis via la fonction dédiée
+$avis_list = getAllAvis();
 ?>
 
 <section class="container" style="padding-top: 40px; min-height: 70vh;">
