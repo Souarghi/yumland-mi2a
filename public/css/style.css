@@ -1,9 +1,6 @@
 /* --- IMPORT DES POLICES (Google Fonts) --- */
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Oswald:wght@300;400;700&display=swap');
 
-/* --- IMPORT DARK MODE --- */
-@import url('dark-mode.css');
-
 :root {
     /* --- PALETTE DE COULEURS (Charte Le Grand Miam) --- */
     --color-primary: #D32F2F;

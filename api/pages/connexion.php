@@ -73,7 +73,8 @@ include_once __DIR__ . '/../includes/header.php';
                     <button type="button" class="btn-primary btn-test-account bg-admin" onclick="fillLogin('admin1@grandmiam.com', 'password')">🛡️ Admin 1</button>
                     <button type="button" class="btn-primary btn-test-account bg-admin" onclick="fillLogin('admin2@grandmiam.com', 'password')">🛡️ Admin 2</button>
                     <button type="button" class="btn-primary btn-test-account bg-resto" onclick="fillLogin('resto@grandmiam.com', 'password')">👨‍🍳 Chef</button>
-                    <button type="button" class="btn-primary btn-test-account bg-livreur" onclick="fillLogin('livreur1@grandmiam.com', 'password')">🛵 Livreur</button>
+                    <button type="button" class="btn-primary btn-test-account bg-livreur" onclick="fillLogin('livreur1@grandmiam.com', 'password')">🛵 Livreur 1</button>
+                    <button type="button" class="btn-primary btn-test-account bg-livreur" onclick="fillLogin('livreur2@grandmiam.com', 'password')">🛵 Livreur 2</button>
                 </div>
             </div>
         </div>

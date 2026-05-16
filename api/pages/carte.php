@@ -14,11 +14,17 @@ if (isset($_SESSION['cart_message'])) {
 $currentPage = 'carte';
 $pageTitle = 'Notre Carte';
 
+// Paramètres du fetch asynchrone (Phase 3)
+$is_ajax = isset($_GET['ajax']) && $_GET['ajax'] == '1';
+$filter_cat = $_GET['category'] ?? 'all';
+$filter_search = strtolower($_GET['search'] ?? '');
+$filter_spec = $_GET['spec'] ?? 'all';
+
 // 1. RÉCUPÉRATION DYNAMIQUE DE TOUS LES PRODUITS
 $stmt = $pdo->query("SELECT * FROM Produits ORDER BY id_produit ASC");
 $tous_les_produits = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// 2. TRI DES PRODUITS PAR CATÉGORIE
+// 2. INITIALISATION DU CATALOGUE
 $catalogue = [
     'Entrées' => [],
     'Viandes' => [],
@@ -27,13 +33,6 @@ $catalogue = [
     'Boissons' => [],
     'Menus' => []
 ];
-
-foreach ($tous_les_produits as $produit) {
-    $cat = $produit['categorie'];
-    if (isset($catalogue[$cat])) {
-        $catalogue[$cat][] = $produit;
-    }
-}
 
 // 3. GESTION DES SPÉCIFICITÉS (Vu qu'elles ne sont pas dans la DB, on les associe par l'ID)
 $specificites = [
@@ -52,6 +51,22 @@ $specificites = [
     14 => ['type' => 'halal', 'html' => '<span class="spec-badge spec-halal"><i class="fas fa-moon"></i> Option Halal</span>'],
     15 => ['type' => 'vege', 'html' => '<span class="spec-badge spec-vege"><i class="fas fa-leaf"></i> Végétarien</span>'],
 ];
+
+// 4. FILTRAGE CÔTÉ SERVEUR (Pour validation Phase 3)
+foreach ($tous_les_produits as $produit) {
+    $id = $produit['id_produit'];
+    $match_search = empty($filter_search) || str_contains(strtolower($produit['nom']), $filter_search) || str_contains(strtolower($produit['description']), $filter_search);
+    $match_cat = ($filter_cat === 'all' || $produit['categorie'] === $filter_cat);
+    $specType = isset($specificites[$id]) ? $specificites[$id]['type'] : '';
+    $match_spec = ($filter_spec === 'all' || $specType === $filter_spec);
+
+    if ($match_search && $match_cat && $match_spec) {
+        $cat = $produit['categorie'];
+        if (isset($catalogue[$cat])) {
+            $catalogue[$cat][] = $produit;
+        }
+    }
+}
 
 // Fonction utilitaire pour trouver un produit spécifique (utile pour les Menus)
 function getProduitById($id, $produits) {
@@ -188,6 +203,12 @@ function getProduitById($id, $produits) {
         </select>
     </div>
     
+    <div id="menus-wrapper">
+    <?php
+    // Si c'est un appel asynchrone, on capture uniquement le HTML à partir d'ici
+    if ($is_ajax) { ob_start(); }
+    ?>
+
     <?php
     // Configuration des tableaux pour la boucle dynamique
     $sections = [
@@ -227,7 +248,7 @@ function getProduitById($id, $produits) {
                 <tr>
                     <td><?= $nom ?></td>
                     <td><?= $desc ?></td>
-                    <td><?= $prix ?></td>
+                    <td class="price-cell"><?= $prix ?></td>
                     <td data-spec="<?= $specType ?>"><?= $specHtml ?></td>
                     <td>
                         <?php if ($options): ?>
@@ -303,6 +324,15 @@ function getProduitById($id, $produits) {
     </div>
     <?php endif; ?>
 
+    <?php
+    // Si c'est un appel asynchrone (Fetch), on renvoie le HTML généré et on stoppe le chargement
+    if ($is_ajax) {
+        $html_response = ob_get_clean();
+        echo $html_response;
+        exit;
+    }
+    ?>
+    </div>
 </div>
 
 <!-- CARTE INTERACTIVE — Localisation du restaurant -->

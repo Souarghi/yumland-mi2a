@@ -1,4 +1,3 @@
-<script src="/public/js/script.js" defer></script>
 <script src="/public/js/cookie-consent.js" defer></script>
 <?php if (isset($additionalJs)): ?>
     <?php foreach ($additionalJs as $js): ?>

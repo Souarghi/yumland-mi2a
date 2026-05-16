@@ -29,7 +29,9 @@ $fontClass = (isset($_COOKIE['font']) && $_COOKIE['font'] === 'dyslexic') ? 'dys
     <title><?= isset($pageTitle) ? $pageTitle . ' | ' . APP_NAME : APP_NAME ?></title>
     <link rel="stylesheet" href="/css/style.css?v=<?= time() ?>">
     <link rel="stylesheet" href="/css/header.css?v=<?= time() ?>">
-    <link rel="stylesheet" href="/css/dark-mode.css?v=<?= time() ?>">
+    <?php if ($themeClass === 'dark-mode'): ?>
+        <link rel="stylesheet" href="/css/dark-mode.css" id="dark-mode-stylesheet">
+    <?php endif; ?>
     <!-- Intégration de FontAwesome pour des icônes professionnelles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Intégration de la police OpenDyslexic pour l'accessibilité -->
@@ -39,7 +41,7 @@ $fontClass = (isset($_COOKIE['font']) && $_COOKIE['font'] === 'dyslexic') ? 'dys
             <link rel="stylesheet" href="<?= $css ?>">
         <?php endforeach; ?>
     <?php endif; ?>
-    <script defer src="/js/script.js"></script>
+    <script defer src="/js/script.js?v=<?= time() ?>"></script>
     <script defer>
         // Script pour rendre le menu déroulant persistant au clic (très utile sur mobile et tablette)
         document.addEventListener('DOMContentLoaded', function() {
@@ -61,15 +63,7 @@ $fontClass = (isset($_COOKIE['font']) && $_COOKIE['font'] === 'dyslexic') ? 'dys
             }
             
             // Gestion des boutons d'accessibilité
-            const btnDark = document.getElementById('toggle-dark-mode');
             const btnDyslexic = document.getElementById('toggle-dyslexic-mode');
-
-            if (btnDark) {
-                btnDark.addEventListener('click', function() {
-                    document.body.classList.toggle('dark-mode');
-                    document.cookie = "theme=" + (document.body.classList.contains('dark-mode') ? "dark" : "light") + "; path=/; max-age=31536000";
-                });
-            }
 
             if (btnDyslexic) {
                 btnDyslexic.addEventListener('click', function() {
@@ -79,7 +73,7 @@ $fontClass = (isset($_COOKIE['font']) && $_COOKIE['font'] === 'dyslexic') ? 'dys
             }
         });
     </script>
-    <script defer src="/js/form-validation.js"></script>
+    <script defer src="/js/form-validation.js?v=<?= time() ?>"></script>
 </head>
 <body class="<?= trim($themeClass . ' ' . $fontClass) ?>">
 

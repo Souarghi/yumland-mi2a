@@ -30,6 +30,11 @@ Ils sont actifs sur la base de données Aiven de production.
 | **Email** | `livreur1@grandmiam.com` |
 | **Mot de passe** | `password` |
 
+| Champ | Valeur |
+|---|---|
+| **Email** | `livreur2@grandmiam.com` |
+| **Mot de passe** | `password` |
+
 ---
 
 ## 🛡️ Administrateur

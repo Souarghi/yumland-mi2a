@@ -32,6 +32,20 @@ document.addEventListener("DOMContentLoaded", () => {
       const isDark = document.body.classList.toggle("dark-mode");
       setCookie("theme", isDark ? "dark" : "light");
       btn.textContent = isDark ? "☀️ Mode Clair" : "🌙 Mode Sombre";
+
+          // Phase 3 : Chargement asynchrone du fichier CSS
+          let linkCss = document.getElementById('dark-mode-stylesheet');
+          if (isDark) {
+            if (!linkCss) {
+              linkCss = document.createElement('link');
+              linkCss.id = 'dark-mode-stylesheet';
+              linkCss.rel = 'stylesheet';
+              linkCss.href = '/css/dark-mode.css';
+              document.head.appendChild(linkCss);
+            }
+          } else {
+            if (linkCss) linkCss.remove();
+          }
     });
   }
 });
