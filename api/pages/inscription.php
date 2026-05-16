@@ -106,6 +106,7 @@ include_once __DIR__ . '/../includes/header.php';
                 </div>
             <?php else: ?>
                 <form action="/api/pages/inscription.php" method="post" class="auth-form">
+                    <div id="js-error-message" class="alert alert-danger auth-alert-custom auth-alert-danger" style="display: none;"></div>
                     <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
                     
                     <div class="form-row">
@@ -254,6 +255,32 @@ document.querySelectorAll('.toggle-password').forEach(button => {
             this.textContent = '👁️'; // Oeil ouvert
         }
     });
+});
+
+// Script de validation asynchrone du formulaire (Phase 3)
+document.querySelector('.auth-form').addEventListener('submit', function(event) {
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    const email = document.getElementById('email').value;
+    const errorDiv = document.getElementById('js-error-message');
+    let errors = [];
+
+    if (password.length < 8) {
+        errors.push("Le mot de passe doit contenir au moins 8 caractères.");
+    }
+    if (password !== confirmPassword) {
+        errors.push("Les mots de passe ne correspondent pas.");
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        errors.push("Veuillez entrer une adresse email valide.");
+    }
+
+    if (errors.length > 0) {
+        event.preventDefault(); // Stoppe l'envoi au serveur et le rechargement de la page
+        errorDiv.innerHTML = errors.join('<br>');
+        errorDiv.style.display = 'block';
+    }
 });
 </script>
 
