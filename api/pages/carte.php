@@ -62,6 +62,108 @@ function getProduitById($id, $produits) {
 }
 ?>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js" defer></script>
+<script>
+    // --- FONCTION POUR OUVRIR LA MODAL MENU ---
+    function openMenuModal(btn) {
+        const id = btn.getAttribute('data-id');
+        const nom = btn.getAttribute('data-nom');
+        const options = btn.getAttribute('data-options');
+        showOptionsModal(id, nom, options);
+    }
+
+    // --- FONCTION AJOUTER AU PANIER EN AJAX ---
+    function ajouterAuPanier(id_produit) {
+        const formData = new FormData();
+        formData.append('id_produit', id_produit);
+        formData.append('quantite', 1);
+
+        fetch('/api/ajouter_panier.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                const cartCount = document.querySelector('.cart-count');
+                if (cartCount) {
+                    cartCount.textContent = data.count;
+                } else {
+                    const cartIcon = document.querySelector('.cart-icon');
+                    if (cartIcon) {
+                        cartIcon.innerHTML = '🛒 <span class="cart-count">' + data.count + '</span>';
+                    }
+                }
+                alert("😋 Plat ajouté à votre panier avec succès !");
+            } else {
+                alert("Erreur lors de l'ajout au panier.");
+            }
+        })
+        .catch(err => console.error(err));
+    }
+
+    // --- FONCTION DE FILTRE DE RECHERCHE ---
+    function applyFilters() {
+        const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+        const selectedCategory = document.getElementById('categoryFilter').value;
+        const selectedSpec = document.getElementById('specFilter').value;
+        
+        document.querySelectorAll('.menu-table').forEach(table => {
+            const tableCategory = table.getAttribute('data-category');
+            let tableHasVisibleRows = false;
+            
+            table.querySelectorAll('tbody tr').forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const specCell = row.querySelector('td[data-spec]');
+                const spec = specCell ? specCell.getAttribute('data-spec') : null;
+                
+                const searchMatch = text.includes(searchQuery);
+                const specMatch = (selectedSpec === 'all' || spec === selectedSpec);
+                
+                if (searchMatch && specMatch) {
+                    row.style.display = '';
+                    if (selectedCategory === 'all' || selectedCategory === tableCategory) {
+                        tableHasVisibleRows = true;
+                    }
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            if (selectedCategory === 'all') {
+                table.style.display = tableHasVisibleRows ? '' : 'none';
+            } else {
+                table.style.display = (selectedCategory === tableCategory && tableHasVisibleRows) ? '' : 'none';
+            }
+        });
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        applyFilters();
+        document.querySelectorAll('.menu-table td').forEach(td => {
+            if (td.textContent.includes('€') && !td.querySelector('button')) {
+                td.classList.add('price-cell');
+            }
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Coordonnées du restaurant — à ajuster selon l'adresse réelle
+        var lat = 49.0443, lng = 2.0828;
+        var map = L.map('map').setView([lat, lng], 16);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        L.marker([lat, lng])
+            .addTo(map)
+            .bindPopup('<strong>Le Grand Miam</strong><br>Steakhouse & Burgers XXL')
+            .openPopup();
+    });
+</script>
+
 <div class="menu-container">
     <h1>Notre Carte</h1>
     <p class="intro-text">Steakhouse, Grillades & Burgers XXL - Une expérience culinaire unique</p>
@@ -203,115 +305,11 @@ function getProduitById($id, $produits) {
 
 </div>
 
-<script>
-    // --- FONCTION POUR OUVRIR LA MODAL MENU ---
-    function openMenuModal(btn) {
-        const id = btn.getAttribute('data-id');
-        const nom = btn.getAttribute('data-nom');
-        const options = btn.getAttribute('data-options');
-        showOptionsModal(id, nom, options);
-    }
-
-    // --- FONCTION AJOUTER AU PANIER EN AJAX ---
-    function ajouterAuPanier(id_produit) {
-        const formData = new FormData();
-        formData.append('id_produit', id_produit);
-        formData.append('quantite', 1);
-
-        fetch('/api/ajouter_panier.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                const cartCount = document.querySelector('.cart-count');
-                if (cartCount) {
-                    cartCount.textContent = data.count;
-                } else {
-                    const cartIcon = document.querySelector('.cart-icon');
-                    if (cartIcon) {
-                        cartIcon.innerHTML = '🛒 <span class="cart-count">' + data.count + '</span>';
-                    }
-                }
-                alert("😋 Plat ajouté à votre panier avec succès !");
-            } else {
-                alert("Erreur lors de l'ajout au panier.");
-            }
-        })
-        .catch(err => console.error(err));
-    }
-
-    // --- FONCTION DE FILTRE DE RECHERCHE ---
-    function applyFilters() {
-        const searchQuery = document.getElementById('searchInput').value.toLowerCase();
-        const selectedCategory = document.getElementById('categoryFilter').value;
-        const selectedSpec = document.getElementById('specFilter').value;
-        
-        document.querySelectorAll('.menu-table').forEach(table => {
-            const tableCategory = table.getAttribute('data-category');
-            let tableHasVisibleRows = false;
-            
-            table.querySelectorAll('tbody tr').forEach(row => {
-                const text = row.textContent.toLowerCase();
-                const specCell = row.querySelector('td[data-spec]');
-                const spec = specCell ? specCell.getAttribute('data-spec') : null;
-                
-                const searchMatch = text.includes(searchQuery);
-                const specMatch = (selectedSpec === 'all' || spec === selectedSpec);
-                
-                if (searchMatch && specMatch) {
-                    row.style.display = '';
-                    if (selectedCategory === 'all' || selectedCategory === tableCategory) {
-                        tableHasVisibleRows = true;
-                    }
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-            
-            if (selectedCategory === 'all') {
-                table.style.display = tableHasVisibleRows ? '' : 'none';
-            } else {
-                table.style.display = (selectedCategory === tableCategory && tableHasVisibleRows) ? '' : 'none';
-            }
-        });
-    }
-    
-    document.addEventListener('DOMContentLoaded', () => {
-        applyFilters();
-        document.querySelectorAll('.menu-table td').forEach(td => {
-            if (td.textContent.includes('€') && !td.querySelector('button')) {
-                td.classList.add('price-cell');
-            }
-        });
-    });
-</script>
-
 <!-- CARTE INTERACTIVE — Localisation du restaurant -->
 <div class="menu-container map-container">
     <h2><i class="fas fa-map-marker-alt"></i> Nous trouver</h2>
     <p class="map-subtitle">Le Grand Miam — commandez en ligne ou venez nous rendre visite !</p>
     <div id="map" class="map-box"></div>
 </div>
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Coordonnées du restaurant — à ajuster selon l'adresse réelle
-        var lat = 49.0443, lng = 2.0828;
-        var map = L.map('map').setView([lat, lng], 16);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-
-        L.marker([lat, lng])
-            .addTo(map)
-            .bindPopup('<strong>Le Grand Miam</strong><br>Steakhouse & Burgers XXL')
-            .openPopup();
-    });
-</script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
