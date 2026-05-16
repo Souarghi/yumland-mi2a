@@ -156,7 +156,7 @@ include_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<script>
+<script defer>
     // Déclenche l'envoi du formulaire vers CY Bank après 1.5 seconde
     document.addEventListener('DOMContentLoaded', function() {
         setTimeout(function() {

@@ -88,6 +88,112 @@ $additionalCss = ['/css/auth.css'];
 include_once __DIR__ . '/../includes/header.php';
 ?>
 
+<script defer>
+// Script évaluation de la force du mot de passe
+document.addEventListener('DOMContentLoaded', function() {
+    const input   = document.getElementById('password');
+    const counter = document.getElementById('pwd-counter');
+    const bar     = document.getElementById('pwd-strength-bar');
+    const fill    = document.getElementById('pwd-strength-fill');
+    const label   = document.getElementById('pwd-strength-label');
+
+    if(input) {
+        const levels = [
+            { min: 0,   max: 25,  color: '#D32F2F', text: '❌ Très faible', textColor: '#D32F2F' },
+            { min: 26,  max: 50,  color: '#FF7043', text: '⚠️ Faible',      textColor: '#FF7043' },
+            { min: 51,  max: 75,  color: '#FFC107', text: '🔶 Moyen',       textColor: '#e6a800' },
+            { min: 76,  max: 99,  color: '#8BC34A', text: '✅ Fort',        textColor: '#558B2F' },
+            { min: 100, max: 100, color: '#4CAF50', text: '🔒 Très fort',   textColor: '#2E7D32' },
+        ];
+
+        function getScore(pwd) { 
+            if (!pwd) return 0;
+            let score = 0;
+            if (pwd.length >= 8)  score += 20;
+            if (pwd.length >= 12) score += 10;
+            if (pwd.length >= 16) score += 10;
+            if (/[a-z]/.test(pwd))        score += 10;
+            if (/[A-Z]/.test(pwd))        score += 20;
+            if (/[0-9]/.test(pwd))        score += 15;
+            if (/[^a-zA-Z0-9]/.test(pwd)) score += 25;
+            if (/^[a-zA-Z]+$/.test(pwd))  score -= 10;
+            if (/^[0-9]+$/.test(pwd))     score -= 15;
+            return Math.max(0, Math.min(100, score));
+        }
+
+        input.addEventListener('input', function () { 
+            const pwd   = this.value;
+            const len   = pwd.length;
+            const score = getScore(pwd);
+
+            counter.textContent = len + ' / 8 — minimum 8 caractères';
+            counter.style.color = len >= 8 ? '#4CAF50' : '#888';
+
+            if (len === 0) {
+                bar.style.display   = 'none';
+                label.style.display = 'none';
+                return;
+            }
+
+            bar.style.display   = 'block';
+            label.style.display = 'block';
+            fill.style.width    = score + '%';
+
+            const level = levels.find(l => score >= l.min && score <= l.max) || levels[0]; 
+            fill.style.backgroundColor = level.color;
+            label.textContent          = level.text;
+            label.style.color          = level.textColor;
+        });
+    }
+
+    // Script pour afficher / masquer les mots de passe
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const targetInput = document.getElementById(targetId);
+            if (targetInput && targetInput.type === 'password') {
+                targetInput.type = 'text';
+                this.textContent = '🙈'; // Oeil fermé
+            } else if (targetInput) {
+                targetInput.type = 'password';
+                this.textContent = '👁️'; // Oeil ouvert
+            }
+        });
+    });
+
+    // Script de validation asynchrone du formulaire (Phase 3)
+    const authForm = document.querySelector('.auth-form');
+    if(authForm) {
+        authForm.addEventListener('submit', function(event) {
+            const passwordVal = document.getElementById('password') ? document.getElementById('password').value : '';
+            const confirmPasswordVal = document.getElementById('confirm_password') ? document.getElementById('confirm_password').value : '';
+            const emailVal = document.getElementById('email') ? document.getElementById('email').value : '';
+            const errorDiv = document.getElementById('js-error-message');
+            let errors = [];
+
+            if (passwordVal.length < 8) {
+                errors.push("Le mot de passe doit contenir au moins 8 caractères.");
+            }
+            if (passwordVal !== confirmPasswordVal) {
+                errors.push("Les mots de passe ne correspondent pas.");
+            }
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailVal)) {
+                errors.push("Veuillez entrer une adresse email valide.");
+            }
+
+            if (errors.length > 0) {
+                event.preventDefault(); // Stoppe l'envoi au serveur et le rechargement de la page
+                if(errorDiv) {
+                    errorDiv.innerHTML = errors.join('<br>');
+                    errorDiv.style.display = 'block';
+                }
+            }
+        });
+    }
+});
+</script>
+
 <section class="auth-section">
     <div class="container">
         <div class="auth-container">
@@ -184,105 +290,6 @@ include_once __DIR__ . '/../includes/header.php';
         </div>
     </div>
 </section>
-
-<script>
-    // Script évaluation de la force du mot de passe
-(function () {
-    const input   = document.getElementById('password');
-    const counter = document.getElementById('pwd-counter');
-    const bar     = document.getElementById('pwd-strength-bar');
-    const fill    = document.getElementById('pwd-strength-fill');
-    const label   = document.getElementById('pwd-strength-label');
-
-    const levels = [
-        { min: 0,   max: 25,  color: '#D32F2F', text: '❌ Très faible', textColor: '#D32F2F' },
-        { min: 26,  max: 50,  color: '#FF7043', text: '⚠️ Faible',      textColor: '#FF7043' },
-        { min: 51,  max: 75,  color: '#FFC107', text: '🔶 Moyen',       textColor: '#e6a800' },
-        { min: 76,  max: 99,  color: '#8BC34A', text: '✅ Fort',        textColor: '#558B2F' },
-        { min: 100, max: 100, color: '#4CAF50', text: '🔒 Très fort',   textColor: '#2E7D32' },
-    ];
-
-    function getScore(pwd) { // Calcul du score de fiabilité du mot de passe
-        if (!pwd) return 0;
-        let score = 0;
-        if (pwd.length >= 8)  score += 20;
-        if (pwd.length >= 12) score += 10;
-        if (pwd.length >= 16) score += 10;
-        if (/[a-z]/.test(pwd))        score += 10;
-        if (/[A-Z]/.test(pwd))        score += 20;
-        if (/[0-9]/.test(pwd))        score += 15;
-        if (/[^a-zA-Z0-9]/.test(pwd)) score += 25;
-        if (/^[a-zA-Z]+$/.test(pwd))  score -= 10;
-        if (/^[0-9]+$/.test(pwd))     score -= 15;
-        return Math.max(0, Math.min(100, score));
-    }
-
-    input.addEventListener('input', function () { // Mise à jour de l'affichage à chaque frappe
-        const pwd   = this.value;
-        const len   = pwd.length;
-        const score = getScore(pwd);
-
-        counter.textContent = len + ' / 8 — minimum 8 caractères';
-        counter.style.color = len >= 8 ? '#4CAF50' : '#888';
-
-        if (len === 0) {
-            bar.style.display   = 'none';
-            label.style.display = 'none';
-            return;
-        }
-
-        bar.style.display   = 'block';
-        label.style.display = 'block';
-        fill.style.width    = score + '%';
-
-        const level = levels.find(l => score >= l.min && score <= l.max) || levels[0]; // Affichage de la barre adapté au mot de pase
-        fill.style.backgroundColor = level.color;
-        label.textContent          = level.text;
-        label.style.color          = level.textColor;
-    });
-})();
-
-// Script pour afficher / masquer les mots de passe
-document.querySelectorAll('.toggle-password').forEach(button => {
-    button.addEventListener('click', function() {
-        const targetId = this.getAttribute('data-target');
-        const input = document.getElementById(targetId);
-        if (input.type === 'password') {
-            input.type = 'text';
-            this.textContent = '🙈'; // Oeil fermé
-        } else {
-            input.type = 'password';
-            this.textContent = '👁️'; // Oeil ouvert
-        }
-    });
-});
-
-// Script de validation asynchrone du formulaire (Phase 3)
-document.querySelector('.auth-form').addEventListener('submit', function(event) {
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirm_password').value;
-    const email = document.getElementById('email').value;
-    const errorDiv = document.getElementById('js-error-message');
-    let errors = [];
-
-    if (password.length < 8) {
-        errors.push("Le mot de passe doit contenir au moins 8 caractères.");
-    }
-    if (password !== confirmPassword) {
-        errors.push("Les mots de passe ne correspondent pas.");
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        errors.push("Veuillez entrer une adresse email valide.");
-    }
-
-    if (errors.length > 0) {
-        event.preventDefault(); // Stoppe l'envoi au serveur et le rechargement de la page
-        errorDiv.innerHTML = errors.join('<br>');
-        errorDiv.style.display = 'block';
-    }
-});
-</script>
 
 <?php
 // Inclure le footer

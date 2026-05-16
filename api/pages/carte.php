@@ -79,7 +79,7 @@ function getProduitById($id, $produits) {
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js" defer></script>
-<script>
+<script defer>
     // --- FONCTION POUR OUVRIR LA MODAL MENU ---
     function openMenuModal(btn) {
         const id = btn.getAttribute('data-id');

@@ -71,9 +71,9 @@ $pageTitle = 'Mon Profil';
 $csrf_token = generateCSRFToken();
 
 $additionalCss = ['/css/profil.css'];
+$additionalJs = ['/js/profil.js'];
 include_once __DIR__ . '/../includes/header.php';
 ?>
-<script src="/js/profil.js" defer></script>
 
 <section class="container form-page">
     <div class="form-container card-style">

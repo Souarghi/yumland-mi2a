@@ -1,5 +1,6 @@
 <?php
 $currentPage = 'home';
+$additionalJs = ['/public/js/home_search.js']; 
 require_once __DIR__ . '/includes/header.php';
 ?>
 
@@ -72,7 +73,5 @@ require_once __DIR__ . '/includes/header.php';
 
 <?php
 // Le footer se chargera de fermer la balise <main> et d'inclure les scripts JS.
-// La logique de recherche a été déplacée dans un fichier JS dédié pour la propreté.
-$additionalJs = ['/public/js/home_search.js']; 
 require_once __DIR__ . '/includes/footer.php';
 ?>

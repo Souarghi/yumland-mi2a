@@ -21,6 +21,61 @@ $additionalCss = ['/css/auth.css'];
 include_once __DIR__ . '/../includes/header.php';
 ?>
 
+<script defer>
+function fillLogin(email, password) {
+    document.getElementById('email').value = email;
+    document.getElementById('password').value = password;
+}
+
+// Soumission AJAX du formulaire de connexion
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const errorDiv = document.getElementById('login-error');
+            
+            fetch('/api/login.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Redirection unique vers l'accueil pour utiliser le menu déroulant
+                    window.location.href = '/api/index.php';
+                } else {
+                    errorDiv.style.display = 'block';
+                    errorDiv.textContent = data.message;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = "Erreur de connexion au serveur.";
+            });
+        });
+    }
+
+    // Script pour afficher/masquer le mot de passe
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                this.textContent = '🙈'; // Oeil fermé
+            } else {
+                input.type = 'password';
+                this.textContent = '👁️'; // Oeil ouvert
+            }
+        });
+    });
+});
+</script>
+
 <section class="auth-section">
     <div class="container">
         <div class="auth-container auth-container-center">
@@ -80,56 +135,6 @@ include_once __DIR__ . '/../includes/header.php';
         </div>
     </div>
 </section>
-
-<script>
-function fillLogin(email, password) {
-    document.getElementById('email').value = email;
-    document.getElementById('password').value = password;
-}
-
-// Soumission AJAX du formulaire de connexion
-document.getElementById('loginForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    const errorDiv = document.getElementById('login-error');
-    
-    fetch('/api/login.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Redirection unique vers l'accueil pour utiliser le menu déroulant
-            window.location.href = '/api/index.php';
-        } else {
-            errorDiv.style.display = 'block';
-            errorDiv.textContent = data.message;
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        errorDiv.style.display = 'block';
-        errorDiv.textContent = "Erreur de connexion au serveur.";
-    });
-});
-
-// Script pour afficher/masquer le mot de passe
-document.querySelectorAll('.toggle-password').forEach(button => {
-    button.addEventListener('click', function() {
-        const targetId = this.getAttribute('data-target');
-        const input = document.getElementById(targetId);
-        if (input.type === 'password') {
-            input.type = 'text';
-            this.textContent = '🙈'; // Oeil fermé
-        } else {
-            input.type = 'password';
-            this.textContent = '👁️'; // Oeil ouvert
-        }
-    });
-});
-</script>
 
 <?php
 // Inclure le footer

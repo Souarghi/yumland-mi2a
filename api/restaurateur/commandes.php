@@ -52,7 +52,7 @@ $csrf_token = generateCSRFToken();
 include_once __DIR__ . '/../includes/header.php';
 ?>
 
-<script>
+<script defer>
     // Horloge temps réel pour la cuisine
     setInterval(() => {
         const now = new Date();

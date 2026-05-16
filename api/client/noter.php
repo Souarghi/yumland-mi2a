@@ -60,6 +60,51 @@ include_once __DIR__ . '/../includes/header.php';
 ?>
 
 
+<script defer>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Fonction pour gérer le système d'étoiles
+        const setupStarRating = (containerId, hiddenInputId) => {
+            const stars = document.querySelectorAll(`#${containerId} .star`);
+            const ratingInput = document.getElementById(hiddenInputId);
+
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    const value = parseInt(star.getAttribute('data-value'));
+                    if(ratingInput) ratingInput.value = value;
+
+                    // Mettre à jour visuellement les étoiles
+                    stars.forEach(s => {
+                        const sVal = parseInt(s.getAttribute('data-value'));
+                        if(sVal <= value) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                });
+            });
+        };
+
+        // Initialisation des deux systèmes de notation
+        setupStarRating('delivery-star-rating', 'delivery-rating-value');
+        setupStarRating('food-star-rating', 'food-rating-value');
+
+        // Validation avant l'envoi du formulaire
+        const ratingForm = document.getElementById('rating-form');
+        if (ratingForm) {
+            ratingForm.addEventListener('submit', (e) => {
+                const deliveryNote = document.getElementById('delivery-rating-value') ? document.getElementById('delivery-rating-value').value : 0;
+                const foodNote = document.getElementById('food-rating-value') ? document.getElementById('food-rating-value').value : 0;
+
+                if (deliveryNote == 0 || foodNote == 0) {
+                    e.preventDefault(); // Empêche l'envoi du formulaire
+                    alert("Veuillez sélectionner au moins une étoile pour le livreur et la nourriture.");
+                }
+            });
+        }
+    });
+</script>
+
 <section class="container form-page">
     <div class="form-container card-style">
         <h2>📝 Évaluer la commande #<?= htmlspecialchars($commande_id) ?></h2>
@@ -116,50 +161,5 @@ include_once __DIR__ . '/../includes/header.php';
         <?php endif; ?>
     </div>
 </section>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // Fonction pour gérer le système d'étoiles
-        const setupStarRating = (containerId, hiddenInputId) => {
-            const stars = document.querySelectorAll(`#${containerId} .star`);
-            const ratingInput = document.getElementById(hiddenInputId);
-
-            stars.forEach(star => {
-                star.addEventListener('click', () => {
-                    const value = parseInt(star.getAttribute('data-value'));
-                    ratingInput.value = value;
-
-                    // Mettre à jour visuellement les étoiles
-                    stars.forEach(s => {
-                        const sVal = parseInt(s.getAttribute('data-value'));
-                        if(sVal <= value) {
-                            s.classList.add('active');
-                        } else {
-                            s.classList.remove('active');
-                        }
-                    });
-                });
-            });
-        };
-
-        // Initialisation des deux systèmes de notation
-        setupStarRating('delivery-star-rating', 'delivery-rating-value');
-        setupStarRating('food-star-rating', 'food-rating-value');
-
-        // Validation avant l'envoi du formulaire
-        const ratingForm = document.getElementById('rating-form');
-        if (ratingForm) {
-            ratingForm.addEventListener('submit', (e) => {
-                const deliveryNote = document.getElementById('delivery-rating-value').value;
-                const foodNote = document.getElementById('food-rating-value').value;
-
-                if (deliveryNote == 0 || foodNote == 0) {
-                    e.preventDefault(); // Empêche l'envoi du formulaire
-                    alert("Veuillez sélectionner au moins une étoile pour le livreur et la nourriture.");
-                }
-            });
-        }
-    });
-</script>
 
 <?php include_once __DIR__ . '/../includes/footer.php'; ?>

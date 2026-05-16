@@ -1,11 +1,4 @@
-<script src="/public/js/cookie-consent.js" defer></script>
-<?php if (isset($additionalJs)): ?>
-    <?php foreach ($additionalJs as $js): ?>
-        <script src="<?= $js ?>" defer></script>
-    <?php endforeach; ?>
-<?php endif; ?>
-
-<script>
+<script defer>
     // Ouvre la fenêtre et génère les listes déroulantes
     function showOptionsModal(productId, productName, optionsJsonString, prixMiams = 0, cartIndex = '') {
         document.getElementById('optionsModal').style.display = 'flex';

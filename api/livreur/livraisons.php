@@ -8,16 +8,6 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'Livreur') {
     exit;
 }
 
-// Traitement de l'action de livraison
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'terminee') {
-    updateCommandeStatus((int)$_POST['id_commande'], 'Livrée');
-    // On stocke le message flash AVANT la redirection
-    $_SESSION['flash_message'] = 'La commande #' . (int)$_POST['id_commande'] . ' a bien été marquée comme livrée.';
-    $_SESSION['flash_type']    = 'success';
-    header('Location: /api/livreur/livraisons.php');
-    exit;
-}
-
 // On inclut le header APRÈS le traitement PHP pour éviter l'erreur d'affichage (l'écran noir)
 require_once __DIR__ . '/../includes/header.php';
 
@@ -30,6 +20,53 @@ if (!$livreur_id) {
 }
 $mes_livraisons = getCommandesByLivreur($livreur_id);
 ?>
+
+<script defer>
+// Script Asynchrone (Exigence Phase 3)
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.js-btn-deliver').forEach(button => {
+        button.addEventListener('click', function() {
+            const idCommande = this.getAttribute('data-id');
+            const articleCard = this.closest('article');
+            const btn = this;
+            
+            // Changer l'état du bouton pendant le chargement
+            btn.disabled = true;
+            btn.innerHTML = '⏳ MISE À JOUR...';
+
+            fetch('/api/livreur/update_status.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id_commande: idCommande,
+                    new_statut: 'Livrée'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    // Disparition en douceur de la carte sans recharger la page
+                    articleCard.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                    articleCard.style.opacity = '0';
+                    articleCard.style.transform = 'scale(0.9)';
+                    setTimeout(() => articleCard.remove(), 400);
+                } else {
+                    alert(data.message);
+                    btn.disabled = false;
+                    btn.innerHTML = '✅ MARQUER COMME LIVRÉE';
+                }
+            })
+            .catch(err => {
+                alert('Erreur réseau lors de la communication avec le serveur.');
+                btn.disabled = false;
+                btn.innerHTML = '✅ MARQUER COMME LIVRÉE';
+            });
+        });
+    });
+});
+</script>
 
 <section class="container container-small">
     <div class="livraisons-header">
@@ -72,16 +109,14 @@ $mes_livraisons = getCommandesByLivreur($livreur_id);
                 </a>
                 <?php endif; ?>
                 
-                <form method="POST" class="livraison-form">
-                    <input type="hidden" name="action" value="terminee">
-                    <input type="hidden" name="id_commande" value="<?= $livraison['id_commande'] ?>">
-                    <button type="submit" class="btn btn-livreur btn-deliver btn-no-border">
+                <div class="livraison-form">
+                    <button type="button" class="btn btn-livreur btn-deliver btn-no-border js-btn-deliver" data-id="<?= $livraison['id_commande'] ?>">
                         ✅ MARQUER COMME LIVRÉE
                     </button>
                     <button type="button" class="btn btn-livreur btn-problem btn-no-border" onclick="alert('Contactez le support :\n- Myriam Bensaid : 06 68 39 92 06\n- Sheryne Ouarghi : 06 17 67 77 02')">
                         ❌ PROBLÈME DE LIVRAISON
                     </button>
-                </form>
+                </div>
             </div>
         </article>
     <?php endforeach; ?>

@@ -41,6 +41,12 @@ $fontClass = (isset($_COOKIE['font']) && $_COOKIE['font'] === 'dyslexic') ? 'dys
             <link rel="stylesheet" href="<?= $css ?>">
         <?php endforeach; ?>
     <?php endif; ?>
+    <script defer src="/public/js/cookie-consent.js"></script>
+    <?php if (isset($additionalJs)): ?>
+        <?php foreach ($additionalJs as $js): ?>
+            <script defer src="<?= $js ?>"></script>
+        <?php endforeach; ?>
+    <?php endif; ?>
     <script defer src="/js/script.js?v=<?= time() ?>"></script>
     <script defer>
         // Script pour rendre le menu déroulant persistant au clic (très utile sur mobile et tablette)
