@@ -136,8 +136,8 @@ include_once __DIR__ . '/includes/header.php';
     <div class="redirect-container">
         <i class="fas fa-circle-notch spinner"></i>
         <h2>Connexion à CY BANK...</h2>
-        <p style="color: #2D2D2D;">Veuillez patienter, nous vous transférons vers le portail de paiement sécurisé de l'école.</p>
-        <p style="font-size: 1.2rem; margin-top: 15px; color: #2D2D2D;">Montant : <strong style="color: #D32F2F; font-size: 1.4rem;"><?= number_format($total_paye, 2, ',', ' ') ?> €</strong></p>
+        <p class="redirect-text">Veuillez patienter, nous vous transférons vers le portail de paiement sécurisé de l'école.</p>
+        <p class="redirect-amount-box">Montant : <strong class="redirect-amount-value"><?= number_format($total_paye, 2, ',', ' ') ?> €</strong></p>
 
         <!-- Formulaire invisible de redirection vers CYBank -->
         <form id="cybank-form" action="<?= htmlspecialchars($cybank_url) ?>" method="POST">

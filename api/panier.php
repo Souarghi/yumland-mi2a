@@ -133,7 +133,7 @@ $discount = 0;
 // Récupération du solde Miams si connecté
 $miams = 0;
 $statut_miams = "";
-$color_miams = "var(--color-stone-gray)"; // Couleur par défaut (Niveau 1)
+$tier_class = "tier-1"; // Classe par défaut (Niveau 1)
 
 if (isLoggedIn()) {
     $stmtMiams = $pdo->prepare("SELECT solde_miams, total_miams_historique FROM Utilisateurs WHERE id_user = ?");
@@ -145,13 +145,13 @@ if (isLoggedIn()) {
     // Application des Paliers de Fidélité (D'après la doc)
     if ($miams_historique < 1000) {
         $statut_miams = "PETIT GRILLEUR";
-        $color_miams = "var(--color-grey-light)"; // #BDBDBD
+        $tier_class = "tier-1";
     } elseif ($miams_historique < 3000) {
         $statut_miams = "SAUCE CHEF";
-        $color_miams = "var(--color-primary)"; // #D32F2F
+        $tier_class = "tier-2";
     } else {
         $statut_miams = "LÉGENDE DU STEAK";
-        $color_miams = "var(--color-accent)"; // #FFC107
+        $tier_class = "tier-3";
         $discount = $subtotal * 0.10;
         $cart['total'] = $subtotal - $discount;
     }
@@ -242,10 +242,10 @@ include_once __DIR__ . '/includes/header.php';
                                 <tr>
                                     <td class="cart-item-info">
                                         <?php if(!empty($item['image'])): ?>
-                                            <img src="<?= str_starts_with($item['image'], '/') ? htmlspecialchars($item['image']) : '/' . htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['nom']) ?>" class="cart-item-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                            <div class="cart-item-image fallback-img" style="display:none;">🍔</div>
+                                            <img src="<?= str_starts_with($item['image'], '/') ? htmlspecialchars($item['image']) : '/' . htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['nom']) ?>" class="cart-item-image" onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-flex');">
+                                            <div class="cart-item-image fallback-img d-none">🍔</div>
                                         <?php else: ?>
-                                            <div class="cart-item-image fallback-img" style="display:flex;">🍔</div>
+                                            <div class="cart-item-image fallback-img d-flex">🍔</div>
                                         <?php endif; ?>
                                         <div class="cart-item-details">
                                             <h3><?= htmlspecialchars($item['nom']) ?></h3>
@@ -298,9 +298,9 @@ include_once __DIR__ . '/includes/header.php';
                     <textarea name="adresse_livraison" rows="2" class="cart-address-input" placeholder="Où devons-nous vous livrer ?"><?= htmlspecialchars($current_address) ?></textarea>
                 </div>
                 
-                <div class="loyalty-box" style="border: 3px solid <?= $color_miams ?>;">
+                <div class="loyalty-box <?= $tier_class ?>">
                     <h3 class="loyalty-title">🥩 Le Grand Miam Club</h3>
-                    <p>Miams disponibles : <strong><?= $miams_dispo ?> Miams</strong> (Rang : <strong style="color: <?= $color_miams ?>;"><?= $statut_miams ?></strong>)</p>
+                    <p>Miams disponibles : <strong><?= $miams_dispo ?> Miams</strong> (Rang : <strong class="text-<?= $tier_class ?>"><?= $statut_miams ?></strong>)</p>
                     
                     <?php if ($statut_miams === "SAUCE CHEF" || $statut_miams === "LÉGENDE DU STEAK"): ?>
                         <div class="loyalty-benefit-tier1">
@@ -318,7 +318,7 @@ include_once __DIR__ . '/includes/header.php';
                         
                         <div class="shop-items">
                             <!-- Option 150 Miams -->
-                            <div class="shop-item" style="background: <?= $miams_dispo >= 150 ? '#e8f5e9' : '#f5f5f5' ?>; opacity: <?= $miams_dispo >= 150 ? '1' : '0.5' ?>;">
+                            <div class="shop-item <?= $miams_dispo >= 150 ? 'unlocked' : 'locked' ?>">
                                 <div><strong>150 Miams</strong> : Une Sauce Maison offerte 🥫</div>
                                 <button type="button" class="btn-primary shop-item-btn" 
                                     onclick="showOptionsModal(<?= $id_sauce ?>, 'Sauce Maison', '[{&quot;titre&quot;:&quot;Choix&quot;,&quot;choix&quot;:[&quot;Sauce BBQ&quot;,&quot;Sauce Béarnaise&quot;,&quot;Sauce au Poivre&quot;,&quot;Sauce Roquefort&quot;,&quot;Moutarde Ancienne&quot;]}]', 150)" 
@@ -326,7 +326,7 @@ include_once __DIR__ . '/includes/header.php';
                             </div>
                             
                             <!-- Option 300 Miams -->
-                            <div class="shop-item" style="background: <?= $miams_dispo >= 300 ? '#e8f5e9' : '#f5f5f5' ?>; opacity: <?= $miams_dispo >= 300 ? '1' : '0.5' ?>;">
+                            <div class="shop-item <?= $miams_dispo >= 300 ? 'unlocked' : 'locked' ?>">
                                 <div><strong>300 Miams</strong> : Un Soft ou une Bière (25cl) 🍺</div>
                                 <button type="button" class="btn-primary shop-item-btn" 
                                     onclick="showOptionsModal(<?= $id_boisson ?>, 'Boisson Offerte', '[{&quot;titre&quot;:&quot;Choix&quot;,&quot;choix&quot;:[&quot;Coca-Cola (33cl)&quot;,&quot;Sprite (33cl)&quot;,&quot;Ice Tea (25cl)&quot;,&quot;Bière Blonde (25cl)&quot;,&quot;Bière IPA (25cl)&quot;]}]', 300)" 
@@ -334,7 +334,7 @@ include_once __DIR__ . '/includes/header.php';
                             </div>
 
                             <!-- Option 800 Miams -->
-                            <div class="shop-item" style="background: <?= $miams_dispo >= 800 ? '#e8f5e9' : '#f5f5f5' ?>; opacity: <?= $miams_dispo >= 800 ? '1' : '0.5' ?>;">
+                            <div class="shop-item <?= $miams_dispo >= 800 ? 'unlocked' : 'locked' ?>">
                                 <div><strong>800 Miams</strong> : Un Dessert au choix 🍪</div>
                                 <button type="button" class="btn-primary shop-item-btn" 
                                     onclick="showOptionsModal(<?= $id_dessert ?>, 'Dessert Offert', '[{&quot;titre&quot;:&quot;Choix&quot;,&quot;choix&quot;:[&quot;Cookie Skillet&quot;,&quot;Cheesecake NY&quot;,&quot;Brioche Perdue&quot;]}]', 800)" 
@@ -342,7 +342,7 @@ include_once __DIR__ . '/includes/header.php';
                             </div>
                             
                             <!-- Option 1500 Miams -->
-                            <div class="shop-item" style="background: <?= $miams_dispo >= 1500 ? '#e8f5e9' : '#f5f5f5' ?>; opacity: <?= $miams_dispo >= 1500 ? '1' : '0.5' ?>;">
+                            <div class="shop-item <?= $miams_dispo >= 1500 ? 'unlocked' : 'locked' ?>">
                                 <div><strong>1500 Miams</strong> : Le Burger "Grand Miam" 🍔</div>
                                 <button type="button" class="btn-primary shop-item-btn" 
                                     onclick="showOptionsModal(<?= $id_burger ?>, 'Burger Grand Miam', '[{&quot;titre&quot;:&quot;Viande&quot;,&quot;choix&quot;:[&quot;Bœuf Limousin&quot;,&quot;Bœuf (Halal)&quot;,&quot;Poulet Croustillant&quot;,&quot;Galette Veggie&quot;]},{&quot;titre&quot;:&quot;Cuisson&quot;,&quot;choix&quot;:[&quot;Saignant&quot;,&quot;À point&quot;,&quot;Bien cuit&quot;]}]', 1500)" 

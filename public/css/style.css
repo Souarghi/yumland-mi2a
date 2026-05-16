@@ -1198,6 +1198,70 @@ footer {
         height: 45px;
     }
 }
+
+/* ============================================================
+   NOUVELLES CLASSES (Remplacement des styles inline)
+   ============================================================ */
+.d-none { display: none !important; }
+.d-flex { display: flex !important; }
+.hidden-alert { display: none; }
+
+/* Livraisons */
+.container-small { max-width: 600px; margin: 0 auto; }
+.livraisons-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.livraisons-title { margin: 0; }
+.alert-livraisons { margin-bottom: 20px; }
+.card-livraison { padding: 20px; text-align: left; margin-bottom: 20px; }
+.livraison-id { font-size: 1.5rem; margin-bottom: 5px; }
+.livraison-address { font-size: 1.2rem; color: #555; }
+.livraison-actions-wrapper { display: flex; flex-direction: column; gap: 15px; margin-top: 25px; }
+.btn-call-client { background: #e67e22; color: white; }
+.livraison-form { margin: 0; display: flex; flex-direction: column; gap: 15px; }
+.btn-no-border { border: none; }
+
+/* Avis */
+.avis-container { padding-top: 40px; min-height: 70vh; }
+.avis-page-title { text-align: center; margin-bottom: 30px; }
+.avis-star-icon { color: var(--color-accent); }
+.avis-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+.avis-card { display: flex; flex-direction: column; }
+.avis-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.avis-rating { color: #f39c12; font-size: 1.2rem; }
+.avis-comment { font-style: italic; color: #555; margin: 10px 0; flex-grow: 1; }
+.avis-footer { margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; font-size: 0.85rem; color: #888; }
+.avis-plat { margin-bottom: 5px; }
+
+/* Carte Map */
+.map-container { margin-top: 0; padding-top: 0; }
+.map-subtitle { color: #555; margin-bottom: 1rem; }
+.map-box { height: 380px; border-radius: 8px; border: 1px solid #ddd; }
+
+/* Commander */
+.redirect-text { color: var(--color-secondary); }
+.redirect-amount-box { font-size: 1.2rem; margin-top: 15px; color: var(--color-secondary); }
+.redirect-amount-value { color: var(--color-primary); font-size: 1.4rem; }
+
+/* Panier / Loyalty */
+.loyalty-box.tier-1 { border: 3px solid var(--color-grey-light); }
+.loyalty-box.tier-2 { border: 3px solid var(--color-primary); }
+.loyalty-box.tier-3 { border: 3px solid var(--color-accent); }
+.text-tier-1 { color: var(--color-grey-light) !important; }
+.text-tier-2 { color: var(--color-primary) !important; }
+.text-tier-3 { color: var(--color-accent) !important; }
+.shop-item.unlocked { background: #e8f5e9; opacity: 1; }
+.shop-item.locked { background: #f5f5f5; opacity: 0.5; }
+
+/* Obsolete Commandes Jour */
+.cmd-card { padding: 15px; text-align: left; }
+.cmd-status { color: var(--color-primary); font-weight: bold; }
+.cmd-details-box { background: var(--color-bg); padding: 10px; border-radius: 4px; margin: 10px 0; }
+.cmd-list { list-style-type: none; padding-left: 0; margin: 0; }
+.cmd-item { margin-bottom: 5px; }
+.cmd-options { font-size: 0.85em; color: var(--color-primary); margin-left: 20px; }
+.cmd-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+.btn-prep { background: #e67e22; }
+.btn-ready { background: #27ae60; }
+.btn-assign { background: var(--color-secondary); }
 /* ============================================================
    NOTER.PHP — Système de notation étoiles
    ============================================================ */

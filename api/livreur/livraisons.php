@@ -31,13 +31,13 @@ if (!$livreur_id) {
 $mes_livraisons = getCommandesByLivreur($livreur_id);
 ?>
 
-<section class="container" style="max-width: 600px; margin: 0 auto;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h1 style="margin: 0;">Mes Courses</h1>
+<section class="container container-small">
+    <div class="livraisons-header">
+        <h1 class="livraisons-title">Mes Courses</h1>
     </div>
     
     <?php if (isset($_SESSION['flash_message'])): ?>
-        <div class="alert alert-<?= htmlspecialchars($_SESSION['flash_type'] ?? 'info') ?>" style="margin-bottom: 20px;">
+        <div class="alert alert-<?= htmlspecialchars($_SESSION['flash_type'] ?? 'info') ?> alert-livraisons">
             <?= htmlspecialchars($_SESSION['flash_message']) ?>
         </div>
         <?php 
@@ -53,32 +53,32 @@ $mes_livraisons = getCommandesByLivreur($livreur_id);
     <?php endif; ?>
 
     <?php foreach ($mes_livraisons as $livraison): ?>
-        <article class="card-style" style="padding: 20px; text-align: left; margin-bottom: 20px;">
-            <h2 style="font-size: 1.5rem; margin-bottom: 5px;">Commande #<?= $livraison['id_commande'] ?></h2>
+        <article class="card-style card-livraison">
+            <h2 class="livraison-id">Commande #<?= $livraison['id_commande'] ?></h2>
             <?php $adresse_a_afficher = !empty($livraison['adresse_livraison']) ? $livraison['adresse_livraison'] : (!empty($livraison['client_adresse']) ? $livraison['client_adresse'] : 'Adresse non spécifiée'); ?>
-            <p style="font-size: 1.2rem; color: #555;">
+            <p class="livraison-address">
                 📍 <?= htmlspecialchars($adresse_a_afficher) ?>
             </p>
             
             <!-- Boutons XXL (Hauteur mini 60px pour gants selon le README) -->
-            <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 25px;">
+            <div class="livraison-actions-wrapper">
                 <a href="https://www.google.com/maps/search/?api=1&query=<?= urlencode($adresse_a_afficher) ?>" target="_blank" class="btn btn-livreur btn-map">
                     🗺️ OUVRIR DANS MAPS
                 </a>
                 
                 <?php if (!empty($livraison['client_tel'])): ?>
-                <a href="tel:<?= htmlspecialchars($livraison['client_tel']) ?>" class="btn btn-livreur" style="background: #e67e22; color: white;">
+                <a href="tel:<?= htmlspecialchars($livraison['client_tel']) ?>" class="btn btn-livreur btn-call-client">
                     📞 APPELER LE CLIENT (<?= htmlspecialchars(strtoupper($livraison['client_nom'])) ?>)
                 </a>
                 <?php endif; ?>
                 
-                <form method="POST" style="margin: 0; display: flex; flex-direction: column; gap: 15px;">
+                <form method="POST" class="livraison-form">
                     <input type="hidden" name="action" value="terminee">
                     <input type="hidden" name="id_commande" value="<?= $livraison['id_commande'] ?>">
-                    <button type="submit" class="btn btn-livreur btn-deliver" style="border: none;">
+                    <button type="submit" class="btn btn-livreur btn-deliver btn-no-border">
                         ✅ MARQUER COMME LIVRÉE
                     </button>
-                    <button type="button" class="btn btn-livreur btn-problem" style="border: none;" onclick="alert('Contactez le support :\n- Myriam Bensaid : 06 68 39 92 06\n- Sheryne Ouarghi : 06 17 67 77 02')">
+                    <button type="button" class="btn btn-livreur btn-problem btn-no-border" onclick="alert('Contactez le support :\n- Myriam Bensaid : 06 68 39 92 06\n- Sheryne Ouarghi : 06 17 67 77 02')">
                         ❌ PROBLÈME DE LIVRAISON
                     </button>
                 </form>

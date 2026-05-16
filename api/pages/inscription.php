@@ -106,7 +106,7 @@ include_once __DIR__ . '/../includes/header.php';
                 </div>
             <?php else: ?>
                 <form action="/api/pages/inscription.php" method="post" class="auth-form">
-                    <div id="js-error-message" class="alert alert-danger auth-alert-custom auth-alert-danger" style="display: none;"></div>
+                    <div id="js-error-message" class="alert alert-danger auth-alert-custom auth-alert-danger hidden-alert"></div>
                     <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
                     
                     <div class="form-row">

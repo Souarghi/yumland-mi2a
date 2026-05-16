@@ -289,10 +289,10 @@ function getProduitById($id, $produits) {
 </script>
 
 <!-- CARTE INTERACTIVE — Localisation du restaurant -->
-<div class="menu-container" style="margin-top: 0; padding-top: 0;">
+<div class="menu-container map-container">
     <h2><i class="fas fa-map-marker-alt"></i> Nous trouver</h2>
-    <p style="color: #555; margin-bottom: 1rem;">Le Grand Miam — commandez en ligne ou venez nous rendre visite !</p>
-    <div id="map" style="height: 380px; border-radius: 8px; border: 1px solid #ddd;"></div>
+    <p class="map-subtitle">Le Grand Miam — commandez en ligne ou venez nous rendre visite !</p>
+    <div id="map" class="map-box"></div>
 </div>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />

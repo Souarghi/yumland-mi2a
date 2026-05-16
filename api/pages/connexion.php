@@ -26,7 +26,7 @@ include_once __DIR__ . '/../includes/header.php';
         <div class="auth-container auth-container-center">
             <h2>Connexion</h2>
             
-            <div id="login-error" class="alert alert-danger" style="display: none;"></div>
+            <div id="login-error" class="alert alert-danger hidden-alert"></div>
             
             <?php if (isset($_GET['error']) && $_GET['error'] === 'must_login'): ?>
                 <div class="alert alert-info auth-alert-info">

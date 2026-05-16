@@ -13,29 +13,29 @@ $commandes = getAllCommandes();
 
     <div class="gallery-grid">
         <?php foreach ($commandes as $cmd): ?>
-            <article class="card-style" style="padding: 15px; text-align: left;">
+            <article class="card-style cmd-card">
                 <h3>Commande #<?= $cmd['id_commande'] ?></h3>
                 <p><strong>Date :</strong> <?= date('H:i', strtotime($cmd['date_commande'])) ?></p>
                 <p><strong>Statut :</strong> 
-                    <span style="color: var(--color-grill-red); font-weight: bold;">
+                    <span class="cmd-status">
                         <?= htmlspecialchars($cmd['statut']) ?>
                     </span>
                 </p>
                 
                 <!-- Affichage des détails réels de la commande -->
-                <div style="background: var(--color-sauce-cream); padding: 10px; border-radius: 4px; margin: 10px 0;">
+                <div class="cmd-details-box">
                     <?php 
                     $details = getCommandeDetails($cmd['id_commande']);
                     if (!empty($details)): 
                     ?>
-                        <ul style="list-style-type: none; padding-left: 0; margin: 0;">
+                        <ul class="cmd-list">
                             <?php foreach ($details as $item): ?>
-                                <li style="margin-bottom: 5px;">
+                                <li class="cmd-item">
                                     <strong><?= $item['quantite'] ?>x</strong> <?= htmlspecialchars($item['nom']) ?>
                                     <?php 
                                     $options = json_decode($item['options_choisies'], true);
                                     if (!empty($options)) {
-                                        echo "<br><em style='font-size: 0.85em; color: var(--color-primary); margin-left: 20px;'>- " . htmlspecialchars(implode(', ', $options)) . "</em>";
+                                        echo "<br><em class='cmd-options'>- " . htmlspecialchars(implode(', ', $options)) . "</em>";
                                     }
                                     ?>
                                 </li>
@@ -46,14 +46,14 @@ $commandes = getAllCommandes();
                     <?php endif; ?>
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
-                    <button class="btn-primary" style="background: #e67e22;">
+                <div class="cmd-actions">
+                    <button class="btn-primary btn-prep">
                         Passer "En préparation"
                     </button>
-                    <button class="btn-primary" style="background: #27ae60;">
+                    <button class="btn-primary btn-ready">
                         Commande Prête
                     </button>
-                    <button class="btn-primary" style="background: var(--color-coal-black);">
+                    <button class="btn-primary btn-assign">
                         Attribuer à un livreur
                     </button>
                 </div>
