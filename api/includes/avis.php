@@ -58,20 +58,6 @@ function getCommandeForNoting(int $commande_id, int $user_id): array|false {
 }
 
 /**
- * Récupère les données du profil d'un utilisateur.
- * Utilisé par : api/client/profil.php
- *
- * @param int $user_id  Identifiant de l'utilisateur.
- * @return array|false  Données utilisateur, ou false si introuvable.
- */
-function getUserById(int $user_id): array|false {
-    global $pdo;
-    $stmt = $pdo->prepare("SELECT * FROM Utilisateurs WHERE id_user = ?");
-    $stmt->execute([$user_id]);
-    return $stmt->fetch();
-}
-
-/**
  * Enregistre ou met à jour un avis pour une commande donnée.
  * Crée la table Avis si elle n'existe pas encore.
  * Utilisé par : api/client/noter.php
