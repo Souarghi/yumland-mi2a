@@ -1,33 +1,10 @@
-</main>
-
-<footer>
-    <div class="footer-content">
-        <p>&copy; <?= date('Y') ?> Le Grand Miam - Projet Creative Yumland (CY Tech)</p>
-        <div class="footer-links">
-            <a href="/api/pages/mentions.php">Mentions Légales</a> |
-            <a href="/api/pages/inscription.php">Devenir Membre</a>
-        </div>
-    </div>
-</footer>
-
-<!-- Modal de sélection des Options de Menus -->
-<div id="optionsModal" class="modal-overlay">
-    <div class="modal-container">
-        <h2 id="modalMenuTitle" class="modal-title">Composez votre menu</h2>
-        <form id="optionsForm">
-            <input type="hidden" id="modalProductId" name="id_produit" value="">
-            <input type="hidden" id="modalPrixMiams" name="prix_miams" value="0">
-            <input type="hidden" id="modalCartIndex" name="cart_index" value="">
-            <input type="hidden" id="modalOptionsDispos" name="options_dispos" value="">
-            <div id="optionsContainer" class="modal-options-container"></div>
-            
-            <div class="modal-actions">
-                <button type="button" onclick="closeOptionsModal()" class="btn-cancel">Annuler</button>
-                <button type="button" id="btnSubmitModal" onclick="submitOptionsMenu()" class="btn-primary btn-modal-submit">Ajouter au panier 🛒</button>
-            </div>
-        </form>
-    </div>
-</div>
+<script src="/public/js/script.js" defer></script>
+<script src="/public/js/cookie-consent.js" defer></script>
+<?php if (isset($additionalJs)): ?>
+    <?php foreach ($additionalJs as $js): ?>
+        <script src="<?= $js ?>" defer></script>
+    <?php endforeach; ?>
+<?php endif; ?>
 
 <script>
     // Ouvre la fenêtre et génère les listes déroulantes
@@ -146,34 +123,59 @@
             alert("Une erreur est survenue lors de l'ajout au panier. Veuillez vérifier votre connexion.");
         });
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const backToTopBtn = document.getElementById("backToTop");
+        if (backToTopBtn) {
+            window.addEventListener("scroll", () => {
+                if (window.scrollY > 300) {
+                    backToTopBtn.classList.add("visible");
+                } else {
+                    backToTopBtn.classList.remove("visible");
+                }
+            });
+            backToTopBtn.addEventListener("click", () => {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            });
+        }
+    });
 </script>
+
+</main>
+
+<footer>
+    <div class="footer-content">
+        <p>&copy; <?= date('Y') ?> Le Grand Miam - Projet Creative Yumland (CY Tech)</p>
+        <div class="footer-links">
+            <a href="/api/pages/mentions.php">Mentions Légales</a> |
+            <a href="/api/pages/inscription.php">Devenir Membre</a>
+        </div>
+    </div>
+</footer>
+
+<!-- Modal de sélection des Options de Menus -->
+<div id="optionsModal" class="modal-overlay">
+    <div class="modal-container">
+        <h2 id="modalMenuTitle" class="modal-title">Composez votre menu</h2>
+        <form id="optionsForm">
+            <input type="hidden" id="modalProductId" name="id_produit" value="">
+            <input type="hidden" id="modalPrixMiams" name="prix_miams" value="0">
+            <input type="hidden" id="modalCartIndex" name="cart_index" value="">
+            <input type="hidden" id="modalOptionsDispos" name="options_dispos" value="">
+            <div id="optionsContainer" class="modal-options-container"></div>
+            
+            <div class="modal-actions">
+                <button type="button" onclick="closeOptionsModal()" class="btn-cancel">Annuler</button>
+                <button type="button" id="btnSubmitModal" onclick="submitOptionsMenu()" class="btn-primary btn-modal-submit">Ajouter au panier 🛒</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <!-- Bouton Retour en Haut -->
 <button id="backToTop" class="back-to-top" title="Retour en haut">
     <i class="fas fa-arrow-up"></i>
 </button>
-<script>
-    const backToTopBtn = document.getElementById("backToTop");
-    if (backToTopBtn) {
-        window.addEventListener("scroll", () => {
-            if (window.scrollY > 300) {
-                backToTopBtn.classList.add("visible");
-            } else {
-                backToTopBtn.classList.remove("visible");
-            }
-        });
-        backToTopBtn.addEventListener("click", () => {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-        });
-    }
-</script>
 
-<script src="/public/js/script.js"></script>
-<script src="/public/js/cookie-consent.js"></script>
-<?php if (isset($additionalJs)): ?>
-    <?php foreach ($additionalJs as $js): ?>
-        <script src="<?= $js ?>"></script>
-    <?php endforeach; ?>
-<?php endif; ?>
 </body>
 </html>

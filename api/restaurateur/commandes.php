@@ -40,6 +40,14 @@ $pageTitle = 'Gestion des Commandes';
 include_once __DIR__ . '/../includes/header.php';
 ?>
 
+<script>
+    // Horloge temps réel pour la cuisine
+    setInterval(() => {
+        const now = new Date();
+        const clock = document.getElementById('clock');
+        if (clock) clock.textContent = now.toLocaleTimeString('fr-FR');
+    }, 1000);
+</script>
 
 <section class="restaurateur-section">
     <div class="container" style="max-width: 1400px;">
@@ -179,14 +187,6 @@ include_once __DIR__ . '/../includes/header.php';
         </main>
     </div>
 </section>
-
-<script>
-    // Horloge temps réel pour la cuisine
-    setInterval(() => {
-        const now = new Date();
-        document.getElementById('clock').textContent = now.toLocaleTimeString('fr-FR');
-    }, 1000);
-</script>
 
 <?php
 // Inclure le footer
