@@ -10,6 +10,11 @@ if (!isLoggedIn() || !hasRole('Restaurateur')) {
 
 // Traitement des actions (Changement de statut)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    // Vérification de sécurité CSRF
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        die("Erreur de sécurité CSRF.");
+    }
+
     $id_commande = (int)$_POST['id_commande'];
     if ($_POST['action'] === 'preparer') {
         updateCommandeStatus($id_commande, 'En préparation');
@@ -35,6 +40,9 @@ $commandes_pretes = getAllCommandes('Prête', null, 'ASC');
 // Définir la page courante pour le menu actif
 $currentPage = 'restaurateur_commandes';
 $pageTitle = 'Gestion des Commandes';
+
+// Génération du jeton CSRF
+$csrf_token = generateCSRFToken();
 
 // Inclure le header
 include_once __DIR__ . '/../includes/header.php';
@@ -98,6 +106,7 @@ include_once __DIR__ . '/../includes/header.php';
                             <?php endforeach; ?>
                         </ul>
                         <form method="POST" style="margin:0;">
+                            <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
                             <input type="hidden" name="action" value="preparer">
                             <input type="hidden" name="id_commande" value="<?= $cmd['id_commande'] ?>">
                             <button type="submit" class="btn-move btn-start">
@@ -139,6 +148,7 @@ include_once __DIR__ . '/../includes/header.php';
                             <?php endforeach; ?>
                         </ul>
                         <form method="POST" style="margin:0;">
+                            <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
                             <input type="hidden" name="action" value="prete">
                             <input type="hidden" name="id_commande" value="<?= $cmd['id_commande'] ?>">
                             <button type="submit" class="btn-move btn-ready">
@@ -167,6 +177,7 @@ include_once __DIR__ . '/../includes/header.php';
                         <?php if(($cmd['mode_retrait'] ?? 'livraison') === 'livraison'): ?>
                             <div style="text-align:center; color:green; font-weight:bold; margin-bottom: 10px;">En attente livreur</div>
                             <form method="POST" style="margin:0;">
+                                <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
                                 <input type="hidden" name="action" value="livrer">
                                 <input type="hidden" name="id_commande" value="<?= $cmd['id_commande'] ?>">
                                 <button type="submit" class="btn-move btn-deliver">🚴 Assigner un livreur</button>
@@ -174,6 +185,7 @@ include_once __DIR__ . '/../includes/header.php';
                         <?php else: ?>
                             <div style="text-align:center; color:green; font-weight:bold; margin-bottom: 10px;">En attente client (Sur place)</div>
                             <form method="POST" style="margin:0;">
+                                <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
                                 <input type="hidden" name="action" value="servie">
                                 <input type="hidden" name="id_commande" value="<?= $cmd['id_commande'] ?>">
                                 <button type="submit" class="btn-move btn-deliver">🍽️ Marquer comme Servie</button>

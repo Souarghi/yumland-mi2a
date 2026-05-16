@@ -14,6 +14,11 @@ $messageType = 'success'; // ou 'danger'
 
 // Traitement du formulaire de modification
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_profile') {
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $message = "Erreur de sécurité CSRF. Veuillez réessayer.";
+        $messageType = 'danger';
+    } else {
+
     $nom = trim($_POST['nom'] ?? '');
     $prenom = trim($_POST['prenom'] ?? '');
     $tel = trim($_POST['tel'] ?? '');
@@ -41,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $message = "Erreur lors de la mise à jour de vos informations.";
         $messageType = 'danger';
     }
+    }
 }
 
 // Récupération des informations actuelles de l'utilisateur
@@ -61,6 +67,8 @@ if ($miams_historique < 1000) {
 
 $currentPage = 'profil';
 $pageTitle = 'Mon Profil';
+
+$csrf_token = generateCSRFToken();
 
 $additionalCss = ['/css/profil.css'];
 include_once __DIR__ . '/../includes/header.php';
@@ -85,6 +93,7 @@ include_once __DIR__ . '/../includes/header.php';
 
         <form action="/api/client/profil.php" method="POST" id="profile-form">
             <input type="hidden" name="action" value="update_profile">
+            <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
             
             <div class="form-group form-group-spacing">
                 <label for="nom">Nom :</label>

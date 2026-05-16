@@ -30,6 +30,11 @@ if (!$commande) {
 
 // Traitement de l'avis
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'noter') {
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $message = "Erreur de sécurité (CSRF). Veuillez réessayer.";
+        $messageType = 'danger';
+    } else {
+
     $delivery_note = isset($_POST['delivery_note']) ? (int)$_POST['delivery_note'] : 0;
     $food_note = isset($_POST['food_note']) ? (int)$_POST['food_note'] : 0;
     $commentaire = trim($_POST['commentaire'] ?? '');
@@ -44,7 +49,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $message = "Erreur lors de l'enregistrement de votre avis.";
         $messageType = 'danger';
     }
+    }
 }
+
+$csrf_token = generateCSRFToken();
 
 $currentPage = 'profil';
 $pageTitle = 'Noter la commande #' . $commande_id;
@@ -71,6 +79,7 @@ include_once __DIR__ . '/../includes/header.php';
             <form action="/api/client/noter.php" method="POST" id="rating-form">
                 <input type="hidden" name="action" value="noter">
                 <input type="hidden" name="commande_id" value="<?= htmlspecialchars($commande_id) ?>">
+                <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
                 
                 <div class="form-group noter-form-group" style="margin-bottom: 15px;">
                     <label for="order-id">Identifiant de la commande :</label>

@@ -26,8 +26,14 @@ if ($id_commande <= 0 || !in_array($new_statut, $allowed_statuts)) {
 }
 
 try {
-    $stmt = $pdo->prepare("UPDATE Commandes SET statut = ? WHERE id_commande = ?");
-    $stmt->execute([$new_statut, $id_commande]);
+    // Faille de type IDOR : Il faut s'assurer que le livreur ne modifie que SES commandes
+    if ($role === 'Livreur') {
+        $stmt = $pdo->prepare("UPDATE Commandes SET statut = ? WHERE id_commande = ? AND id_livreur = ?");
+        $stmt->execute([$new_statut, $id_commande, $_SESSION['user_id']]);
+    } else {
+        $stmt = $pdo->prepare("UPDATE Commandes SET statut = ? WHERE id_commande = ?");
+        $stmt->execute([$new_statut, $id_commande]);
+    }
 
     echo json_encode([
         'success' => true,
