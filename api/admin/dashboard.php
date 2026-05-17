@@ -36,26 +36,78 @@ async function toggleBlock(userId, btn) {
     alert(data.message);
   }
 }
+
+function editRole(userId, currentRole) {
+    const td = document.getElementById('role-td-' + userId);
+    if (!td) return;
+    
+    const select = document.createElement('select');
+    select.style.padding = '5px';
+    select.style.borderRadius = '4px';
+    
+    ['Client', 'Administrateur', 'Restaurateur', 'Livreur'].forEach(r => {
+        let opt = document.createElement('option');
+        opt.value = r;
+        opt.textContent = r;
+        if (r === currentRole) opt.selected = true;
+        select.appendChild(opt);
+    });
+    
+    select.onchange = async function() {
+        const newRole = this.value;
+        const response = await fetch('/api/admin/update_role.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_user: userId, new_role: newRole })
+        });
+        const data = await response.json();
+        if (data.success) {
+            td.setAttribute('data-role', newRole);
+            td.innerHTML = `<span class="role-badge role-${newRole.toLowerCase()}">${newRole}</span>`;
+            const btnEdit = td.parentNode.querySelector('.btn-edit');
+            if (btnEdit) {
+                btnEdit.setAttribute('onclick', `editRole(${userId}, '${newRole}')`);
+            }
+        } else {
+            alert(data.message);
+            td.innerHTML = `<span class="role-badge role-${currentRole.toLowerCase()}">${currentRole}</span>`;
+        }
+    };
+    
+    select.onblur = function() {
+        if (this.value === currentRole) {
+             td.innerHTML = `<span class="role-badge role-${currentRole.toLowerCase()}">${currentRole}</span>`;
+        }
+    };
+    
+    td.innerHTML = '';
+    td.appendChild(select);
+    select.focus();
+}
+
+async function deleteUser(userId) {
+    if (confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.")) {
+        const response = await fetch('/api/admin/delete_user.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_user: userId })
+        });
+        const data = await response.json();
+        if (data.success) {
+            const row = document.getElementById('row-' + userId);
+            if (row) row.remove();
+        } else {
+            alert(data.message);
+        }
+    }
+}
 </script>
 
 <section class="admin-section">
     <div class="container">
         <h1>Tableau de bord administrateur</h1>
         
-        <div class="admin-container">
-            <div class="admin-sidebar">
-                <div class="admin-menu card-style">
-                    <h3>Menu Admin</h3>
-                    <ul>
-                        <li class="active"><a href="/api/admin/dashboard.php">Utilisateurs</a></li>
-                        <li><a href="/api/admin/commandes.php">Commandes</a></li>
-                        <li><a href="/api/admin/plats.php">Plats</a></li>
-                        <li><a href="/api/admin/menus.php">Menus</a></li>
-                        <li><a href="/api/logout.php">Déconnexion</a></li>
-                    </ul>
-                </div>
-            </div>
-            
+        <div class="admin-container">           
             <div class="admin-content">
                 <div class="admin-header">
                     <h2>Gestion des utilisateurs</h2>
@@ -78,13 +130,13 @@ async function toggleBlock(userId, btn) {
                         </thead>
                         <tbody>
                             <?php foreach ($users as $user): ?>
-                                <tr>
+                                <tr id="row-<?= $user['id_user'] ?>">
                                     <td><?= $user['id_user'] ?></td>
                                     <td><?= htmlspecialchars($user['nom'] . ' ' . ($user['prenom'] ?? '')) ?></td>
                                     <td><?= htmlspecialchars($user['nom']) ?></td>
                                     <td><?= htmlspecialchars($user['prenom'] ?? '') ?></td>
                                     <td><?= htmlspecialchars($user['email']) ?></td>
-                                    <td>
+                                    <td id="role-td-<?= $user['id_user'] ?>" data-role="<?= htmlspecialchars($user['role']) ?>">
                                         <span class="role-badge role-<?= strtolower($user['role']) ?>">
                                             <?= htmlspecialchars($user['role']) ?>
                                         </span>
@@ -95,13 +147,13 @@ async function toggleBlock(userId, btn) {
                                         </span>
                                     </td>
                                     <td class="actions">
-                                        <button class="btn-edit" title="Modifier" disabled>✏️</button>
+                                        <button class="btn-edit" title="Modifier le rôle" onclick="editRole(<?= $user['id_user'] ?>, '<?= htmlspecialchars($user['role'], ENT_QUOTES) ?>')">✏️</button>
                                         <button
                                                 onclick="toggleBlock(<?= $user['id_user'] ?>, this)"
                                                 class="<?= ($user['statut'] ?? '') === 'Bloqué' ? 'btn-activate' : 'btn-block' ?>">
                                                 <?= ($user['statut'] ?? '') === 'Bloqué' ? '🔓 Débloquer' : '🔒 Bloquer' ?>
                                             </button>
-                                        <button class="btn-delete" title="Supprimer" disabled>🗑️</button>
+                                        <button class="btn-delete" title="Supprimer" onclick="deleteUser(<?= $user['id_user'] ?>)">🗑️</button>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -109,9 +161,6 @@ async function toggleBlock(userId, btn) {
                     </table>
                 </div>
                 
-                <div class="admin-note">
-                    <p>Note: La modification et la suppression définitives des comptes seront implémentées lors de la Phase 4.</p>
-                </div>
             </div>
         </div>
     </div>

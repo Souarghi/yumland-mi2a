@@ -2,7 +2,7 @@
 // api/admin/toggle_block.php
 // Endpoint AJAX — Bloquer/Débloquer un utilisateur (Phase 3)
 header('Content-Type: application/json');
-// La session est démarrée centralement dans config.php
+require_once __DIR__ . '/../includes/config.php';
 
 // Vérification : seul un admin peut appeler cet endpoint
 $role = $_SESSION['role'] ?? $_SESSION['user_role'] ?? $_SESSION['type'] ?? '';
@@ -11,8 +11,6 @@ if (!isset($_SESSION['user_id']) || $role !== 'Administrateur') {
     echo json_encode(['success' => false, 'message' => 'Accès refusé.']);
     exit;
 }
-
-require_once __DIR__ . '/../includes/config.php';
 
 $data    = json_decode(file_get_contents('php://input'), true);
 $cible_id = (int)($data['id_user'] ?? 0);
