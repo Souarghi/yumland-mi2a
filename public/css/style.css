@@ -1094,19 +1094,28 @@ footer {
 .cart-item-image { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-right: 15px; background: #eee; }
 .cart-item-info h3 { margin: 0 0 5px 0; font-size: 1.2rem; color: var(--color-secondary); }
 .quantity-input { width: 60px; padding: 8px; border: 1px solid var(--color-grey-light); border-radius: 4px; text-align: center; font-size: 1.1rem; }
-.btn-remove { color: var(--color-primary); font-weight: bold; text-decoration: none; padding: 5px 10px; border-radius: 4px; border: 1px solid var(--color-primary); transition: all 0.3s; }
+.btn-remove { 
+    color: var(--color-primary); 
+    font-weight: bold; 
+    text-decoration: none; 
+    padding: 5px 10px; 
+    border-radius: 4px; 
+    border: 1px solid var(--color-primary); 
+    transition: all 0.3s; 
+    display: inline-flex !important; /* Ajoute ceci */
+}
 .btn-remove:hover { background: var(--color-primary); color: white; }
 
-.cart-summary { background: var(--color-bg); padding: 25px; border-radius: 8px; margin-top: 30px; border: 2px solid var(--color-accent); display: flex; justify-content: space-between; align-items: center; }
+.cart-summary { background: var(--color-bg); padding: 25px; border-radius: 8px; margin-top: 30px; border: 2px solid var(--color-accent); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
 .cart-total { text-align: left; }
 .cart-total p { font-size: 1.2rem; margin: 0; }
-.cart-actions { display: flex; align-items: center; gap: 15px; }
+.cart-actions { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; justify-content: flex-end; }
 .cart-total strong { color: var(--color-primary); font-size: 2.2rem; display: block; margin-top: 5px; }
 
 .btn-checkout { background: var(--color-accent); color: var(--color-secondary); font-size: 1.2rem; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; transition: transform 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
 .btn-checkout:hover { transform: scale(1.05); background: #FFD54F; }
 .btn-update { background: var(--color-secondary); color: white; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; }
-.btn-clear { color: var(--color-grey-light); text-decoration: underline; }
+.btn-clear { color: var(--color-text); text-decoration: underline; cursor: pointer; }
 
 .empty-cart { text-align: center; padding: 50px 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
 .empty-cart p { font-size: 1.5rem; color: var(--color-grey-light); margin-bottom: 20px; }
@@ -1143,7 +1152,7 @@ footer {
 .btn-update-cart-action { margin-right: auto; }
 .btn-pay-supplement { background: #f39c12; border: none; cursor: pointer; color: white; }
 .btn-save-edit { background: #2ecc71; border: none; cursor: pointer; color: white; }
-.btn-pay-order { border: none; cursor: pointer; color: white; }
+.btn-pay-order { border: none; cursor: pointer; }
 .btn-login-pay { background: var(--color-primary); color: white; }
 
 /* Mobile Panier */
@@ -1152,6 +1161,32 @@ footer {
     .cart-actions { flex-direction: column; width: 100%; }
     .btn-checkout, .btn-update { width: 100%; text-align: center; }
     .cart-table th:nth-child(2), .cart-table td:nth-child(2) { display: none; } /* Cacher prix unitaire sur mobile */
+    /* Transformation du panier en cartes pour mobile */
+    .cart-table thead { display: none; }
+    .cart-table tr { 
+        display: block; 
+        background: white; 
+        margin-bottom: 15px; 
+        border-radius: 12px; 
+        box-shadow: var(--shadow-card); 
+        padding: 15px; 
+    }
+    .cart-table td { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        padding: 10px 0; 
+        border-bottom: 1px solid #eee; 
+    }
+    .cart-table td:last-child { 
+        border-bottom: none; 
+        justify-content: center; /* Centre le bouton retirer */
+    }
+    .cart-item-info { 
+        flex-direction: column; 
+        align-items: flex-start; 
+        gap: 10px; 
+    }
 }
 
 /* --- BOUTON RETOUR EN HAUT --- */
