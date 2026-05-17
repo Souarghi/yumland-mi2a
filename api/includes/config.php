@@ -24,11 +24,11 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // 3. RÉCUPÉRATION DES PARAMÈTRES
-$host = getenv('DB_HOST')     ?: 'yumlandbase-yumland.l.aivencloud.com';
-$port = getenv('DB_PORT')     ?: '25645';
-$db   = getenv('DB_NAME')     ?: 'defaultdb';
-$user = getenv('DB_USER')     ?: 'avnadmin';
-$pass = getenv('DB_PASSWORD') ?: 'AVNS_PH3P24uM4D2Vg9YHMvZ';
+$host = 'yumlandbase-yumland.l.aivencloud.com';
+$port = '25645';
+$db   = 'defaultdb';
+$user = 'avnadmin';
+$pass = 'AVNS_PH3P24uM4D2Vg9YHMvZ';
 
 // Certificat SSL Aiven — fichier directement dans le repo
 $ssl_ca = __DIR__ . '/ca.pem';
