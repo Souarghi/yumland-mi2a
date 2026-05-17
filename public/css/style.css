@@ -1165,11 +1165,7 @@ footer {
 }
 .btn-remove:hover { background: var(--color-primary); color: white; }
 
-<<<<<<< HEAD
 .cart-summary { background: var(--color-bg); padding: 25px; border-radius: 8px; margin-top: 30px; border: 2px solid var(--color-accent); display: flex !important; visibility: visible !important; opacity: 1 !important; justify-content: space-between; align-items: center; }
-=======
-.cart-summary { background: var(--color-bg); padding: 25px; border-radius: 8px; margin-top: 30px; border: 2px solid var(--color-accent); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
->>>>>>> 06596fcbdb2eb331e2c59545ab293e219a9a7321
 .cart-total { text-align: left; }
 .cart-total p { font-size: 1.2rem; margin: 0; }
 .cart-actions { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; justify-content: flex-end; }
@@ -1215,11 +1211,7 @@ footer {
 .btn-update-cart-action { margin-right: auto; }
 .btn-pay-supplement { background: #f39c12; border: none; cursor: pointer; color: white; }
 .btn-save-edit { background: #2ecc71; border: none; cursor: pointer; color: white; }
-<<<<<<< HEAD
 .btn-pay-order { background: var(--color-primary); border: none; cursor: pointer; color: white; }
-=======
-.btn-pay-order { border: none; cursor: pointer; }
->>>>>>> 06596fcbdb2eb331e2c59545ab293e219a9a7321
 .btn-login-pay { background: var(--color-primary); color: white; }
 
 /* Mobile Panier */
