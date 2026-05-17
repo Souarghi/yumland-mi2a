@@ -74,23 +74,23 @@ img {
     justify-content: center;
     align-items: center;
     background-color: var(--color-primary);
-    color: var(--color-white);
+    color: var(--color-bg);
     padding: 14px 24px;
-    border-radius: 50px; /* Pill shape */
+    border-radius: 4px;
     font-family: var(--font-heading);
     text-transform: uppercase;
     font-weight: bold;
     border: none;
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(211, 47, 47, 0.3);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
     width: auto;
     font-size: 1rem;
 }
 
-.btn:active, .cta-button:active, .btn-submit:active {
-    transform: scale(0.96);
-    box-shadow: none;
+.btn:hover, .cta-button:hover, .btn-submit:hover, .btn-deliver:hover, .btn-map:hover {
+    background-color: var(--color-primary-dark);
+    transform: scale(1.02);
 }
 
 /* --- HEADER & NAVIGATION (Sticky & Clean) --- */
@@ -147,30 +147,78 @@ nav {
     background: transparent;
     color: var(--color-primary) !important;
     padding: 6px 16px !important;
-    border-radius: 50px;
+    border-radius: 4px;
     box-shadow: none;
 }
 
 .btn-primary {
     background-color: var(--color-primary);
-    color: var(--color-white);
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-family: var(--font-body);
+    color: var(--color-bg);
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
     font-weight: bold;
     border: none;
     cursor: pointer;
     font-size: 0.9rem;
+    box-shadow: 0 4px 6px rgba(211, 47, 47, 0.3);
     transition: background-color 0.2s, transform 0.2s;
 }
 
 .btn-primary:hover {
     background-color: var(--color-primary-dark);
-    transform: scale(1.05);
+    transform: scale(1.02);
+}
+
+.btn-secondary {
+    background-color: var(--color-secondary);
+    color: var(--color-bg);
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.btn-secondary:hover {
+    background-color: #111111;
+    transform: scale(1.02);
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+    padding: 8px 18px; /* Compense la bordure */
+    border-radius: 4px;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.btn-outline:hover {
+    background-color: var(--color-primary);
+    color: var(--color-bg);
+    transform: scale(1.02);
 }
 
 .btn-secondary-action {
     background-color: var(--color-secondary);
+}
+
+/* Variante petits boutons (Actions rapides) */
+.btn-sm {
+    padding: 6px 12px !important;
+    font-size: 0.85rem !important;
 }
 
 /* --- LAYOUT & CARDS --- */

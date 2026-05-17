@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveBtn   = document.getElementById("btn-save-profil");
   const cancelBtn = document.getElementById("btn-cancel-profil");
   const msgBox    = document.getElementById("profil-message");
+  const adresseContainer = document.getElementById("adresse-container"); // Nouveau conteneur
 
   // Champs éditables
   const fields = ["nom", "prenom", "tel", "rue", "code_postal", "ville", "complement"];
@@ -27,6 +28,9 @@ document.addEventListener("DOMContentLoaded", () => {
       editBtn.style.display   = "none";
       saveBtn.style.display   = "inline-block";
       cancelBtn.style.display = "inline-block";
+      
+      // Afficher les champs d'adresse
+      if (adresseContainer) adresseContainer.style.display = "block";
     });
   }
 
@@ -44,6 +48,9 @@ document.addEventListener("DOMContentLoaded", () => {
       saveBtn.style.display   = "none";
       cancelBtn.style.display = "none";
       if (msgBox) msgBox.textContent = "";
+      
+      // Masquer les champs d'adresse
+      if (adresseContainer) adresseContainer.style.display = "none";
     });
   }
 
@@ -78,6 +85,9 @@ document.addEventListener("DOMContentLoaded", () => {
           editBtn.style.display   = "inline-block";
           saveBtn.style.display   = "none";
           cancelBtn.style.display = "none";
+          
+          // Masquer les champs d'adresse après sauvegarde réussie
+          if (adresseContainer) adresseContainer.style.display = "none";
         }
       } catch (err) {
         if (msgBox) {

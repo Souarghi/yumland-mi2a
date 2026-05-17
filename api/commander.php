@@ -77,10 +77,17 @@ try {
         unset($_SESSION['adresse_livraison_temp']);
         
         if (empty($adresse_livraison)) {
-            $stmtUser = $pdo->prepare("SELECT adresse FROM Utilisateurs WHERE id_user = ?");
+            $stmtUser = $pdo->prepare("SELECT rue, complement, code_postal, ville FROM Utilisateurs WHERE id_user = ?");
             $stmtUser->execute([$id_client]);
-            $user = $stmtUser->fetch();
-            $adresse_livraison = $user['adresse'] ?? '';
+            $user = $stmtUser->fetch(PDO::FETCH_ASSOC);
+            $adresse_livraison = '';
+            if ($user) {
+                $parts = [];
+                if (!empty($user['rue'])) $parts[] = trim($user['rue'] . ' ' . ($user['complement'] ?? ''));
+                $cp_ville = trim(($user['code_postal'] ?? '') . ' ' . ($user['ville'] ?? ''));
+                if (!empty($cp_ville)) $parts[] = $cp_ville;
+                $adresse_livraison = implode(', ', $parts);
+            }
         }
 
         $stmt = $pdo->prepare("INSERT INTO Commandes (id_client, prix_total, statut, paiement_statut, date_commande, adresse_livraison) VALUES (?, ?, 'En attente', 'Non payé', NOW(), ?)");

@@ -44,8 +44,16 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Redirection unique vers l'accueil pour utiliser le menu déroulant
-                    window.location.href = '/api/index.php';
+                    // Redirection selon le rôle
+                    if (data.role === 'Administrateur' || data.role === 'admin') {
+                        window.location.href = '/api/admin/dashboard.php';
+                    } else if (data.role === 'Livreur' || data.role === 'livreur') {
+                        window.location.href = '/api/livreur/livraisons.php';
+                    } else if (data.role === 'Restaurateur' || data.role === 'restaurateur') {
+                        window.location.href = '/api/restaurateur/commandes.php';
+                    } else {
+                        window.location.href = '/api/index.php';
+                    }
                 } else {
                     errorDiv.style.display = 'block';
                     errorDiv.textContent = data.message;

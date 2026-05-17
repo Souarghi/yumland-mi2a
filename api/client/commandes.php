@@ -163,18 +163,24 @@ include_once __DIR__ . '/../includes/header.php';
                             <?php if (($commande['mode_retrait'] ?? 'livraison') === 'livraison'): ?>
                                 <div class="adresse-container">
                                     <strong>Adresse:</strong> 
-                                    <span id="display-addr-<?= $commande['id_commande'] ?>"><?= htmlspecialchars(!empty($commande['adresse_livraison']) ? $commande['adresse_livraison'] : ($commande['client_adresse'] ?? 'Non spécifiée')) ?></span>
+                                    
+                                    <div id="view-addr-<?= $commande['id_commande'] ?>" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 5px;">
+                                        <span><?= htmlspecialchars(!empty($commande['adresse_livraison']) ? $commande['adresse_livraison'] : ($commande['client_adresse'] ?? 'Non spécifiée')) ?></span>
+                                        <?php if (!in_array($commande['statut'], ['En livraison', 'Livrée', 'Annulée'])): ?>
+                                            <button type="button" class="btn-outline btn-sm" onclick="toggleEditAddr(<?= $commande['id_commande'] ?>, true)"><i class="fas fa-edit"></i> Modifier</button>
+                                        <?php endif; ?>
+                                    </div>
                                     
                                     <?php if (!in_array($commande['statut'], ['En livraison', 'Livrée', 'Annulée'])): ?>
-                                        <button type="button" id="btn-edit-addr-<?= $commande['id_commande'] ?>" class="btn-edit-inline" onclick="document.getElementById('form-edit-addr-<?= $commande['id_commande'] ?>').style.display='block'; this.style.display='none'; document.getElementById('display-addr-<?= $commande['id_commande'] ?>').style.display='none';">✏️ Modifier</button>
-                                        
-                                        <form id="form-edit-addr-<?= $commande['id_commande'] ?>" method="POST" class="form-edit-inline">
+                                        <form id="form-edit-addr-<?= $commande['id_commande'] ?>" method="POST" class="form-edit-inline" style="display: none;" onsubmit="toggleEditAddr(<?= $commande['id_commande'] ?>, false, true)">
                                             <input type="hidden" name="action" value="modifier_adresse">
                                             <input type="hidden" name="id_commande" value="<?= $commande['id_commande'] ?>">
                                             <div class="form-group">
                                                 <input type="text" name="nouvelle_adresse" value="<?= htmlspecialchars(!empty($commande['adresse_livraison']) ? $commande['adresse_livraison'] : ($commande['client_adresse'] ?? '')) ?>" required>
-                                                <button type="submit" class="btn-confirm">OK</button>
-                                                <button type="button" class="btn-cancel" onclick="document.getElementById('form-edit-addr-<?= $commande['id_commande'] ?>').style.display='none'; document.getElementById('btn-edit-addr-<?= $commande['id_commande'] ?>').style.display='inline-block'; document.getElementById('display-addr-<?= $commande['id_commande'] ?>').style.display='inline';">Annuler</button>
+                                                <div class="edit-actions-wrapper">
+                                                    <button type="submit" class="btn-primary btn-sm">Enregistrer</button>
+                                                    <button type="button" class="btn-secondary btn-sm" onclick="toggleEditAddr(<?= $commande['id_commande'] ?>, false, false)">Annuler</button>
+                                                </div>
                                             </div>
                                         </form>
                                     <?php endif; ?>
@@ -215,23 +221,23 @@ include_once __DIR__ . '/../includes/header.php';
                                 <form method="POST" onsubmit="return confirm('Voulez-vous modifier cette commande ? Son contenu sera placé dans votre panier pour que vous puissiez l\'éditer librement.');">
                                     <input type="hidden" name="action" value="modifier_panier">
                                     <input type="hidden" name="id_commande" value="<?= $commande['id_commande'] ?>">
-                                    <button type="submit" class="btn-action btn-modifier">
-                                        <i class="fas fa-edit"></i> Modifier
+                                    <button type="submit" class="btn-outline btn-sm">
+                                        <i class="fas fa-shopping-cart"></i> Modifier les plats
                                     </button>
                                 </form>
                             <?php endif; ?>
                             
                             <?php if ($commande['statut'] === 'Livrée'): ?>
                                 <?php if (in_array($commande['id_commande'], $commandes_notees)): ?>
-                                    <span class="btn-avis-laisse" title="Vous avez déjà noté cette commande.">✅ Avis laissé</span>
+                                    <span class="btn-avis-laisse btn-sm" title="Vous avez déjà noté cette commande.">✅ Avis laissé</span>
                                 <?php else: ?>
-                                    <a href="/api/client/noter.php?commande_id=<?= $commande['id_commande'] ?>" class="btn-noter">⭐ Noter</a>
+                                    <a href="/api/client/noter.php?commande_id=<?= $commande['id_commande'] ?>" class="btn-outline btn-sm">⭐ Noter</a>
                                 <?php endif; ?>
                             <?php endif; ?>
                             <form method="POST">
                                 <input type="hidden" name="action" value="recommander">
                                 <input type="hidden" name="id_commande" value="<?= $commande['id_commande'] ?>">
-                                <button type="submit" class="btn-primary btn-action">
+                                <button type="submit" class="btn-primary btn-sm">
                                     <i class="fas fa-sync-alt"></i> Recommander
                                 </button>
                             </form>
@@ -241,6 +247,26 @@ include_once __DIR__ . '/../includes/header.php';
             </div>
         <?php endif; ?>
     </div>
+
+<script>
+// Fonction propre pour gérer l'apparition/disparition du formulaire d'adresse
+function toggleEditAddr(id, showForm, isSubmit = false) {
+    const viewDiv = document.getElementById('view-addr-' + id);
+    const formForm = document.getElementById('form-edit-addr-' + id);
+    if (showForm) {
+        if (viewDiv) viewDiv.style.display = 'none';
+        if (formForm) formForm.style.display = 'block';
+    } else {
+        if (formForm) formForm.style.display = 'none';
+        if (viewDiv) {
+            if (isSubmit) {
+                viewDiv.innerHTML = '<span style="color:var(--color-primary); font-weight:bold;"><i class="fas fa-spinner fa-spin"></i> Enregistrement en cours...</span>';
+            }
+            viewDiv.style.display = 'flex';
+        }
+    }
+}
+</script>
 </section>
 
 <?php

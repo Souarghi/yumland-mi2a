@@ -295,9 +295,16 @@ include_once __DIR__ . '/includes/header.php';
                         $current_address = $stmtAddr->fetchColumn() ?: '';
                     }
                     if (empty($current_address)) {
-                        $stmtAddr = $pdo->prepare("SELECT adresse FROM Utilisateurs WHERE id_user = ?");
+                        $stmtAddr = $pdo->prepare("SELECT rue, complement, code_postal, ville FROM Utilisateurs WHERE id_user = ?");
                         $stmtAddr->execute([$_SESSION['user_id']]);
-                        $current_address = $stmtAddr->fetchColumn() ?: '';
+                        $userAddr = $stmtAddr->fetch(PDO::FETCH_ASSOC);
+                        if ($userAddr) {
+                            $parts = [];
+                            if (!empty($userAddr['rue'])) $parts[] = trim($userAddr['rue'] . ' ' . ($userAddr['complement'] ?? ''));
+                            $cp_ville = trim(($userAddr['code_postal'] ?? '') . ' ' . ($userAddr['ville'] ?? ''));
+                            if (!empty($cp_ville)) $parts[] = $cp_ville;
+                            $current_address = implode(', ', $parts);
+                        }
                     }
                 } catch (Exception $e) {
                     $current_address = '';

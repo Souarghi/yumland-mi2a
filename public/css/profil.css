@@ -24,3 +24,49 @@
 .form-row-spacing { display: flex; gap: 10px; margin-bottom: 15px; }
 .flex-1 { flex: 1; }
 .flex-2 { flex: 2; }
+
+/* Boutons d'action selon la charte graphique */
+.profil-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+#btn-edit-profil,
+#btn-save-profil,
+#btn-cancel-profil {
+    background-color: #D32F2F; /* Rouge Grill */
+    color: #FDFBF7; /* Crème Sauce */
+    border: none;
+    border-radius: 4px;
+    padding: 12px 24px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease-in-out;
+    text-transform: uppercase;
+}
+
+#btn-edit-profil:hover,
+#btn-save-profil:hover {
+    background-color: #B71C1C; /* Dark Red au survol */
+    transform: scale(1.02);
+}
+
+/* Le bouton d'annulation utilise le Gris Pierre de la charte */
+#btn-cancel-profil {
+    background-color: #BDBDBD;
+    color: #2D2D2D; /* Texte Noir Charbon */
+}
+
+#btn-cancel-profil:hover {
+    background-color: #9E9E9E;
+    transform: scale(1.02);
+}
+
+/* Sécurité pour le mode sombre : forcer les couleurs des boutons CTA */
+body.dark-mode #btn-edit-profil,
+body.dark-mode #btn-save-profil {
+    color: #FDFBF7;
+}

@@ -40,11 +40,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     // Redirection selon le profil
                     setTimeout(() => {
                         if (data.role === 'Administrateur' || data.role === 'admin') {
-                            window.location.href = "admin.html";
+                            window.location.href = "/api/admin/dashboard.php";
                         } else if (data.role === 'Livreur' || data.role === 'livreur') {
-                            window.location.href = "livreur.html";
+                            window.location.href = "/api/livreur/livraisons.php";
+                        } else if (data.role === 'Restaurateur' || data.role === 'restaurateur') {
+                            window.location.href = "/api/restaurateur/commandes.php";
                         } else {
-                            window.location.href = "profil.html";
+                            window.location.href = "/api/client/profil.php";
                         }
                     }, 1000);
 

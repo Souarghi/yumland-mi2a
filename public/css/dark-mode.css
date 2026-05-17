@@ -167,6 +167,14 @@ body.dark-mode .loyalty-box div[style*="background"] {
 body.dark-mode .loyalty-box div[style*="background"] strong {
     color: var(--color-accent) !important;
 }
+
+/* Boutique Fidélité (Shop Items) - Texte en noir pour lisibilité sur fond clair */
+body.dark-mode .shop-item,
+body.dark-mode .shop-item div,
+body.dark-mode .shop-item strong {
+    color: #000000 !important;
+}
+
 body.dark-mode .item-qty {
     background-color: #333 !important;
     color: #fff !important;
@@ -218,8 +226,22 @@ body.dark-mode .ribbon-title::after {
 
 /* Carte Fidélité */
 body.dark-mode .loyalty-card {
+    background: linear-gradient(135deg, #2c2c2c 0%, #111111 100%) !important;
     box-shadow: 0 10px 30px rgba(0,0,0,0.6) !important;
     border-color: var(--color-accent) !important;
+    color: #e0e0e0 !important;
+}
+
+/* Texte de la carte fidélité (Profil) adapté au fond sombre */
+body.dark-mode .loyalty-card p,
+body.dark-mode .loyalty-card span {
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .loyalty-card h2,
+body.dark-mode .loyalty-card h3,
+body.dark-mode .loyalty-card strong {
+    color: var(--color-accent) !important;
 }
 
 /* Badges */
@@ -227,4 +249,22 @@ body.dark-mode .status-delivered {
     background-color: rgba(76, 175, 80, 0.2) !important;
     color: #81c784 !important;
     border-color: #2e7d32 !important;
+}
+
+/* Stats box dans le profil client */
+body.dark-mode .profil-stats-box {
+    background-color: #1a1a1a !important;
+    color: #e0e0e0 !important;
+    border-left: 4px solid var(--color-accent) !important;
+    border-top: border-left: border-bottom: border-right: none;
+}
+
+body.dark-mode .profil-stats-box .profil-stats-historique {
+    color: #aaa !important;
+}
+
+/* Formulaire édition adresse */
+body.dark-mode .commande-item .form-edit-inline {
+    background-color: #1a1a1a !important;
+    border-color: #333 !important;
 }

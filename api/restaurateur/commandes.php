@@ -21,10 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     } elseif ($_POST['action'] === 'prete') {
         updateCommandeStatus($id_commande, 'Prête');
     } elseif ($_POST['action'] === 'livrer') {
-        $id_livreur = isset($_POST['id_livreur']) ? (int)$_POST['id_livreur'] : 0;
-        if ($id_livreur > 0) {
-            assignLivreur($id_commande, $id_livreur);
-        }
+        assignLivreurAutomatique($id_commande);
     } elseif ($_POST['action'] === 'servie') {
         updateCommandeStatus($id_commande, 'Livrée');
     }
@@ -36,10 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 $commandes_attente = getAllCommandes('En attente', null, 'ASC');
 $commandes_preparation = getAllCommandes('En préparation', null, 'ASC');
 $commandes_pretes = getAllCommandes('Prête', null, 'ASC');
-
-// Récupérer la liste des livreurs pour le menu déroulant
-$stmtLivreurs = $pdo->query("SELECT id_user, prenom, nom FROM Utilisateurs WHERE role = 'Livreur'");
-$livreurs_dispos = $stmtLivreurs->fetchAll();
 
 // Définir la page courante pour le menu actif
 $currentPage = 'restaurateur_commandes';
@@ -184,13 +177,7 @@ include_once __DIR__ . '/../includes/header.php';
                                 <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
                                 <input type="hidden" name="action" value="livrer">
                                 <input type="hidden" name="id_commande" value="<?= $cmd['id_commande'] ?>">
-                                <select name="id_livreur" required style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 100%;">
-                                    <option value="">-- Choisir un livreur --</option>
-                                    <?php foreach ($livreurs_dispos as $l): ?>
-                                        <option value="<?= $l['id_user'] ?>"><?= htmlspecialchars($l['prenom'] . ' ' . $l['nom']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <button type="submit" class="btn-move btn-deliver">🚴 Assigner un livreur</button>
+                                <button type="submit" class="btn-move btn-deliver">🚴 Assigner automatiquement un livreur</button>
                             </form>
                         <?php else: ?>
                             <div style="text-align:center; color:green; font-weight:bold; margin-bottom: 10px;">En attente client (Sur place)</div>

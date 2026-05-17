@@ -169,3 +169,51 @@ function getCommandesByLivreur($livreur_id) {
         return [];
     }
 }
+
+/**
+ * Assigne automatiquement le meilleur livreur (moins de commandes et dans le secteur si possible)
+ * @param int $commande_id ID de la commande
+ * @return bool Succès ou échec
+ */
+function assignLivreurAutomatique($commande_id) {
+    global $pdo;
+    try {
+        // 1. Récupérer les infos de la commande (notamment le code postal du client)
+        $stmt = $pdo->prepare("
+            SELECT c.*, u.code_postal
+            FROM Commandes c
+            LEFT JOIN Utilisateurs u ON c.id_client = u.id_user
+            WHERE c.id_commande = ?
+        ");
+        $stmt->execute([$commande_id]);
+        $commande = $stmt->fetch();
+        
+        if (!$commande) return false;
+
+        $cp = $commande['code_postal'] ?? '';
+        
+        // 2. Trouver le meilleur livreur
+        $query = "
+            SELECT u.id_user, 
+                   (SELECT COUNT(*) FROM Commandes c2 WHERE c2.id_livreur = u.id_user AND c2.statut = 'En livraison') as nb_commandes
+            FROM Utilisateurs u
+            WHERE u.role IN ('Livreur', 'livreur') AND u.statut = 'Actif'
+            ORDER BY 
+                CASE WHEN u.code_postal = ? AND ? != '' THEN 0 ELSE 1 END ASC,
+                nb_commandes ASC
+            LIMIT 1
+        ";
+        
+        $stmtLivreur = $pdo->prepare($query);
+        $stmtLivreur->execute([$cp, $cp]);
+        $livreur = $stmtLivreur->fetch();
+        
+        if ($livreur) {
+            return assignLivreur($commande_id, $livreur['id_user']);
+        }
+        
+        return false;
+    } catch (PDOException $e) {
+        return false;
+    }
+}

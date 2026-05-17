@@ -107,28 +107,34 @@ include_once __DIR__ . '/../includes/header.php';
                 <label for="tel">Téléphone :</label>
                 <input type="text" data-field="tel" value="<?= htmlspecialchars($user['tel'] ?? '') ?>" disabled>
             </div>
-            <div class="form-group form-group-spacing">
-                <label for="rue">Rue / Numéro :</label>
-                <input type="text" data-field="rue" value="<?= htmlspecialchars($user['rue'] ?? '') ?>" disabled>
-            </div>
-            <div class="form-row form-row-spacing">
-                <div class="form-group flex-1">
-                    <label for="code_postal">Code Postal :</label>
-                    <input type="text" data-field="code_postal" value="<?= htmlspecialchars($user['code_postal'] ?? '') ?>" disabled>
+            <div id="adresse-container" style="display: none;">
+                <div class="form-group form-group-spacing">
+                    <label for="rue">Rue / Numéro :</label>
+                    <input type="text" data-field="rue" value="<?= htmlspecialchars($user['rue'] ?? '') ?>" disabled>
                 </div>
-                <div class="form-group flex-2">
-                    <label for="ville">Ville :</label>
-                    <input type="text" data-field="ville" value="<?= htmlspecialchars($user['ville'] ?? '') ?>" disabled>
+                <div class="form-row form-row-spacing">
+                    <div class="form-group flex-1">
+                        <label for="code_postal">Code Postal :</label>
+                        <input type="text" data-field="code_postal" value="<?= htmlspecialchars($user['code_postal'] ?? '') ?>" disabled>
+                    </div>
+                    <div class="form-group flex-2">
+                        <label for="ville">Ville :</label>
+                        <input type="text" data-field="ville" value="<?= htmlspecialchars($user['ville'] ?? '') ?>" disabled>
+                    </div>
+                </div>
+                <div class="form-group form-group-spacing-lg">
+                    <label for="complement">Complément d'adresse (Bâtiment, Étage...) :</label>
+                    <input type="text" data-field="complement" value="<?= htmlspecialchars($user['complement'] ?? '') ?>" disabled>
                 </div>
             </div>
-            <div class="form-group form-group-spacing-lg">
-                <label for="complement">Complément d'adresse (Bâtiment, Étage...) :</label>
-                <input type="text" data-field="complement" value="<?= htmlspecialchars($user['complement'] ?? '') ?>" disabled>
-            </div>
+            
             <div id="profil-message"></div>
-            <button type="button" id="btn-edit-profil">✏️ Modifier</button>
-            <button type="button" id="btn-save-profil" style="display:none">💾 Enregistrer</button>
-            <button type="button" id="btn-cancel-profil" style="display:none">❌ Annuler</button>
+            
+            <div class="profil-actions">
+                <button type="button" id="btn-edit-profil"><i class="fa fa-pencil"></i> Modifier</button>
+                <button type="button" id="btn-save-profil" style="display:none"><i class="fa fa-save"></i> Enregistrer</button>
+                <button type="button" id="btn-cancel-profil" style="display:none"><i class="fa fa-times"></i> Annuler</button>
+            </div>
         </form>
     </div>
 </section>
