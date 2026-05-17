@@ -56,7 +56,7 @@ Le projet est construit de manière modulaire, marquant l'évolution entre la co
 
 * **Phase 3 : Interactivité et Requêtes Asynchrones**
   * **Début :** 14/04/2026 - commit `0250fa4`
-  * **Fin :** 17/05/2026 - commit ``
+  * **Fin :** 17/05/2026 - commit `df33d47`
 
 * **Phase 4 : Standardisation, Sécurité et Soutenance Finale**
   * **Début :** 
