@@ -31,7 +31,8 @@ async function toggleBlock(userId, btn) {
     const badge = document.querySelector(`#statut-${userId}`);
     if (badge) badge.textContent = data.new_statut;
     btn.textContent = data.new_statut === 'Bloqué' ? '🔓 Débloquer' : '🔒 Bloquer';
-    btn.classList.toggle('btn-danger', data.new_statut === 'Bloqué');
+    btn.classList.toggle('delete-btn', data.new_statut === 'Bloqué');
+    btn.classList.toggle('hide-btn', data.new_statut !== 'Bloqué');
   } else {
     alert(data.message);
   }
@@ -118,7 +119,7 @@ async function deleteUser(userId) {
                 </div>
                 
                 <div class="admin-table-container card-style">
-                    <table class="admin-table">
+                    <table class="user-table">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -149,14 +150,14 @@ async function deleteUser(userId) {
                                             <?= htmlspecialchars($user['statut'] ?? 'Actif') ?>
                                         </span>
                                     </td>
-                                    <td class="actions">
-                                        <button class="btn-edit" title="Modifier le rôle" onclick="editRole(<?= $user['id_user'] ?>, '<?= htmlspecialchars($user['role'], ENT_QUOTES) ?>')">✏️</button>
+                                <td class="actions-cell">
+                                    <button class="action-btn edit-btn btn-edit" title="Modifier le rôle" onclick="editRole(<?= $user['id_user'] ?>, '<?= htmlspecialchars($user['role'], ENT_QUOTES) ?>')">✏️</button>
                                         <button
                                                 onclick="toggleBlock(<?= $user['id_user'] ?>, this)"
-                                                class="<?= ($user['statut'] ?? '') === 'Bloqué' ? 'btn-activate' : 'btn-block' ?>">
+                                            class="action-btn <?= ($user['statut'] ?? '') === 'Bloqué' ? 'delete-btn' : 'hide-btn' ?>">
                                                 <?= ($user['statut'] ?? '') === 'Bloqué' ? '🔓 Débloquer' : '🔒 Bloquer' ?>
                                             </button>
-                                        <button class="btn-delete" title="Supprimer" onclick="deleteUser(<?= $user['id_user'] ?>)">🗑️</button>
+                                    <button class="action-btn delete-btn btn-delete" title="Supprimer" onclick="deleteUser(<?= $user['id_user'] ?>)">🗑️</button>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
