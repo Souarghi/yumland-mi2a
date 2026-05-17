@@ -42,7 +42,7 @@ if ($ca_content) {
     
     if (!file_exists($ssl_ca)) {
         // Remplacement robuste des retours à la ligne pour le certificat
-        file_put_contents($ssl_ca, str_replace(['\n', '\r'], ["\n", ""], $ca_content));
+        file_put_contents($ssl_ca, str_replace(['\\n', '\\r', '\n', '\r'], ["\n", "", "\n", ""], $ca_content));
     }
 }
 
