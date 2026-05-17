@@ -242,7 +242,7 @@ include_once __DIR__ . '/includes/header.php';
                                 <tr>
                                     <td class="cart-item-info">
                                         <?php if(!empty($item['image'])): ?>
-                                            <img src="<?= str_starts_with($item['image'], '/') ? htmlspecialchars($item['image']) : '/' . htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['nom']) ?>" class="cart-item-image" onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-flex');">
+                                            <img src="<?= (strpos($item['image'], '/') === 0) ? htmlspecialchars($item['image']) : '/' . htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['nom']) ?>" class="cart-item-image" onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-flex');">
                                             <div class="cart-item-image fallback-img d-none">🍔</div>
                                         <?php else: ?>
                                             <div class="cart-item-image fallback-img d-flex">🍔</div>
@@ -282,15 +282,19 @@ include_once __DIR__ . '/includes/header.php';
                 <?php if (isLoggedIn()): ?>
                 <?php
                 $current_address = '';
-                if (isset($_SESSION['edit_commande_id'])) {
-                    $stmtAddr = $pdo->prepare("SELECT adresse_livraison FROM Commandes WHERE id_commande = ? AND id_client = ?");
-                    $stmtAddr->execute([$_SESSION['edit_commande_id'], $_SESSION['user_id']]);
-                    $current_address = $stmtAddr->fetchColumn() ?: '';
-                }
-                if (empty($current_address)) {
-                    $stmtAddr = $pdo->prepare("SELECT adresse FROM Utilisateurs WHERE id_user = ?");
-                    $stmtAddr->execute([$_SESSION['user_id']]);
-                    $current_address = $stmtAddr->fetchColumn() ?: '';
+                try {
+                    if (isset($_SESSION['edit_commande_id'])) {
+                        $stmtAddr = $pdo->prepare("SELECT adresse_livraison FROM Commandes WHERE id_commande = ? AND id_client = ?");
+                        $stmtAddr->execute([$_SESSION['edit_commande_id'], $_SESSION['user_id']]);
+                        $current_address = $stmtAddr->fetchColumn() ?: '';
+                    }
+                    if (empty($current_address)) {
+                        $stmtAddr = $pdo->prepare("SELECT adresse FROM Utilisateurs WHERE id_user = ?");
+                        $stmtAddr->execute([$_SESSION['user_id']]);
+                        $current_address = $stmtAddr->fetchColumn() ?: '';
+                    }
+                } catch (Exception $e) {
+                    $current_address = '';
                 }
                 ?>
                 <div class="cart-address cart-address-box">
@@ -352,7 +356,7 @@ include_once __DIR__ . '/includes/header.php';
                     </div>
                     
                     <p class="loyalty-earn-info">
-                        ✨ En réglant cette commande, vous cumulerez <strong><?= floor($cart['total'] * 10) ?> Miams</strong> supplémentaires !
+                        ✨ En réglant cette commande, vous cumulerez <strong><?= floor((float)($cart['total'] ?? 0) * 10) ?> Miams</strong> supplémentaires !
                     </p>
                 </div>
                 <?php endif; ?>
@@ -361,11 +365,11 @@ include_once __DIR__ . '/includes/header.php';
                     <div class="cart-total">
                         <p>Total de la commande</p>
                         <?php if ($discount > 0): ?>
-                            <div class="discount-old-price"><?= number_format($subtotal, 2, ',', ' ') ?> €</div>
-                            <strong class="discount-new-price"><?= number_format($cart['total'], 2, ',', ' ') ?> €</strong>
+                            <div class="discount-old-price"><?= number_format((float)$subtotal, 2, ',', ' ') ?> €</div>
+                            <strong class="discount-new-price"><?= number_format((float)($cart['total'] ?? 0), 2, ',', ' ') ?> €</strong>
                             <p class="discount-info">✨ Remise LÉGENDE DU STEAK (-10%) appliquée !</p>
                         <?php else: ?>
-                            <strong><?= number_format($cart['total'], 2, ',', ' ') ?> €</strong>
+                            <strong><?= number_format((float)($cart['total'] ?? 0), 2, ',', ' ') ?> €</strong>
                         <?php endif; ?>
                     </div>
                     
@@ -374,7 +378,7 @@ include_once __DIR__ . '/includes/header.php';
                         <?php if (isset($_SESSION['edit_commande_id'])): ?>
                             <a href="/api/panier.php?action=cancel_edit" class="btn-clear">Annuler la modification</a>
                             <?php if ($difference > 0): ?>
-                                <button type="submit" name="action" value="save_edit" class="btn-checkout btn-pay-supplement">💳 Payer supplément (<?= number_format($difference, 2, ',', ' ') ?> €)</button>
+                                <button type="submit" name="action" value="save_edit" class="btn-checkout btn-pay-supplement">💳 Payer supplément (<?= number_format((float)$difference, 2, ',', ' ') ?> €)</button>
                             <?php else: ?>
                                 <button type="submit" name="action" value="save_edit" class="btn-checkout btn-save-edit">💾 Enregistrer</button>
                             <?php endif; ?>
