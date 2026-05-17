@@ -120,64 +120,105 @@ function getProduitById($id, $produits) {
 
     // --- FONCTION POUR LE MENU MYSTÈRE ---
     function ajouterMenuMystere(id_produit) {
+        const restriction = document.getElementById('mystere-restriction')
+            ? document.getElementById('mystere-restriction').value
+            : 'none';
+
         const getItems = (cat) => {
             const table = document.querySelector(`.menu-table[data-category="${cat}"]`);
             if (!table) return [];
             return Array.from(table.querySelectorAll('tbody tr')).map(row => {
                 const td = row.querySelector('td:first-child');
-                return td ? td.textContent.trim() : '';
-            }).filter(text => text !== '');
+                const nom = td ? td.textContent.trim() : '';
+                const btn = row.querySelector('button');
+                const options = btn ? btn.getAttribute('data-options') : '';
+                const specCell = row.querySelector('td[data-spec]');
+                const spec = specCell ? specCell.getAttribute('data-spec') : '';
+                return { nom, options, spec };
+            }).filter(item => {
+                if (item.nom === '') return false;
+                if (restriction === 'none') return true;
+                if (restriction === 'vege') {
+                    if (cat === 'Entrées' || cat === 'Viandes' || cat === 'Burgers')
+                        return item.spec === 'vege';
+                    return true;
+                }
+                if (restriction === 'halal') {
+                    if (cat === 'Entrées' || cat === 'Viandes' || cat === 'Burgers')
+                        return item.spec === 'halal' || item.spec === 'vege' || item.spec === 'poisson';
+                    return true;
+                }
+                if (restriction === 'sans-porc') {
+                    return item.spec !== 'porc';
+                }
+                return true;
+            });
         };
 
-        const entrees = getItems('Entrées');
-        const viandes = getItems('Viandes');
-        const burgers = getItems('Burgers');
+        const entrees  = getItems('Entrées');
+        const viandes  = getItems('Viandes');
+        const burgers  = getItems('Burgers');
         const desserts = getItems('Desserts');
         const boissons = getItems('Boissons');
 
         const plats = viandes.concat(burgers);
 
         if (entrees.length === 0 || plats.length === 0 || desserts.length === 0 || boissons.length === 0) {
-            alert("Erreur : la carte n'est pas complète pour générer un menu mystère.");
+            alert("Erreur : la carte ne contient pas assez d'options pour cette restriction alimentaire.");
             return;
         }
 
         const random = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-        const selection = [
-            `Entrée : ${random(entrees)}`,
-            `Plat : ${random(plats)}`,
-            `Dessert : ${random(desserts)}`,
-            `Boisson : ${random(boissons)}`
+        const e = random(entrees);
+        const p = random(plats);
+        const d = random(desserts);
+        const b = random(boissons);
+
+        // Utilitaire : parse les options JSON d'un item
+        const parseOptions = (itemOptionsStr) => {
+            if (!itemOptionsStr) return [];
+            try { return JSON.parse(itemOptionsStr); } catch (err) { return []; }
+        };
+
+        // Construction de modalOptions :
+        // Pour chaque item tiré :
+        //   1. Un groupe "titre" = "🎲 Entrée tirée : [nom]" avec un seul choix (l'item lui-même)
+        //   2. Suivi de ses options propres (cuisson, sauce, etc.) si elles existent
+        const modalOptions = [];
+
+        const itemsDrawn = [
+            { label: '🥗 Entrée tirée',  item: e },
+            { label: '🍖 Plat tiré',     item: p },
+            { label: '🍰 Dessert tiré',  item: d },
+            { label: '🥤 Boisson tirée', item: b },
         ];
 
-        const formData = new FormData();
-        formData.append('id_produit', id_produit);
-        formData.append('quantite', 1);
-        formData.append('options', JSON.stringify(selection));
+        itemsDrawn.forEach(({ label, item }) => {
+            // 1. L'item lui-même — affiché comme un choix unique (pré-sélectionné, non modifiable)
+            modalOptions.push({
+                titre: label,
+                choix: [item.nom],
+                locked: true   // flag custom pour la modal : choix unique, non modifiable
+            });
 
-        fetch('/api/ajouter_panier.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                const cartCount = document.querySelector('.cart-count');
-                if (cartCount) {
-                    cartCount.textContent = data.count;
-                } else {
-                    const cartIcon = document.querySelector('.cart-icon');
-                    if (cartIcon) {
-                        cartIcon.innerHTML = '🛒 <span class="cart-count">' + data.count + '</span>';
-                    }
-                }
-                alert("🎁 Menu Mystère généré et ajouté ! Consultez votre panier pour découvrir la sélection du Chef.");
-            } else {
-                alert("Erreur lors de l'ajout au panier.");
-            }
-        })
-        .catch(err => console.error(err));
+            // 2. Les options propres à cet item (ex: Cuisson, Sauce, Viande…)
+            const opts = parseOptions(item.options);
+            opts.forEach(opt => {
+                // On préfixe le titre de l'option pour savoir à quel item elle appartient
+                modalOptions.push({
+                    ...opt,
+                    titre: `↳ ${opt.titre}`   // indentation visuelle dans la modal
+                });
+            });
+        });
+
+        // Afficher la modale
+        if (typeof showOptionsModal === 'function') {
+            showOptionsModal(id_produit, "🎲 Votre Tirage Menu Mystère", JSON.stringify(modalOptions));
+        } else {
+            alert("Erreur: la fonction de modale n'est pas disponible.");
+        }
     }
 
     // --- FONCTION DE FILTRE DE RECHERCHE ---
@@ -405,6 +446,15 @@ function getProduitById($id, $produits) {
             <li><strong>DESSERT</strong> : Sélection aléatoire parmi nos desserts.</li>
             <li><strong>BOISSON</strong> : Sélection aléatoire parmi nos boissons.</li>
         </ul>
+        <div style="margin-top: 10px; margin-bottom: 15px;">
+            <label for="mystere-restriction" style="color:#fff; font-weight:bold;"><i class="fas fa-exclamation-circle"></i> Restrictions alimentaires :</label>
+            <select id="mystere-restriction" style="padding: 5px; border-radius: 5px; border: none; outline: none; margin-left: 10px; background-color: #34495e; color: #ecf0f1;">
+                <option value="none">Aucune</option>
+                <option value="vege">Végétarien</option>
+                <option value="halal">Halal</option>
+                <option value="sans-porc">Sans Porc</option>
+            </select>
+        </div>
         <button class="btn-primary" style="background: #e67e22; border-color: #d35400;" onclick="ajouterMenuMystere(<?= $menuMystere['id_produit'] ?>)"><i class="fas fa-magic"></i> Tirer au sort & Ajouter</button>
     </div>
     <?php endif; ?>

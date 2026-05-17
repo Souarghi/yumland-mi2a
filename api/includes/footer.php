@@ -21,11 +21,15 @@
             let conditionAttr = opt.condition ? `data-condition='${JSON.stringify(opt.condition).replace(/'/g, "&#39;")}'` : '';
             let html = `<div class="modal-option-group" ${conditionAttr}>
                 <label class="modal-option-label">${opt.titre} :</label>
-                <select class="option-select modal-option-select" data-titre="${opt.titre}" onchange="updateConditionalOptions()" required>
-                    <option value="">-- Sélectionnez votre choix --</option>`;
-            opt.choix.forEach(choix => {
-                html += `<option value="${opt.titre}: ${choix}">${choix}</option>`;
-            });
+                <select class="option-select modal-option-select" data-titre="${opt.titre}" onchange="updateConditionalOptions()" required>`;
+            if (opt.choix.length === 1) {
+                html += `<option value="${opt.titre}: ${opt.choix[0]}" selected>${opt.choix[0]}</option>`;
+            } else {
+                html += `<option value="">-- Sélectionnez votre choix --</option>`;
+                opt.choix.forEach(choix => {
+                    html += `<option value="${opt.titre}: ${choix}">${choix}</option>`;
+                });
+            }
             html += `</select></div>`;
             container.innerHTML += html;
         });
