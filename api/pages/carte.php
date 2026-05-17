@@ -118,6 +118,68 @@ function getProduitById($id, $produits) {
         .catch(err => console.error(err));
     }
 
+    // --- FONCTION POUR LE MENU MYSTÈRE ---
+    function ajouterMenuMystere(id_produit) {
+        const getItems = (cat) => {
+            const table = document.querySelector(`.menu-table[data-category="${cat}"]`);
+            if (!table) return [];
+            return Array.from(table.querySelectorAll('tbody tr')).map(row => {
+                const td = row.querySelector('td:first-child');
+                return td ? td.textContent.trim() : '';
+            }).filter(text => text !== '');
+        };
+
+        const entrees = getItems('Entrées');
+        const viandes = getItems('Viandes');
+        const burgers = getItems('Burgers');
+        const desserts = getItems('Desserts');
+        const boissons = getItems('Boissons');
+
+        const plats = viandes.concat(burgers);
+
+        if (entrees.length === 0 || plats.length === 0 || desserts.length === 0 || boissons.length === 0) {
+            alert("Erreur : la carte n'est pas complète pour générer un menu mystère.");
+            return;
+        }
+
+        const random = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+        const selection = [
+            `Entrée : ${random(entrees)}`,
+            `Plat : ${random(plats)}`,
+            `Dessert : ${random(desserts)}`,
+            `Boisson : ${random(boissons)}`
+        ];
+
+        const formData = new FormData();
+        formData.append('id_produit', id_produit);
+        formData.append('quantite', 1);
+        formData.append('options', JSON.stringify(selection));
+
+        fetch('/api/ajouter_panier.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                const cartCount = document.querySelector('.cart-count');
+                if (cartCount) {
+                    cartCount.textContent = data.count;
+                } else {
+                    const cartIcon = document.querySelector('.cart-icon');
+                    if (cartIcon) {
+                        cartIcon.innerHTML = '🛒 <span class="cart-count">' + data.count + '</span>';
+                    }
+                }
+                alert("🎁 Menu Mystère généré et ajouté ! Consultez votre panier pour découvrir la sélection du Chef.");
+            } else {
+                alert("Erreur lors de l'ajout au panier.");
+            }
+        })
+        .catch(err => console.error(err));
+    }
+
     // --- FONCTION DE FILTRE DE RECHERCHE ---
     function applyFilters() {
         const searchQuery = document.getElementById('searchInput').value.toLowerCase();
@@ -271,6 +333,15 @@ function getProduitById($id, $produits) {
     $menuLunch = getProduitById(42, $tous_les_produits);
     $menuCowboy = getProduitById(43, $tous_les_produits);
     $menuGrill = getProduitById(44, $tous_les_produits);
+    
+    // Récupération du Menu Mystère
+    $menuMystere = null;
+    foreach($tous_les_produits as $p) {
+        if ($p['nom'] === 'Menu Mystère') {
+            $menuMystere = $p;
+            break;
+        }
+    }
     ?>
 
     <?php if ($menuLunch): ?>
@@ -321,6 +392,20 @@ function getProduitById($id, $produits) {
                 data-nom="<?= htmlspecialchars($menuGrill['nom'], ENT_QUOTES) ?>" 
                 data-options='<?= htmlspecialchars($menuGrill['options_config'], ENT_QUOTES) ?>'
                 onclick="openMenuModal(this)"><i class="fas fa-cart-plus"></i> Ajouter</button>
+    </div>
+    <?php endif; ?>
+
+    <?php if ($menuMystere): ?>
+    <div class="menu-formule" style="border: 2px dashed #f39c12; background: linear-gradient(145deg, #1f1f1f, #2c3e50);">
+        <h3><i class="fas fa-gift" style="color: #f39c12;"></i> <?= htmlspecialchars($menuMystere['nom']) ?> - <?= number_format($menuMystere['prix'], 2) ?> €</h3>
+        <p class="formule-details" style="color: #f39c12;"><em>Laissez-vous surprendre ! Une entrée, un plat, un dessert et une boisson sélectionnés au hasard par notre Chef.</em></p>
+        <ul style="color: #fff;">
+            <li><strong>ENTRÉE</strong> : Sélection aléatoire parmi nos entrées.</li>
+            <li><strong>PLAT</strong> : Sélection aléatoire parmi nos viandes, poissons ou burgers.</li>
+            <li><strong>DESSERT</strong> : Sélection aléatoire parmi nos desserts.</li>
+            <li><strong>BOISSON</strong> : Sélection aléatoire parmi nos boissons.</li>
+        </ul>
+        <button class="btn-primary" style="background: #e67e22; border-color: #d35400;" onclick="ajouterMenuMystere(<?= $menuMystere['id_produit'] ?>)"><i class="fas fa-magic"></i> Tirer au sort & Ajouter</button>
     </div>
     <?php endif; ?>
 

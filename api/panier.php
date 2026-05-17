@@ -12,34 +12,40 @@ if (isset($_GET['info']) && $_GET['info'] === 'editing' && isset($_SESSION['edit
     $message = '✏️ Vous modifiez actuellement la commande #' . $_SESSION['edit_commande_id'] . '. Ajustez vos plats et cliquez sur Enregistrer !';
 }
 
+$action = $_POST['action'] ?? '';
+// Fix pour les navigateurs qui n'envoient pas la valeur du bouton lors d'un form.submit() ou button.click()
+if (empty($action) && isset($_POST['quantite'])) {
+    $action = 'update';
+}
+
 // Action: Mettre à jour la quantité OU soumission via bouton Enregistrer/Payer/Checkout
-if (isset($_POST['action']) && ($_POST['action'] === 'update' || $_POST['action'] === 'save_edit' || $_POST['action'] === 'checkout')) {
+if ($action === 'update' || $action === 'save_edit' || $action === 'checkout') {
     // Vérifier le token CSRF
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         $message = 'Erreur de sécurité, veuillez réessayer.';
         // On bloque formellement la suite de l'exécution pour protéger la base de données
-        $_POST['action'] = ''; 
+        $action = ''; 
     } else {
         foreach ($_POST['quantite'] as $index => $quantite) {
             $note = $_POST['note'][$index] ?? null;
             updateCartQuantity($index, (int)$quantite, $note);
         }
         
-        if ($_POST['action'] === 'checkout') {
+        if ($action === 'checkout') {
             // Sauvegarde de l'adresse en session avant d'aller vers CYBank
             $_SESSION['adresse_livraison_temp'] = trim($_POST['adresse_livraison'] ?? '');
             header('Location: /api/commander.php');
             exit;
         }
         
-        if ($_POST['action'] === 'update') {
+        if ($action === 'update') {
             $message = 'Le panier a été mis à jour.';
         }
     }
 }
 
 // Action: Sauvegarder l'édition d'une commande
-if ((isset($_GET['action']) && $_GET['action'] === 'save_edit') || (isset($_POST['action']) && $_POST['action'] === 'save_edit')) {
+if ((isset($_GET['action']) && $_GET['action'] === 'save_edit') || ($action === 'save_edit')) {
     if (isset($_SESSION['edit_commande_id'])) {
         $id_commande = $_SESSION['edit_commande_id'];
         $cart = getCart(); // On rafraîchit le panier après l'update ci-dessus !
@@ -256,7 +262,7 @@ include_once __DIR__ . '/includes/header.php';
                                                 <p class="cart-item-options-text">
                                                     Options: <?= !empty($item['options']) ? htmlspecialchars(is_array($item['options']) ? implode(', ', $item['options']) : $item['options']) : 'Aucune' ?>
                                                     <?php if ($options_dispos !== '[]'): ?>
-                                                        <br><button type="button" onclick="showOptionsModal(<?= $item['plat_id'] ?? $item['id'] ?>, '<?= htmlspecialchars($item['nom'], ENT_QUOTES) ?>', '<?= htmlspecialchars($options_dispos, ENT_QUOTES) ?>', 0, <?= $index ?>)" class="btn-edit-options"><i class="fas fa-edit"></i> Modifier les choix du menu</button>
+                                                        <br><button type="button" onclick='showOptionsModal(<?= $item['plat_id'] ?? $item['id'] ?>, <?= json_encode($item['nom'], JSON_HEX_APOS) ?>, <?= json_encode($options_dispos, JSON_HEX_APOS) ?>, 0, <?= $index ?>)' class="btn-edit-options"><i class="fas fa-edit"></i> Modifier les choix du menu</button>
                                                     <?php endif; ?>
                                                 </p>
                                             <?php endif; ?>
