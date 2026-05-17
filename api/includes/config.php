@@ -16,8 +16,10 @@ date_default_timezone_set('Europe/Paris');
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.cookie_httponly', 1);
     ini_set('session.use_only_cookies', 1);
-    // Activé pour le passage en HTTPS sur Vercel :
-    ini_set('session.cookie_secure', 1); 
+    // On active cookie_secure UNIQUEMENT si on est en HTTPS (Vercel) pour ne pas casser le localhost
+    if ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')) {
+        ini_set('session.cookie_secure', 1); 
+    }
     session_start();
 }
 
@@ -39,7 +41,8 @@ if ($ca_content) {
     $ssl_ca = sys_get_temp_dir() . '/aiven_ca.pem';
     
     if (!file_exists($ssl_ca)) {
-        file_put_contents($ssl_ca, str_replace('\n', "\n", $ca_content));
+        // Remplacement robuste des retours à la ligne pour le certificat
+        file_put_contents($ssl_ca, str_replace(['\n', '\r'], ["\n", ""], $ca_content));
     }
 }
 
@@ -67,6 +70,14 @@ try {
     $pdo->exec("SET time_zone = '$offset'");
 
 } catch (PDOException $e) {
+    // Si l'erreur survient lors d'un appel AJAX (Fetch) via JS, on DOIT renvoyer du JSON et non du HTML !
+    $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') || 
+              (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
+    if ($isAjax) {
+        http_response_code(503);
+        die(json_encode(['success' => false, 'message' => "La base de données est inaccessible ou en veille."]));
+    }
+
     // Message d'erreur personnalisé en cas de mise en veille de la BDD Aiven (Plan Gratuit)
     http_response_code(503); // Service Unavailable
     $errorTitle = 'Base de données en veille';

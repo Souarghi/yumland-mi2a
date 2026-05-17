@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             try {
                 // 4. L'appel asynchrone ultra-léger vers le serveur
-                const response = await fetch("../../api/login.php", {
+                const response = await fetch("/api/login.php", {
                     method: "POST",
                     body: formData
                 });
