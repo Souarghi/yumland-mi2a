@@ -16,8 +16,8 @@ date_default_timezone_set('Europe/Paris');
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.cookie_httponly', 1);
     ini_set('session.use_only_cookies', 1);
-    // Penser à décommenter cette ligne lors du passage en HTTPS sur Vercel :
-    // ini_set('session.cookie_secure', 1); 
+    // Activé pour le passage en HTTPS sur Vercel :
+    ini_set('session.cookie_secure', 1); 
     session_start();
 }
 

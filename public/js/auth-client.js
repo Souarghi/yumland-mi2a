@@ -31,6 +31,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: formData
                 });
 
+                // Vérification si la réponse n'est pas du JSON (ex: erreur 503 BDD en veille)
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    if (response.status === 503) {
+                        throw new Error("La base de données est en veille (Plan Gratuit). Contactez l'administrateur.");
+                    }
+                    throw new Error("Erreur inattendue du serveur.");
+                }
+
                 const data = await response.json();
 
                 if (data.success) {
@@ -57,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             } catch (error) {
                 console.error("Erreur de communication :", error);
-                messageBox.innerHTML = "<p style='color:red;'>Erreur du serveur. Vérifiez que PHP tourne.</p>";
+                messageBox.innerHTML = `<p style='color:red;'>❌ ${error.message || "Erreur du serveur. Vérifiez que PHP tourne."}</p>`;
             }
         });
     }
