@@ -110,8 +110,11 @@ async function deleteUser(userId) {
         <div class="admin-container">           
             <div class="admin-content">
                 <div class="admin-header">
-                    <h2>Gestion des utilisateurs</h2>
-                    <p>Vous pouvez consulter et gérer tous les utilisateurs de la plateforme.</p>
+                    <div>
+                        <h2>Gestion des utilisateurs</h2>
+                        <p>Vous pouvez consulter et gérer tous les utilisateurs de la plateforme.</p>
+                    </div>
+                    <a href="/api/admin/statistiques.php" class="btn-primary">📊 Voir les Statistiques</a>
                 </div>
                 
                 <div class="admin-table-container card-style">
