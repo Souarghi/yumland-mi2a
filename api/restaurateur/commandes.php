@@ -83,7 +83,7 @@ include_once __DIR__ . '/../includes/header.php';
                 <?php foreach ($commandes_attente as $cmd): ?>
                     <div class="order-card">
                         <div class="order-header">
-                            <span>#<?= $cmd['id_commande'] ?> <?= ($cmd['mode_retrait'] ?? 'livraison') === 'sur place' ? '🍽️' : '🛵' ?></span>
+                            <span>#<?= $cmd['id_commande'] ?> <?= in_array(strtolower($cmd['mode_retrait'] ?? 'livraison'), ['sur place', 'manger sur place for some reason']) ? '🍽️' : '🛵' ?></span>
                             <span><?= date('H:i', strtotime($cmd['date_commande'] ?? 'now')) ?></span>
                         </div>
                         <ul class="order-items">
@@ -125,7 +125,7 @@ include_once __DIR__ . '/../includes/header.php';
                 <?php foreach ($commandes_preparation as $cmd): ?>
                     <div class="order-card">
                         <div class="order-header">
-                            <span>#<?= $cmd['id_commande'] ?> <?= ($cmd['mode_retrait'] ?? 'livraison') === 'sur place' ? '🍽️' : '🛵' ?></span>
+                            <span>#<?= $cmd['id_commande'] ?> <?= in_array(strtolower($cmd['mode_retrait'] ?? 'livraison'), ['sur place', 'manger sur place for some reason']) ? '🍽️' : '🛵' ?></span>
                             <span><?= date('H:i', strtotime($cmd['date_commande'] ?? 'now')) ?></span>
                         </div>
                         <ul class="order-items">
@@ -167,11 +167,11 @@ include_once __DIR__ . '/../includes/header.php';
                 <?php foreach ($commandes_pretes as $cmd): ?>
                     <div class="order-card">
                         <div class="order-header">
-                            <span>#<?= $cmd['id_commande'] ?> <?= ($cmd['mode_retrait'] ?? 'livraison') === 'sur place' ? '🍽️' : '🛵' ?></span>
+                            <span>#<?= $cmd['id_commande'] ?> <?= in_array(strtolower($cmd['mode_retrait'] ?? 'livraison'), ['sur place', 'manger sur place for some reason']) ? '🍽️' : '🛵' ?></span>
                             <span><?= date('H:i', strtotime($cmd['date_commande'] ?? 'now')) ?></span>
                         </div>
                         
-                        <?php if(($cmd['mode_retrait'] ?? 'livraison') === 'livraison'): ?>
+                        <?php if(strtolower($cmd['mode_retrait'] ?? 'livraison') === 'livraison'): ?>
                             <div style="text-align:center; color:green; font-weight:bold; margin-bottom: 10px;">En attente livreur</div>
                             <form method="POST" style="margin:0; display:flex; flex-direction:column; gap:8px;">
                                 <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
@@ -180,7 +180,7 @@ include_once __DIR__ . '/../includes/header.php';
                                 <button type="submit" class="btn-move btn-deliver">🚴 Assigner automatiquement un livreur</button>
                             </form>
                         <?php else: ?>
-                            <div style="text-align:center; color:green; font-weight:bold; margin-bottom: 10px;">En attente client (Sur place)</div>
+                            <div style="text-align:center; color:green; font-weight:bold; margin-bottom: 10px;">En attente client (<?= htmlspecialchars($cmd['mode_retrait'] ?? 'Sur place') ?>)</div>
                             <form method="POST" style="margin:0;">
                                 <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
                                 <input type="hidden" name="action" value="servie">

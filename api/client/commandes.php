@@ -160,7 +160,7 @@ include_once __DIR__ . '/../includes/header.php';
                                 </span>
                             </p>
                             <p><strong>Mode:</strong> <?= htmlspecialchars($commande['mode_retrait'] ?? 'Livraison') ?></p>
-                            <?php if (($commande['mode_retrait'] ?? 'livraison') === 'livraison'): ?>
+                            <?php if (strtolower($commande['mode_retrait'] ?? 'livraison') === 'livraison'): ?>
                                 <div class="adresse-container">
                                     <strong>Adresse:</strong> 
                                     

@@ -34,6 +34,7 @@ if ($action === 'update' || $action === 'save_edit' || $action === 'checkout') {
         if ($action === 'checkout') {
             // Sauvegarde de l'adresse en session avant d'aller vers CYBank
             $_SESSION['adresse_livraison_temp'] = trim($_POST['adresse_livraison'] ?? '');
+            $_SESSION['mode_retrait_temp'] = trim($_POST['mode_retrait'] ?? 'livraison');
             header('Location: /api/commander.php');
             exit;
         }
@@ -65,10 +66,10 @@ if ((isset($_GET['action']) && $_GET['action'] === 'save_edit') || ($action === 
             $stmt->execute([$id_commande, $_SESSION['user_id']]);
             $old_total = $stmt->fetchColumn();
             
+            $mode_retrait = trim($_POST['mode_retrait'] ?? 'livraison');
+            
             if ($old_total !== false && $cart['total'] > $old_total) {
-                if (!empty($adresse_livraison)) {
-                    $pdo->prepare("UPDATE Commandes SET adresse_livraison = ? WHERE id_commande = ? AND id_client = ?")->execute([$adresse_livraison, $id_commande, $_SESSION['user_id']]);
-                }
+                $pdo->prepare("UPDATE Commandes SET adresse_livraison = COALESCE(NULLIF(?, ''), adresse_livraison), mode_retrait = ? WHERE id_commande = ? AND id_client = ?")->execute([$adresse_livraison, $mode_retrait, $id_commande, $_SESSION['user_id']]);
                 // Différence à payer -> Redirection vers la passerelle de paiement
                 header('Location: /api/commander.php?mode=supplement');
                 exit;
@@ -78,8 +79,8 @@ if ((isset($_GET['action']) && $_GET['action'] === 'save_edit') || ($action === 
             try {
                 $pdo->beginTransaction();
                 
-                $stmt = $pdo->prepare("UPDATE Commandes SET prix_total = ?, adresse_livraison = COALESCE(NULLIF(?, ''), adresse_livraison) WHERE id_commande = ? AND id_client = ?");
-                $stmt->execute([$cart['total'], $adresse_livraison, $id_commande, $_SESSION['user_id']]);
+                $stmt = $pdo->prepare("UPDATE Commandes SET prix_total = ?, adresse_livraison = COALESCE(NULLIF(?, ''), adresse_livraison), mode_retrait = ? WHERE id_commande = ? AND id_client = ?");
+                $stmt->execute([$cart['total'], $adresse_livraison, $mode_retrait, $id_commande, $_SESSION['user_id']]);
                 
                 $pdo->prepare("DELETE FROM Contenu_Commandes WHERE id_commande = ?")->execute([$id_commande]);
                 
@@ -310,7 +311,26 @@ include_once __DIR__ . '/includes/header.php';
                     $current_address = '';
                 }
                 ?>
-                <div class="cart-address cart-address-box">
+                
+                <div class="cart-mode-retrait cart-address-box">
+                    <h3 class="cart-address-title"><i class="fas fa-shopping-bag" style="color: var(--color-primary);"></i> Mode de retrait</h3>
+                    <div style="display: flex; gap: 20px; margin-top: 15px; flex-wrap: wrap;">
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="radio" name="mode_retrait" value="livraison" checked onchange="document.getElementById('adresse-box').style.display='block';">
+                            🛵 Livraison
+                        </label>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="radio" name="mode_retrait" value="click and collect" onchange="document.getElementById('adresse-box').style.display='none';">
+                            🛍️ Click & Collect
+                        </label>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="radio" name="mode_retrait" value="manger sur place for some reason" onchange="document.getElementById('adresse-box').style.display='none';">
+                            🍽️ Manger sur place for some reason
+                        </label>
+                    </div>
+                </div>
+
+                <div class="cart-address cart-address-box" id="adresse-box">
                     <h3 class="cart-address-title"><i class="fas fa-map-marker-alt" style="color: var(--color-primary);"></i> Adresse de livraison</h3>
                     <textarea name="adresse_livraison" rows="2" class="cart-address-input" placeholder="Où devons-nous vous livrer ?"><?= htmlspecialchars($current_address) ?></textarea>
                 </div>

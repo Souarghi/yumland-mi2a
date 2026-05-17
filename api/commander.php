@@ -74,7 +74,8 @@ try {
     } else {
         // Création standard d'une nouvelle commande
         $adresse_livraison = $_SESSION['adresse_livraison_temp'] ?? '';
-        unset($_SESSION['adresse_livraison_temp']);
+        $mode_retrait = $_SESSION['mode_retrait_temp'] ?? 'livraison';
+        unset($_SESSION['adresse_livraison_temp'], $_SESSION['mode_retrait_temp']);
         
         if (empty($adresse_livraison)) {
             $stmtUser = $pdo->prepare("SELECT rue, complement, code_postal, ville FROM Utilisateurs WHERE id_user = ?");
@@ -90,8 +91,8 @@ try {
             }
         }
 
-        $stmt = $pdo->prepare("INSERT INTO Commandes (id_client, prix_total, statut, paiement_statut, date_commande, adresse_livraison) VALUES (?, ?, 'En attente', 'Non payé', NOW(), ?)");
-        $stmt->execute([$id_client, $total_paye, $adresse_livraison]);
+        $stmt = $pdo->prepare("INSERT INTO Commandes (id_client, prix_total, statut, paiement_statut, date_commande, adresse_livraison, mode_retrait) VALUES (?, ?, 'En attente', 'Non payé', NOW(), ?, ?)");
+        $stmt->execute([$id_client, $total_paye, $adresse_livraison, $mode_retrait]);
         $id_commande = $pdo->lastInsertId();
 
         $stmtContenu = $pdo->prepare("INSERT INTO Contenu_Commandes (id_commande, id_produit, quantite, prix_unitaire, options_choisies) VALUES (?, ?, ?, ?, ?)");
