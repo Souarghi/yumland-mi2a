@@ -55,12 +55,12 @@ Le projet est construit de manière modulaire, marquant l'évolution entre la co
   * **Fin :** 05/04/2026 - commit `2a3d045`
 
 * **Phase 3 : Interactivité et Requêtes Asynchrones**
-  * **Début :** 06/04/2026 - commit `0250fa4`
-  * **Fin :** 24/04/2026 - commit `7b4e9a2`
+  * **Début :** 14/04/2026 - commit `0250fa4`
+  * **Fin :** 17/05/2026 - commit ``
 
 * **Phase 4 : Standardisation, Sécurité et Soutenance Finale**
-  * **Début :** 24/04/2026
-  * **Fin :** 15/05/2026 - Version Finale `v3.0`
+  * **Début :** 
+  * **Fin :** 
 
 ## 📂 Organisation du Projet
 
@@ -71,25 +71,28 @@ Le projet est construit de manière modulaire, marquant l'évolution entre la co
 │   ├── 📂 client/               # Scripts pour l'espace Client (profil, commandes...)
 │   ├── 📂 includes/             # Fichiers de configuration et fonctions partagées (config, auth, BDD...)
 │   ├── 📂 livreur/              # Interface dynamique du Livreur
-│   ├── 📂 obsolete/             # Anciens fichiers de la Phase 1
 │   ├── 📂 pages/                # Pages PHP principales (carte, connexion, inscription...)
 │   ├── 📂 restaurateur/         # Interface dynamique de la Cuisine
 │   ├── 📄 ajouter_panier.php    # Endpoint AJAX pour le panier
 │   ├── 📄 commander.php         # Processus de commande et redirection vers CYBank
-│   ├── 📄 index.php             # Page d'accueil dynamique
-│   ├── 📄 init_db.php           # Script de création des tables SQL (via PHP)
+│   ├── 📄 index.php             # Point d'entrée de l'API
 │   ├── 📄 login.php             # Endpoint AJAX pour la connexion
+│   ├── 📄 logout.php            # Endpoint AJAX pour la déconnexion
+│   ├── 📄 panier.php            # Endpoint de gestion du panier
 │   ├── 📄 retour_paiement.php   # Endpoint de retour de CYBank
 │   └── ...
 ├── 📂 consigne/                   # Documents du cahier des charges
 ├── 📂 docs/                       # Livrables (Charte graphique, CR...)
 │   ├── 📄 comptes-test.md       # Identifiants de test par rôle (Client, Resto, Livreur, Admin)
 │   └── ...
+├── 📂 obselete/                   # Anciens fichiers de la Phase 1 et scripts d'initialisation
 ├── 📂 public/                     # Ressources Front-End (CSS, JS, images)
 │   ├── 📂 css/
 │   ├── 📂 images/
 │   └── 📂 js/
+├── 📄 .env                        # Configuration des variables d'environnement
 ├── 📄 .gitignore
+├── 📄 index.html                  # Page d'accueil
 ├── 📄 README.md                   # Ce fichier
 ├── 📄 router.php                  # Routeur pour le développement local (simule Vercel)
 ├── 📄 schema.sql                  # Structure de la base de données (export Aiven)
@@ -147,6 +150,5 @@ Consultez le fichier **[`docs/comptes-test.md`](docs/comptes-test.md)** pour les
 
 ---
 
-To-Do List des choses à compléter : [docs/todolist.md](docs/todolist.md)
 
 Projet réalisé dans le cadre de l'UE Sciences - Module Informatique 4 - CY Tech - 2025/2026.
