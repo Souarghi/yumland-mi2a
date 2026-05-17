@@ -32,8 +32,23 @@ if ($action === 'update' || $action === 'save_edit' || $action === 'checkout') {
         }
         
         if ($action === 'checkout') {
+            $rue = trim($_POST['rue'] ?? '');
+            $code_postal = trim($_POST['code_postal'] ?? '');
+            $ville = trim($_POST['ville'] ?? '');
+            $complement = trim($_POST['complement'] ?? '');
+            
+            $adresse_parts = [];
+            if (!empty($rue)) $adresse_parts[] = $rue . (!empty($complement) ? ' ' . $complement : '');
+            if (!empty($code_postal) || !empty($ville)) $adresse_parts[] = trim($code_postal . ' ' . $ville);
+            $adresse_livraison = implode(', ', $adresse_parts);
+
+            if (isset($_POST['save_address_profile']) && $_POST['save_address_profile'] === '1' && isLoggedIn()) {
+                $stmtUpdateProfile = $pdo->prepare("UPDATE Utilisateurs SET rue = ?, code_postal = ?, ville = ?, complement = ? WHERE id_user = ?");
+                $stmtUpdateProfile->execute([$rue, $code_postal, $ville, $complement, $_SESSION['user_id']]);
+            }
+
             // Sauvegarde de l'adresse en session avant d'aller vers CYBank
-            $_SESSION['adresse_livraison_temp'] = trim($_POST['adresse_livraison'] ?? '');
+            $_SESSION['adresse_livraison_temp'] = $adresse_livraison;
             $_SESSION['mode_retrait_temp'] = trim($_POST['mode_retrait'] ?? 'livraison');
             header('Location: /api/commander.php');
             exit;
@@ -50,7 +65,21 @@ if ((isset($_GET['action']) && $_GET['action'] === 'save_edit') || ($action === 
     if (isset($_SESSION['edit_commande_id'])) {
         $id_commande = $_SESSION['edit_commande_id'];
         $cart = getCart(); // On rafraîchit le panier après l'update ci-dessus !
-        $adresse_livraison = trim($_POST['adresse_livraison'] ?? '');
+        
+        $rue = trim($_POST['rue'] ?? '');
+        $code_postal = trim($_POST['code_postal'] ?? '');
+        $ville = trim($_POST['ville'] ?? '');
+        $complement = trim($_POST['complement'] ?? '');
+        
+        $adresse_parts = [];
+        if (!empty($rue)) $adresse_parts[] = $rue . (!empty($complement) ? ' ' . $complement : '');
+        if (!empty($code_postal) || !empty($ville)) $adresse_parts[] = trim($code_postal . ' ' . $ville);
+        $adresse_livraison = implode(', ', $adresse_parts);
+
+        if (isset($_POST['save_address_profile']) && $_POST['save_address_profile'] === '1' && isLoggedIn()) {
+            $stmtUpdateProfile = $pdo->prepare("UPDATE Utilisateurs SET rue = ?, code_postal = ?, ville = ?, complement = ? WHERE id_user = ?");
+            $stmtUpdateProfile->execute([$rue, $code_postal, $ville, $complement, $_SESSION['user_id']]);
+        }
         
         if (!empty($cart['items'])) {
             // Application du statut LÉGENDE DU STEAK (-10%)
@@ -288,27 +317,30 @@ include_once __DIR__ . '/includes/header.php';
 
                 <?php if (isLoggedIn()): ?>
                 <?php
-                $current_address = '';
+                $userAddr = [];
+                $has_profile_address = false;
+                $rue_val = '';
+                $cp_val = '';
+                $ville_val = '';
+                $complement_val = '';
+                
                 try {
-                    if (isset($_SESSION['edit_commande_id'])) {
-                        $stmtAddr = $pdo->prepare("SELECT adresse_livraison FROM Commandes WHERE id_commande = ? AND id_client = ?");
-                        $stmtAddr->execute([$_SESSION['edit_commande_id'], $_SESSION['user_id']]);
-                        $current_address = $stmtAddr->fetchColumn() ?: '';
-                    }
-                    if (empty($current_address)) {
-                        $stmtAddr = $pdo->prepare("SELECT rue, complement, code_postal, ville FROM Utilisateurs WHERE id_user = ?");
-                        $stmtAddr->execute([$_SESSION['user_id']]);
-                        $userAddr = $stmtAddr->fetch(PDO::FETCH_ASSOC);
-                        if ($userAddr) {
-                            $parts = [];
-                            if (!empty($userAddr['rue'])) $parts[] = trim($userAddr['rue'] . ' ' . ($userAddr['complement'] ?? ''));
-                            $cp_ville = trim(($userAddr['code_postal'] ?? '') . ' ' . ($userAddr['ville'] ?? ''));
-                            if (!empty($cp_ville)) $parts[] = $cp_ville;
-                            $current_address = implode(', ', $parts);
+                    $stmtAddr = $pdo->prepare("SELECT rue, complement, code_postal, ville FROM Utilisateurs WHERE id_user = ?");
+                    $stmtAddr->execute([$_SESSION['user_id']]);
+                    $userAddr = $stmtAddr->fetch(PDO::FETCH_ASSOC);
+                    
+                    if ($userAddr) {
+                        $rue_val = $userAddr['rue'] ?? '';
+                        $cp_val = $userAddr['code_postal'] ?? '';
+                        $ville_val = $userAddr['ville'] ?? '';
+                        $complement_val = $userAddr['complement'] ?? '';
+                        
+                        if (!empty($rue_val) || !empty($cp_val) || !empty($ville_val)) {
+                            $has_profile_address = true;
                         }
                     }
                 } catch (Exception $e) {
-                    $current_address = '';
+                    // Ignore
                 }
                 ?>
                 
@@ -332,7 +364,45 @@ include_once __DIR__ . '/includes/header.php';
 
                 <div class="cart-address cart-address-box" id="adresse-box">
                     <h3 class="cart-address-title"><i class="fas fa-map-marker-alt" style="color: var(--color-primary);"></i> Adresse de livraison</h3>
-                    <textarea name="adresse_livraison" rows="2" class="cart-address-input" placeholder="Où devons-nous vous livrer ?"><?= htmlspecialchars($current_address) ?></textarea>
+                    
+                    <?php if ($has_profile_address): ?>
+                        <div id="address-display" class="card-style" style="padding: 15px; margin-bottom: 15px; box-shadow: none; border: 1px solid #ddd;">
+                            <p style="margin-top: 0;"><strong>Adresse par défaut :</strong><br>
+                                <?= htmlspecialchars($rue_val . (!empty($complement_val) ? ' - ' . $complement_val : '')) ?><br>
+                                <?= htmlspecialchars($cp_val . ' ' . $ville_val) ?>
+                            </p>
+                            <button type="button" class="btn-outline btn-sm" onclick="document.getElementById('address-form').style.display = 'block'; document.getElementById('address-display').style.display = 'none';">Changer l'adresse de livraison</button>
+                        </div>
+                    <?php endif; ?>
+
+                    <div id="address-form" style="<?= $has_profile_address ? 'display: none;' : '' ?>">
+                        <div style="margin-bottom: 10px;">
+                            <label for="rue" style="display:block; margin-bottom: 5px;">Rue/Numéro</label>
+                            <input type="text" name="rue" id="rue" value="<?= htmlspecialchars($rue_val) ?>" class="cart-address-input" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;" placeholder="Ex: 12 Rue de la Paix">
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <label for="complement" style="display:block; margin-bottom: 5px;">Complément d'adresse (Bâtiment, Étage...)</label>
+                            <input type="text" name="complement" id="complement" value="<?= htmlspecialchars($complement_val) ?>" class="cart-address-input" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;" placeholder="Ex: Bâtiment B, 3ème étage">
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <div style="flex: 1;">
+                                <label for="code_postal" style="display:block; margin-bottom: 5px;">Code Postal</label>
+                                <input type="text" name="code_postal" id="code_postal" value="<?= htmlspecialchars($cp_val) ?>" class="cart-address-input" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;" placeholder="Ex: 75000">
+                            </div>
+                            <div style="flex: 2;">
+                                <label for="ville" style="display:block; margin-bottom: 5px;">Ville</label>
+                                <input type="text" name="ville" id="ville" value="<?= htmlspecialchars($ville_val) ?>" class="cart-address-input" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;" placeholder="Ex: Paris">
+                            </div>
+                        </div>
+                        <?php if (isLoggedIn()): ?>
+                        <div style="margin-top: 15px;">
+                            <label style="cursor: pointer; display: flex; align-items: flex-start; gap: 10px; font-size: 0.9em; line-height: 1.4;">
+                                <input type="checkbox" name="save_address_profile" value="1" style="margin-top: 2px;">
+                                <span>Enregistrer l'adresse de livraison comme adresse de livraison par défaut sur le profil ?<br><small style="color: var(--color-primary); font-weight: bold;">(Ceci écrasera toute ancienne adresse attachée au profil)</small></span>
+                            </label>
+                        </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
                 
                 <div class="loyalty-box <?= $tier_class ?>">
