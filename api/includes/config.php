@@ -23,51 +23,33 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 3. RÉCUPÉRATION DES PARAMÈTRES (Priorité aux variables d'environnement Vercel)
+// 3. RÉCUPÉRATION DES PARAMÈTRES
 $host = getenv('DB_HOST')     ?: 'yumlandbase-yumland.l.aivencloud.com';
 $port = getenv('DB_PORT')     ?: '25645';
 $db   = getenv('DB_NAME')     ?: 'defaultdb';
 $user = getenv('DB_USER')     ?: 'avnadmin';
 $pass = getenv('DB_PASSWORD') ?: 'AVNS_PH3P24uM4D2Vg9YHMvZ';
 
-// Chemin vers le certificat SSL (indispensable pour Aiven)
+// Certificat SSL Aiven — fichier directement dans le repo
 $ssl_ca = __DIR__ . '/ca.pem';
-
-// Si on est sur Vercel, on récupère le contenu du certificat depuis les variables d'environnement
-$ca_content = getenv('DB_SSL_CA');
-
-if ($ca_content) {
-    // Vercel étant en lecture seule, on stocke le certificat SSL de la BDD temporairement dans /tmp
-    $ssl_ca = sys_get_temp_dir() . '/aiven_ca.pem';
-    
-    if (!file_exists($ssl_ca)) {
-        // Remplacement robuste des retours à la ligne pour le certificat
-        file_put_contents($ssl_ca, str_replace(['\\n', '\\r', '\n', '\r'], ["\n", "", "\n", ""], $ca_content));
-    }
-}
 
 // 4. CONNEXION À LA BASE DE DONNÉES
 try {
     $dsn = "mysql:host=$host;dbname=$db;port=$port;charset=utf8mb4";
-    
+
     $options = [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES   => false,
     ];
 
-    // Activation du SSL pour Aiven / Vercel
     if (file_exists($ssl_ca)) {
-        $options[PDO::MYSQL_ATTR_SSL_CA] = $ssl_ca;
-        // Optionnel : désactive la vérification du nom d'hôte si certificat auto-signé
-        $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false; 
+        $options[PDO::MYSQL_ATTR_SSL_CA]                 = $ssl_ca;
+        $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
     }
 
     $pdo = new PDO($dsn, $user, $pass, $options);
-    
-    // Synchroniser le fuseau horaire de MySQL avec celui de PHP
-    $offset = date('P'); // Ex: +01:00 (hiver) ou +02:00 (été)
-    $pdo->exec("SET time_zone = '$offset'");
+    $pdo->exec("SET time_zone = '" . date('P') . "'");
 
 } catch (PDOException $e) {
     // Si l'erreur survient lors d'un appel AJAX (Fetch) via JS, on DOIT renvoyer du JSON et non du HTML !
