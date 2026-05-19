@@ -77,8 +77,6 @@ function getProduitById($id, $produits) {
 }
 ?>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js" defer></script>
 <script defer>
     // --- FONCTION POUR OUVRIR LA MODAL MENU ---
     function openMenuModal(btn) {
@@ -264,21 +262,6 @@ function getProduitById($id, $produits) {
                 td.classList.add('price-cell');
             }
         });
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        // Coordonnées du restaurant — à ajuster selon l'adresse réelle
-        var lat = 49.0443, lng = 2.0828;
-        var map = L.map('map').setView([lat, lng], 16);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-
-        L.marker([lat, lng])
-            .addTo(map)
-            .bindPopup('<strong>Le Grand Miam</strong><br>Steakhouse & Burgers XXL')
-            .openPopup();
     });
 </script>
 
@@ -468,13 +451,6 @@ function getProduitById($id, $produits) {
     }
     ?>
     </div>
-</div>
-
-<!-- CARTE INTERACTIVE — Localisation du restaurant -->
-<div class="menu-container map-container">
-    <h2><i class="fas fa-map-marker-alt"></i> Nous trouver</h2>
-    <p class="map-subtitle">Le Grand Miam — commandez en ligne ou venez nous rendre visite !</p>
-    <div id="map" class="map-box"></div>
 </div>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
