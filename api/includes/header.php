@@ -27,6 +27,7 @@ $fontClass = (isset($_COOKIE['font']) && $_COOKIE['font'] === 'dyslexic') ? 'dys
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= isset($pageTitle) ? $pageTitle . ' | ' . APP_NAME : APP_NAME ?></title>
+    <link rel="icon" type="image/x-icon" href="/docs/logo-le-grand-miam.ico">
     <link rel="stylesheet" href="/css/style.css?v=<?= time() ?>">
     <link rel="stylesheet" href="/css/header.css?v=<?= time() ?>">
     <?php if ($themeClass === 'dark-mode'): ?>
