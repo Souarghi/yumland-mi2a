@@ -7,6 +7,12 @@ require_once __DIR__ . '/includes/panier.php';
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Vérification de sécurité CSRF pour les requêtes AJAX
+    if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        echo json_encode(['success' => false, 'message' => 'Erreur de sécurité CSRF.']);
+        exit;
+    }
+
     $id_produit = isset($_POST['id_produit']) ? (int)$_POST['id_produit'] : 0;
     $quantite = isset($_POST['quantite']) ? (int)$_POST['quantite'] : 1;
     $prix_miams = isset($_POST['prix_miams']) ? (int)$_POST['prix_miams'] : 0;

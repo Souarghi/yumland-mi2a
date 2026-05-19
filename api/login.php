@@ -7,7 +7,7 @@ header('Content-Type: application/json');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Protection contre les requêtes falsifiées (CSRF)
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         echo json_encode(["success" => false, "message" => "Erreur de sécurité CSRF. Veuillez rafraîchir la page."]);
         exit;
     }

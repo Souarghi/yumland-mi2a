@@ -75,6 +75,9 @@ function getProduitById($id, $produits) {
     }
     return null;
 }
+
+// Générer le token pour sécuriser l'ajout au panier en AJAX
+$csrf_token = generateCSRFToken();
 ?>
 
 <script defer>
@@ -91,6 +94,7 @@ function getProduitById($id, $produits) {
         const formData = new FormData();
         formData.append('id_produit', id_produit);
         formData.append('quantite', 1);
+        formData.append('csrf_token', '<?= $csrf_token ?>');
 
         fetch('/api/ajouter_panier.php', {
             method: 'POST',

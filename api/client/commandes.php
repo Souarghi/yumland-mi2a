@@ -9,6 +9,14 @@ if (!isLoggedIn()) {
     redirect('/api/pages/connexion.php');
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Vérification de sécurité CSRF sur toutes les actions POST de cette page
+    if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        // hash_equals prévient les attaques par analyse temporelle (timing attacks)
+        die("Erreur de sécurité : jeton CSRF invalide.");
+    }
+}
+
 // Traitement de l'annulation pour modification
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'modifier_panier') {
     $id_commande = (int)$_POST['id_commande'];
@@ -111,6 +119,12 @@ try {
 $currentPage = 'client_commandes';
 $pageTitle = 'Mes Commandes';
 
+// Génération du jeton CSRF pour les formulaires de la page.
+// La fonction generateCSRFToken() est supposée venir de includes/auth.php comme dans les autres pages sécurisées.
+if (function_exists('generateCSRFToken')) {
+    $csrf_token = generateCSRFToken();
+}
+
 // Inclure le header
 include_once __DIR__ . '/../includes/header.php';
 ?>
@@ -173,6 +187,7 @@ include_once __DIR__ . '/../includes/header.php';
                                     
                                     <?php if (!in_array($commande['statut'], ['En livraison', 'Livrée', 'Annulée'])): ?>
                                         <form id="form-edit-addr-<?= $commande['id_commande'] ?>" method="POST" class="form-edit-inline" style="display: none;" onsubmit="toggleEditAddr(<?= $commande['id_commande'] ?>, false, true)">
+                                            <input type="hidden" name="csrf_token" value="<?= $csrf_token ?? '' ?>">
                                             <input type="hidden" name="action" value="modifier_adresse">
                                             <input type="hidden" name="id_commande" value="<?= $commande['id_commande'] ?>">
                                             <div class="form-group">
@@ -219,6 +234,7 @@ include_once __DIR__ . '/../includes/header.php';
                         <div class="commande-actions">
                             <?php if ($commande['statut'] === 'En attente'): ?>
                                 <form method="POST" onsubmit="return confirm('Voulez-vous modifier cette commande ? Son contenu sera placé dans votre panier pour que vous puissiez l\'éditer librement.');">
+                                    <input type="hidden" name="csrf_token" value="<?= $csrf_token ?? '' ?>">
                                     <input type="hidden" name="action" value="modifier_panier">
                                     <input type="hidden" name="id_commande" value="<?= $commande['id_commande'] ?>">
                                     <button type="submit" class="btn-outline btn-sm">
@@ -235,6 +251,7 @@ include_once __DIR__ . '/../includes/header.php';
                                 <?php endif; ?>
                             <?php endif; ?>
                             <form method="POST">
+                                <input type="hidden" name="csrf_token" value="<?= $csrf_token ?? '' ?>">
                                 <input type="hidden" name="action" value="recommander">
                                 <input type="hidden" name="id_commande" value="<?= $commande['id_commande'] ?>">
                                 <button type="submit" class="btn-primary btn-sm">

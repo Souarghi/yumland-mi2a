@@ -106,7 +106,11 @@ try {
     $pdo->commit();
 } catch (Exception $e) {
     $pdo->rollBack();
-    die("Erreur lors de la création de la commande : " . $e->getMessage());
+    // En production, il est préférable de ne pas afficher les détails de l'erreur à l'utilisateur.
+    // On devrait logger l'erreur pour le développeur.
+    error_log("Erreur BDD lors de la création de commande : " . $e->getMessage());
+    // Afficher une page d'erreur générique.
+    die("Une erreur technique est survenue lors de la création de votre commande. Veuillez réessayer plus tard.");
 }
 
 // ==============================================================

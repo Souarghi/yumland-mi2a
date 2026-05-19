@@ -21,7 +21,7 @@ if (empty($action) && isset($_POST['quantite'])) {
 // Action: Mettre à jour la quantité OU soumission via bouton Enregistrer/Payer/Checkout
 if ($action === 'update' || $action === 'save_edit' || $action === 'checkout') {
     // Vérifier le token CSRF
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         $message = 'Erreur de sécurité, veuillez réessayer.';
         // On bloque formellement la suite de l'exécution pour protéger la base de données
         $action = ''; 

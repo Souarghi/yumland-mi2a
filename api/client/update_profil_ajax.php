@@ -13,6 +13,12 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $data = json_decode(file_get_contents('php://input'), true);
 
+// Vérification CSRF
+if (!isset($data['csrf_token']) || !isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $data['csrf_token'])) {
+    echo json_encode(['success' => false, 'message' => 'Erreur de sécurité CSRF.']);
+    exit;
+}
+
 // Validation basique côté serveur
 $nom     = trim($data['nom'] ?? '');
 $prenom  = trim($data['prenom'] ?? '');
