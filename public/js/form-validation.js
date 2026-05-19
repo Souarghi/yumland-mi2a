@@ -81,9 +81,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const tel = inscriptionForm.querySelector('[name="tel"]');
       const password = inscriptionForm.querySelector('[name="password"]');
       const confirm = inscriptionForm.querySelector('[name="confirm_password"]');
+      const pin = inscriptionForm.querySelector('[name="pin"]');
 
       // Réinitialiser les erreurs
-      [nom, prenom, email, tel, password, confirm].forEach(f => { if (f) clearError(f); });
+      [nom, prenom, email, tel, password, confirm, pin].forEach(f => { if (f) clearError(f); });
 
       if (!nom || nom.value.trim().length < 2) {
         showError(nom, "Le nom doit contenir au moins 2 caractères."); valid = false;
@@ -102,6 +103,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (confirm && password && confirm.value !== password.value) {
         showError(confirm, "Les mots de passe ne correspondent pas."); valid = false;
+      }
+      if (!pin || !/^\d{6}$/.test(pin.value)) {
+        showError(pin, "Le code PIN doit contenir exactement 6 chiffres."); valid = false;
       }
 
       if (!valid) e.preventDefault(); // Bloquer l'envoi si erreurs

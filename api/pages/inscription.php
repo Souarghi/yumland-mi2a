@@ -19,6 +19,7 @@ $rue_val = '';
 $cp_val = '';
 $ville_val = '';
 $complement_val = '';
+$pin_val = '';
 
 // Traitement du formulaire d'inscription
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -38,9 +39,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cp_val = trim($_POST['code_postal'] ?? '');
         $ville_val = trim($_POST['ville'] ?? '');
         $complement_val = trim($_POST['complement'] ?? '');
+        $pin_val = trim($_POST['pin'] ?? '');
         
         // Validation des champs
-        if (empty($password) || empty($confirm_password) || empty($email_val) || empty($nom_val) || empty($prenom_val) || empty($rue_val) || empty($cp_val) || empty($ville_val)) {
+        if (empty($password) || empty($confirm_password) || empty($email_val) || empty($nom_val) || empty($prenom_val) || empty($rue_val) || empty($cp_val) || empty($ville_val) || empty($pin_val)) {
             $error = 'Veuillez remplir tous les champs obligatoires.';
         } elseif ($password !== $confirm_password) {
             $error = 'Les mots de passe ne correspondent pas.';
@@ -48,6 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Le mot de passe doit contenir au moins 8 caractères.';
         } elseif (!filter_var($email_val, FILTER_VALIDATE_EMAIL)) {
             $error = 'Veuillez entrer une adresse email valide.';
+        } elseif (!preg_match('/^\d{6}$/', $pin_val)) {
+            $error = 'Le code PIN doit contenir exactement 6 chiffres.';
         } else {
             // Préparer les données pour la fonction registerUser
             $userData = [
@@ -59,7 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'rue' => $rue_val,
                 'code_postal' => $cp_val,
                 'ville' => $ville_val,
-                'complement' => $complement_val
+                'complement' => $complement_val,
+                'pin' => $pin_val
             ];
             
             // Appel à la base de données
@@ -168,6 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const passwordVal = document.getElementById('password') ? document.getElementById('password').value : '';
             const confirmPasswordVal = document.getElementById('confirm_password') ? document.getElementById('confirm_password').value : '';
             const emailVal = document.getElementById('email') ? document.getElementById('email').value : '';
+            const pinVal = document.getElementById('pin') ? document.getElementById('pin').value : '';
             const errorDiv = document.getElementById('js-error-message');
             let errors = [];
 
@@ -180,6 +186,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(emailVal)) {
                 errors.push("Veuillez entrer une adresse email valide.");
+            }
+            if (pinVal && !/^\d{6}$/.test(pinVal)) {
+                errors.push("Le code PIN doit contenir exactement 6 chiffres.");
             }
 
             if (errors.length > 0) {
@@ -257,6 +266,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="form-group">
                         <label for="telephone">Téléphone</label>
                         <input type="tel" id="telephone" name="telephone" value="<?= htmlspecialchars($telephone_val) ?>">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pin">Code PIN (6 chiffres) *</label>
+                        <input type="text" id="pin" name="pin" value="<?= htmlspecialchars($pin_val) ?>" pattern="\d{6}" maxlength="6" inputmode="numeric" required>
                     </div>
                     
                     <div class="form-group">

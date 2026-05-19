@@ -27,17 +27,22 @@ $rue         = trim($data['rue'] ?? '');
 $code_postal = trim($data['code_postal'] ?? '');
 $ville       = trim($data['ville'] ?? '');
 $complement  = trim($data['complement'] ?? '');
+$pin         = trim($data['pin'] ?? '');
 
 if (strlen($nom) < 2 || strlen($prenom) < 2) {
     echo json_encode(['success' => false, 'message' => 'Nom ou prénom trop court.']);
     exit;
 }
+if ($pin !== '' && !preg_match('/^\d{6}$/', $pin)) {
+    echo json_encode(['success' => false, 'message' => 'Le code PIN doit contenir exactement 6 chiffres.']);
+    exit;
+}
 
 try {
     $stmt = $pdo->prepare(
-        "UPDATE Utilisateurs SET nom = ?, prenom = ?, tel = ?, rue = ?, code_postal = ?, ville = ?, complement = ? WHERE id_user = ?"
+        "UPDATE Utilisateurs SET nom = ?, prenom = ?, tel = ?, rue = ?, code_postal = ?, ville = ?, complement = ?, pin = ? WHERE id_user = ?"
     );
-    $stmt->execute([$nom, $prenom, $tel, $rue, $code_postal, $ville, $complement, $user_id]);
+    $stmt->execute([$nom, $prenom, $tel, $rue, $code_postal, $ville, $complement, $pin, $user_id]);
 
     $_SESSION['user_name'] = $nom; // Mise à jour de la session
 

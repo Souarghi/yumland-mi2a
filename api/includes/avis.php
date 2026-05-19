@@ -122,7 +122,7 @@ function updateUserProfil(int $user_id, array $data): bool {
     global $pdo;
     $stmt = $pdo->prepare("
         UPDATE Utilisateurs
-        SET nom = ?, prenom = ?, tel = ?, rue = ?, code_postal = ?, ville = ?, complement = ?
+        SET nom = ?, prenom = ?, tel = ?, rue = ?, code_postal = ?, ville = ?, complement = ?, pin = ?
         WHERE id_user = ?
     ");
     return $stmt->execute([
@@ -133,6 +133,7 @@ function updateUserProfil(int $user_id, array $data): bool {
         $data['code_postal'],
         $data['ville'],
         $data['complement'],
+        $data['pin'] ?? null,
         $user_id
     ]);
 }

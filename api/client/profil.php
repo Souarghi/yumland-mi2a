@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $code_postal = trim($_POST['code_postal'] ?? '');
     $ville = trim($_POST['ville'] ?? '');
     $complement = trim($_POST['complement'] ?? '');
+    $pin = trim($_POST['pin'] ?? '');
 
     try {
         updateUserProfil($user_id, [
@@ -36,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             'code_postal' => $code_postal,
             'ville'       => $ville,
             'complement'  => $complement,
+            'pin'         => $pin,
         ]);
         
         // Mettre à jour le nom en session au cas où il a changé
@@ -106,6 +108,10 @@ include_once __DIR__ . '/../includes/header.php';
             <div class="form-group form-group-spacing">
                 <label for="tel">Téléphone :</label>
                 <input type="text" data-field="tel" value="<?= htmlspecialchars($user['tel'] ?? '') ?>" disabled>
+            </div>
+            <div class="form-group form-group-spacing">
+                <label for="pin">Code PIN (6 chiffres) :</label>
+                <input type="text" data-field="pin" value="<?= htmlspecialchars($user['pin'] ?? '') ?>" disabled pattern="\d{6}" maxlength="6" inputmode="numeric">
             </div>
             <div id="adresse-container" style="display: none;">
                 <div class="form-group form-group-spacing">

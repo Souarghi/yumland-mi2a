@@ -38,7 +38,7 @@ function registerUser($userData) {
         }
 
         // Insérer le nouvel utilisateur (On ignore le 'username' car il n'est pas dans la table SQL)
-        $stmt = $pdo->prepare("INSERT INTO Utilisateurs (nom, prenom, email, mot_de_passe, role, tel, rue, code_postal, ville, complement) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO Utilisateurs (nom, prenom, email, mot_de_passe, role, tel, rue, code_postal, ville, complement, pin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $userData['nom'],
             $userData['prenom'],
@@ -49,7 +49,8 @@ function registerUser($userData) {
             $userData['rue'] ?? '',
             $userData['code_postal'] ?? '',
             $userData['ville'] ?? '',
-            $userData['complement'] ?? ''
+            $userData['complement'] ?? '',
+            $userData['pin'] ?? null
         ]);
         return true;
     } catch (PDOException $e) {
