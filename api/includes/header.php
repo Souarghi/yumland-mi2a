@@ -20,6 +20,7 @@ $cartItemCount = getCartItemCount();
 // Lecture des cookies d'accessibilité côté serveur (évite l'effet de flash blanc au chargement)
 $themeClass = (isset($_COOKIE['theme']) && $_COOKIE['theme'] === 'dark') ? 'dark-mode' : '';
 $fontClass = (isset($_COOKIE['font']) && $_COOKIE['font'] === 'dyslexic') ? 'dyslexic-mode' : '';
+$currentPage = $currentPage ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="fr">
