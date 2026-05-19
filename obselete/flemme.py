@@ -337,6 +337,7 @@ class AppVisualiseurDB(tk.Tk):
                 email        TEXT    NOT NULL UNIQUE,
                 mot_de_passe TEXT    NOT NULL,
                 role         TEXT    NOT NULL CHECK (role IN ('Client', 'Administrateur', 'Restaurateur', 'Livreur') ),
+                pin          TEXT    DEFAULT NULL,
                 solde_miams  INTEGER DEFAULT 0
             );
             ''')

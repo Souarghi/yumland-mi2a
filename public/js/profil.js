@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const adresseContainer = document.getElementById("adresse-container"); // Nouveau conteneur
 
   // Champs éditables
-  const fields = ["nom", "prenom", "tel", "rue", "code_postal", "ville", "complement"];
+  const fields = ["nom", "prenom", "tel", "rue", "code_postal", "ville", "complement", "pin"];
 
   // Valeurs originales (pour annulation)
   let originalValues = {};

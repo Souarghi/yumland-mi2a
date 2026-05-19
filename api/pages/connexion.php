@@ -118,6 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             <div class="auth-links auth-links-center">
                 <p>Pas encore de compte ? <a href="/api/pages/inscription.php">S'inscrire</a></p>
+                <p><a href="/api/pages/mot_de_passe_oublie.php">Mot de passe oublié ?</a></p>
             </div>
 
             <div class="test-accounts card-style test-accounts-box">
