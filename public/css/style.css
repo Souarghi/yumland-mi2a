@@ -265,16 +265,6 @@ nav {
     overflow: hidden;
     animation: heroZoom 25s ease-in-out infinite alternate;
 }
-
-#hero::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: url('/public/images/logo/banniere-le-grand-miam.png') center / cover no-repeat;
-    opacity: 0.9;
-    pointer-events: none;
-}
-
 #hero h1 { color: var(--color-accent); font-size: 3.5rem; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); }
 #hero p { font-size: 1.5rem; text-shadow: 1px 1px 4px rgba(0,0,0,0.8); }
 #hero .cta-button { font-size: 1.1rem; padding: 16px 32px; box-shadow: 0 8px 20px rgba(211,47,47,0.4); }
@@ -315,36 +305,8 @@ nav {
 }
 
 .hero-container {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    min-height: calc(65vh - 4rem);
     align-items: center;
     justify-content: center;
-    text-align: center;
-}
-
-.hero-content {
-    width: 100%;
-    min-height: inherit;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-}
-
-.hero-title-banner {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    margin-bottom: 0.5rem;
-}
-
-.hero-title-banner h1 {
-    margin: 0 auto;
-    max-width: 900px;
-    padding: 1rem 2rem;
     text-align: center;
 }
 
@@ -387,24 +349,6 @@ figure img {
     width: 100%;
     height: 200px;
     object-fit: cover;
-}
-
-@media (max-width: 768px) {
-    .hero-container {
-        min-height: auto;
-    }
-
-    .hero-content {
-        gap: 0.75rem;
-    }
-
-    .hero-title-banner {
-        margin-bottom: 0.25rem;
-    }
-
-    .hero-title-banner h1 {
-        padding: 0.75rem 1rem;
-    }
 }
 
 /* --- RECHERCHE (Style App Mobile) --- */
@@ -546,18 +490,23 @@ figure img {
 
 /* Badges de spécificités */
 .spec-badge {
-    padding: 4px 10px;
-    border-radius: 12px;
+    padding: 3px 10px;
+    border-radius: 16px; /* Forme "pilule" pour un look moderne */
     font-size: 0.8rem;
-    font-weight: bold;
+    font-weight: 600;
     display: inline-block;
     white-space: nowrap;
+    background-color: #f0f0f0; /* Fond gris clair neutre */
+    color: #555; /* Texte plus doux */
+    border: 1px solid #e0e0e0; /* Bordure assortie */
+    line-height: 1.5;
 }
-.spec-vege { background: rgba(76, 175, 80, 0.15); color: #2e7d32; border: 1px solid rgba(76,175,80,0.3); }
-.spec-porc { background: rgba(233, 30, 99, 0.15); color: #880e4f; border: 1px solid rgba(233,30,99,0.3); }
-.spec-halal { background: rgba(0, 188, 212, 0.15); color: #006064; border: 1px solid rgba(0,188,212,0.3); }
-.spec-poisson { background: rgba(33, 150, 243, 0.15); color: #1565c0; border: 1px solid rgba(33,150,243,0.3); }
 
+.spec-badge i {
+    margin-right: 5px;
+    color: #888; /* Icônes plus discrètes */
+}
+*
 /* Cellule de prix */
 .price-cell {
     color: var(--color-primary);
