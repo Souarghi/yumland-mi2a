@@ -88,10 +88,10 @@ $currentPage = $currentPage ?? '';
 <header class="main-site-header">
     <nav>
         <div class="logo-container">
-            <a href="/api/index.php" class="logo-text">Le <span class="text-highlight">Grand</span> Miam</a>
+            <a href="/" class="logo-text">Le <span class="text-highlight">Grand</span> Miam</a>
         </div>
         <ul class="nav-links">
-            <li><a href="/api/index.php" class="<?= $currentPage === 'home' ? 'active' : '' ?>">Accueil</a></li>
+            <li><a href="/" class="<?= ($currentPage === 'home' || $currentPage === '') ? 'active' : '' ?>">Accueil</a></li>
             <li><a href="/api/pages/carte.php" class="<?= $currentPage === 'carte' ? 'active' : '' ?>">La Carte</a></li>
             <li><a href="/api/pages/avis.php" class="<?= $currentPage === 'avis' ? 'active' : '' ?>">Avis</a></li>
             

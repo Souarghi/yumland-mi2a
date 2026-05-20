@@ -238,19 +238,57 @@ nav {
     border: none; /* On enlève les bordures classiques pour le shadow */
 }
 
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes heroZoom {
+    from { background-size: 105% auto; }
+    to { background-size: 115% auto; }
+}
+
 /* --- ACCUEIL --- */
 #hero {
     background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1544025162-8a11520110ec?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
     min-height: 60vh;
+    background: 
+        linear-gradient(to top, rgba(45, 45, 45, 0.85) 5%, rgba(211, 47, 47, 0) 60%), 
+        url('https://images.unsplash.com/photo-1544025162-8a11520110ec?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center center / 105% auto no-repeat;
+    min-height: 65vh;
     display: flex;
     align-items: center;
     color: var(--color-white);
     margin-top: -10px; /* Absorbe l'espace sous le header */
     padding: 2rem 0;
+    position: relative;
+    overflow: hidden;
+    animation: heroZoom 25s ease-in-out infinite alternate;
 }
 #hero h1 { color: var(--color-accent); font-size: 3.5rem; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); }
 #hero p { font-size: 1.5rem; text-shadow: 1px 1px 4px rgba(0,0,0,0.8); }
 #hero .cta-button { font-size: 1.1rem; padding: 16px 32px; box-shadow: 0 8px 20px rgba(211,47,47,0.4); }
+
+#hero h1 { 
+    color: var(--color-accent); 
+    font-size: 3.5rem; 
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.8); 
+    animation: fadeInDown 0.8s 0.2s ease-out forwards; 
+    opacity: 0;
+}
+#hero p { 
+    font-size: 1.5rem; 
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.8); 
+    animation: fadeInDown 0.8s 0.4s ease-out forwards; 
+    opacity: 0;
+}
+#hero .cta-button { 
+    font-size: 1.1rem; 
+    padding: 16px 32px; 
+    box-shadow: 0 8px 20px rgba(211,47,47,0.4); 
+    animation: fadeInDown 0.8s 0.6s ease-out forwards; 
+    opacity: 0;
+}
 
 .flex-row {
     display: flex;
@@ -262,8 +300,8 @@ nav {
 .concept-text { flex: 2; }
 .info-box {
     flex: 1;
-    border-left: 5px solid var(--color-primary);
-    background-color: #fff; /* White card style */
+    border-left: 5px solid var(--color-primary);    
+    background-color: rgba(211, 47, 47, 0.03); /* Légère teinte rouge pour se démarquer */
 }
 
 .hero-container {
@@ -292,11 +330,18 @@ nav {
 }
 
 figure {
-    padding: 10px;
     margin: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+figure:hover {
+    transform: scale(1.03);
+    box-shadow: var(--shadow-floating);
+    z-index: 10; /* Pour que l'ombre ne soit pas coupée par les éléments voisins */
+    position: relative; /* Requis pour z-index */
 }
 
 figure img {
@@ -322,18 +367,18 @@ figure img {
 
 .search-input {
     width: 100%;
-    padding: 16px 24px;
+    padding: 20px 30px;
     border: none;
     border-radius: 50px;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Ombre flottante */
     transition: all 0.3s ease;
-    background: white url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>') no-repeat 95% center; /* Loupe SVG intégrée */
+    background: white url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23D32F2F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>') no-repeat 95% center; /* Loupe SVG rouge intégrée */
 }
 
 .search-input:focus {
     outline: none;
-    box-shadow: 0 8px 20px rgba(211, 47, 47, 0.15); /* Ombre rouge au focus */
+    box-shadow: 0 8px 25px rgba(211, 47, 47, 0.2); /* Ombre rouge au focus plus marquée */
     transform: translateY(-2px);
 }
 
