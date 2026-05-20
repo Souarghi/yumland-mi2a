@@ -278,6 +278,51 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Script pour l'autocomplétion d'adresse (API Gouvernement)
+    const searchInput = document.getElementById('adresse_search');
+    const resultsList = document.getElementById('adresse_results');
+    const rueInput = document.getElementById('rue');
+    
+    if(searchInput && resultsList && rueInput && cpInput && villeInput) {
+        let timeoutId;
+        
+        searchInput.addEventListener('input', function() {
+            clearTimeout(timeoutId);
+            const query = this.value;
+            
+            if (query.length < 3) {
+                resultsList.innerHTML = '';
+                return;
+            }
+            
+            timeoutId = setTimeout(async () => {
+                try {
+                    const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=5`);
+                    const data = await response.json();
+                    resultsList.innerHTML = '';
+                    
+                    data.features.forEach(feature => {
+                        const li = document.createElement('li');
+                        li.textContent = feature.properties.label;
+                        li.addEventListener('click', () => {
+                            searchInput.value = feature.properties.label;
+                            rueInput.value = feature.properties.name;
+                            cpInput.value = feature.properties.postcode;
+                            villeInput.value = feature.properties.city;
+                            resultsList.innerHTML = ''; // Cacher les résultats
+                        });
+                        resultsList.appendChild(li);
+                    });
+                } catch (error) {
+                    console.error("Erreur API Adresse :", error);
+                }
+            }, 300); // 300ms de délai pour ne pas spammer l'API
+        });
+        
+        // Fermer la liste si on clique en dehors
+        document.addEventListener('click', (e) => { if (e.target !== searchInput) resultsList.innerHTML = ''; });
+    }
 });
 </script>
 
@@ -351,8 +396,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         <input type="text" id="pin" name="pin" value="<?= htmlspecialchars($pin_val) ?>" pattern="\d{6}" maxlength="6" inputmode="numeric" required>
                     </div>
                     
+                    <div class="form-group autocomplete-container">
+                        <label for="adresse_search">Rechercher votre adresse (Autocomplétion)</label>
+                        <input type="text" id="adresse_search" placeholder="Commencez à taper (ex: 10 rue de la Paix)..." autocomplete="off">
+                        <ul id="adresse_results" class="autocomplete-results"></ul>
+                    </div>
+
                     <div class="form-group">
-                        <label for="rue">Rue / Numéro *</label>
+                        <label for="rue">Nom de la voie *</label>
                         <input type="text" id="rue" name="rue" value="<?= htmlspecialchars($rue_val) ?>" required>
                     </div>
                     
