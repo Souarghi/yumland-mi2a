@@ -7,7 +7,9 @@ require_once __DIR__ . '/includes/header.php';
 <section id="hero">
     <div class="container flex-row hero-container">
         <div class="hero-content">
-            <h1>Grand par le goût, géant par l'appétit.</h1>
+            <div class="hero-title-banner">
+                <h1>Grand par le goût, géant par l'appétit.</h1>
+            </div>
             <p>Le spécialiste de la viande grillée et des burgers XXL.</p>
             <a href="/api/pages/carte.php" class="cta-button">Voir la Carte</a>
         </div>
