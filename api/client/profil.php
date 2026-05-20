@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/avis.php';
+require_once __DIR__ . '/../includes/input_validation.php';
 
 // L'utilisateur doit être connecté pour accéder à cette page
 if (!isLoggedIn()) {
@@ -19,34 +20,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $messageType = 'danger';
     } else {
 
-    $nom = trim($_POST['nom'] ?? '');
-    $prenom = trim($_POST['prenom'] ?? '');
-    $tel = trim($_POST['tel'] ?? '');
-    $rue = trim($_POST['rue'] ?? '');
+    $nom = normalizeFormValue($_POST['nom'] ?? '');
+    $prenom = normalizeFormValue($_POST['prenom'] ?? '');
+    $tel = normalizeFormValue($_POST['tel'] ?? '');
+    $rue = normalizeFormValue($_POST['rue'] ?? '');
     $code_postal = trim($_POST['code_postal'] ?? '');
-    $ville = trim($_POST['ville'] ?? '');
-    $complement = trim($_POST['complement'] ?? '');
+    $ville = normalizeFormValue($_POST['ville'] ?? '');
+    $complement = normalizeFormValue($_POST['complement'] ?? '');
     $pin = trim($_POST['pin'] ?? '');
 
-    try {
-        updateUserProfil($user_id, [
-            'nom'         => $nom,
-            'prenom'      => $prenom,
-            'tel'         => $tel,
-            'rue'         => $rue,
-            'code_postal' => $code_postal,
-            'ville'       => $ville,
-            'complement'  => $complement,
-            'pin'         => $pin,
-        ]);
-        
-        // Mettre à jour le nom en session au cas où il a changé
-        $_SESSION['user_name'] = $nom;
-        
-        $message = "Vos informations ont été mises à jour avec succès !";
-    } catch (PDOException $e) {
-        $message = "Erreur lors de la mise à jour de vos informations.";
+    if (!isValidPersonName($nom)) {
+        $message = "Le nom ne doit contenir que des lettres, espaces, apostrophes ou tirets.";
         $messageType = 'danger';
+    } elseif (!isValidPersonName($prenom)) {
+        $message = "Le prénom ne doit contenir que des lettres, espaces, apostrophes ou tirets.";
+        $messageType = 'danger';
+    } elseif (!empty($tel) && !isValidFrenchPhoneNumber($tel)) {
+        $message = "Le numéro de téléphone doit être au format français valide.";
+        $messageType = 'danger';
+    } elseif ($code_postal !== '' && !isValidFrenchPostalCode($code_postal)) {
+        $message = "Le code postal doit contenir exactement 5 chiffres.";
+        $messageType = 'danger';
+    } elseif ($ville !== '' && !isValidCityName($ville)) {
+        $message = "La ville ne doit contenir que des lettres, espaces, apostrophes ou tirets.";
+        $messageType = 'danger';
+    } elseif ($pin !== '' && !preg_match('/^\d{6}$/', $pin)) {
+        $message = "Le code PIN doit contenir exactement 6 chiffres.";
+        $messageType = 'danger';
+    } else {
+        try {
+            updateUserProfil($user_id, [
+                'nom'         => $nom,
+                'prenom'      => $prenom,
+                'tel'         => $tel,
+                'rue'         => $rue,
+                'code_postal' => $code_postal,
+                'ville'       => $ville,
+                'complement'  => $complement,
+                'pin'         => $pin,
+            ]);
+            
+            // Mettre à jour le nom en session au cas où il a changé
+            $_SESSION['user_name'] = $nom;
+            
+            $message = "Vos informations ont été mises à jour avec succès !";
+        } catch (PDOException $e) {
+            $message = "Erreur lors de la mise à jour de vos informations.";
+            $messageType = 'danger';
+        }
     }
     }
 }
@@ -99,15 +120,15 @@ include_once __DIR__ . '/../includes/header.php';
             
             <div class="form-group form-group-spacing">
                 <label for="nom">Nom :</label>
-                <input type="text" data-field="nom" value="<?= htmlspecialchars($user['nom'] ?? '') ?>" disabled>
+                <input type="text" data-field="nom" value="<?= htmlspecialchars($user['nom'] ?? '') ?>" disabled autocomplete="family-name" pattern="[A-Za-zÀ-ÖØ-öø-ÿ' -]+" title="Utilisez uniquement des lettres, espaces, apostrophes ou tirets.">
             </div>
             <div class="form-group form-group-spacing">
                 <label for="prenom">Prénom :</label>
-                <input type="text" data-field="prenom" value="<?= htmlspecialchars($user['prenom'] ?? '') ?>" disabled>
+                <input type="text" data-field="prenom" value="<?= htmlspecialchars($user['prenom'] ?? '') ?>" disabled autocomplete="given-name" pattern="[A-Za-zÀ-ÖØ-öø-ÿ' -]+" title="Utilisez uniquement des lettres, espaces, apostrophes ou tirets.">
             </div>
             <div class="form-group form-group-spacing">
                 <label for="tel">Téléphone :</label>
-                <input type="text" data-field="tel" value="<?= htmlspecialchars($user['tel'] ?? '') ?>" disabled>
+                <input type="text" data-field="tel" value="<?= htmlspecialchars($user['tel'] ?? '') ?>" disabled autocomplete="tel" inputmode="tel" pattern="(?:\+33|0)[0-9 .-]{9,14}" title="Entrez un numéro français valide, par exemple 0612345678.">
             </div>
             <div class="form-group form-group-spacing">
                 <label for="pin">Code PIN (6 chiffres) :</label>
@@ -121,11 +142,11 @@ include_once __DIR__ . '/../includes/header.php';
                 <div class="form-row form-row-spacing">
                     <div class="form-group flex-1">
                         <label for="code_postal">Code Postal :</label>
-                        <input type="text" data-field="code_postal" value="<?= htmlspecialchars($user['code_postal'] ?? '') ?>" disabled>
+                        <input type="text" data-field="code_postal" value="<?= htmlspecialchars($user['code_postal'] ?? '') ?>" disabled pattern="\d{5}" maxlength="5" inputmode="numeric" title="Le code postal doit contenir exactement 5 chiffres.">
                     </div>
                     <div class="form-group flex-2">
                         <label for="ville">Ville :</label>
-                        <input type="text" data-field="ville" value="<?= htmlspecialchars($user['ville'] ?? '') ?>" disabled>
+                        <input type="text" data-field="ville" value="<?= htmlspecialchars($user['ville'] ?? '') ?>" disabled autocomplete="address-level2" pattern="[A-Za-zÀ-ÖØ-öø-ÿ' -]+" title="Utilisez uniquement des lettres, espaces, apostrophes ou tirets.">
                     </div>
                 </div>
                 <div class="form-group form-group-spacing-lg">

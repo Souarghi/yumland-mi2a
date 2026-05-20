@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/input_validation.php';
 
 // Redirigé si déjà connecté
 if (isLoggedIn()) {
@@ -32,13 +33,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Récupération pour pré-remplissage et traitement
         $email_val = trim($_POST['email'] ?? '');
-        $nom_val = trim($_POST['nom'] ?? '');
-        $prenom_val = trim($_POST['prenom'] ?? '');
-        $telephone_val = trim($_POST['telephone'] ?? '');
-        $rue_val = trim($_POST['rue'] ?? '');
+        $nom_val = normalizeFormValue($_POST['nom'] ?? '');
+        $prenom_val = normalizeFormValue($_POST['prenom'] ?? '');
+        $telephone_val = normalizeFormValue($_POST['telephone'] ?? '');
+        $rue_val = normalizeFormValue($_POST['rue'] ?? '');
         $cp_val = trim($_POST['code_postal'] ?? '');
-        $ville_val = trim($_POST['ville'] ?? '');
-        $complement_val = trim($_POST['complement'] ?? '');
+        $ville_val = normalizeFormValue($_POST['ville'] ?? '');
+        $complement_val = normalizeFormValue($_POST['complement'] ?? '');
         $pin_val = trim($_POST['pin'] ?? '');
         
         // Validation des champs
@@ -50,6 +51,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Le mot de passe doit contenir au moins 8 caractères.';
         } elseif (!filter_var($email_val, FILTER_VALIDATE_EMAIL)) {
             $error = 'Veuillez entrer une adresse email valide.';
+        } elseif (!isValidPersonName($nom_val)) {
+            $error = 'Le nom ne doit contenir que des lettres, espaces, apostrophes ou tirets.';
+        } elseif (!isValidPersonName($prenom_val)) {
+            $error = 'Le prénom ne doit contenir que des lettres, espaces, apostrophes ou tirets.';
+        } elseif (!empty($telephone_val) && !isValidFrenchPhoneNumber($telephone_val)) {
+            $error = 'Le numéro de téléphone doit être au format français valide.';
+        } elseif (!isValidFrenchPostalCode($cp_val)) {
+            $error = 'Le code postal doit contenir exactement 5 chiffres.';
+        } elseif (!isValidCityName($ville_val)) {
+            $error = 'La ville ne doit contenir que des lettres, espaces, apostrophes ou tirets.';
         } elseif (!preg_match('/^\d{6}$/', $pin_val)) {
             $error = 'Le code PIN doit contenir exactement 6 chiffres.';
         } else {
@@ -96,11 +107,56 @@ include_once __DIR__ . '/../includes/header.php';
 <script defer>
 // Script évaluation de la force du mot de passe
 document.addEventListener('DOMContentLoaded', function() {
+    const sanitizeAlphaText = (value) => value
+        .replace(/[^\p{L}\p{M}\s'-]/gu, '')
+        .replace(/\s{2,}/g, ' ')
+        .trimStart();
+    const sanitizeDigits = (value, maxLength) => value.replace(/\D/g, '').slice(0, maxLength);
+    const sanitizePhone = (value) => value
+        .replace(/[^\d+\s.-]/g, '')
+        .replace(/(?!^)\+/g, '')
+        .replace(/\s{2,}/g, ' ')
+        .trimStart();
+
     const input   = document.getElementById('password');
     const counter = document.getElementById('pwd-counter');
     const bar     = document.getElementById('pwd-strength-bar');
     const fill    = document.getElementById('pwd-strength-fill');
     const label   = document.getElementById('pwd-strength-label');
+    const nomInput = document.getElementById('nom');
+    const prenomInput = document.getElementById('prenom');
+    const villeInput = document.getElementById('ville');
+    const cpInput = document.getElementById('code_postal');
+    const telephoneInput = document.getElementById('telephone');
+    const pinInput = document.getElementById('pin');
+
+    [nomInput, prenomInput, villeInput].forEach((field) => {
+        if (!field) {
+            return;
+        }
+
+        field.addEventListener('input', function() {
+            this.value = sanitizeAlphaText(this.value);
+        });
+    });
+
+    if (cpInput) {
+        cpInput.addEventListener('input', function() {
+            this.value = sanitizeDigits(this.value, 5);
+        });
+    }
+
+    if (pinInput) {
+        pinInput.addEventListener('input', function() {
+            this.value = sanitizeDigits(this.value, 6);
+        });
+    }
+
+    if (telephoneInput) {
+        telephoneInput.addEventListener('input', function() {
+            this.value = sanitizePhone(this.value);
+        });
+    }
 
     if(input) {
         const levels = [
@@ -173,9 +229,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const passwordVal = document.getElementById('password') ? document.getElementById('password').value : '';
             const confirmPasswordVal = document.getElementById('confirm_password') ? document.getElementById('confirm_password').value : '';
             const emailVal = document.getElementById('email') ? document.getElementById('email').value : '';
+            const nomVal = nomInput ? nomInput.value.trim() : '';
+            const prenomVal = prenomInput ? prenomInput.value.trim() : '';
+            const telephoneVal = telephoneInput ? telephoneInput.value.trim() : '';
+            const cpVal = cpInput ? cpInput.value.trim() : '';
+            const villeVal = villeInput ? villeInput.value.trim() : '';
             const pinVal = document.getElementById('pin') ? document.getElementById('pin').value : '';
             const errorDiv = document.getElementById('js-error-message');
             let errors = [];
+            const personRegex = /^[\p{L}\p{M}]+(?:[ '\-][\p{L}\p{M}]+)*$/u;
+            const phoneRegex = /^(?:\+33|0)[1-9](?:[\s.-]?\d{2}){4}$/;
 
             if (passwordVal.length < 8) {
                 errors.push("Le mot de passe doit contenir au moins 8 caractères.");
@@ -186,6 +249,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(emailVal)) {
                 errors.push("Veuillez entrer une adresse email valide.");
+            }
+            if (!personRegex.test(nomVal)) {
+                errors.push("Le nom ne doit contenir que des lettres, espaces, apostrophes ou tirets.");
+            }
+            if (!personRegex.test(prenomVal)) {
+                errors.push("Le prénom ne doit contenir que des lettres, espaces, apostrophes ou tirets.");
+            }
+            if (telephoneVal && !phoneRegex.test(telephoneVal)) {
+                errors.push("Le numéro de téléphone doit être au format français valide.");
+            }
+            if (!/^\d{5}$/.test(cpVal)) {
+                errors.push("Le code postal doit contenir exactement 5 chiffres.");
+            }
+            if (!personRegex.test(villeVal)) {
+                errors.push("La ville ne doit contenir que des lettres, espaces, apostrophes ou tirets.");
             }
             if (pinVal && !/^\d{6}$/.test(pinVal)) {
                 errors.push("Le code PIN doit contenir exactement 6 chiffres.");
@@ -227,12 +305,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="form-row">
                         <div class="form-group">
                             <label for="nom">Nom *</label>
-                            <input type="text" id="nom" name="nom" value="<?= htmlspecialchars($nom_val) ?>" required>
+                            <input type="text" id="nom" name="nom" value="<?= htmlspecialchars($nom_val) ?>" autocomplete="family-name" pattern="[A-Za-zÀ-ÖØ-öø-ÿ' -]+" title="Utilisez uniquement des lettres, espaces, apostrophes ou tirets." required>
                         </div>
                         
                         <div class="form-group">
                             <label for="prenom">Prénom *</label>
-                            <input type="text" id="prenom" name="prenom" value="<?= htmlspecialchars($prenom_val) ?>" required>
+                            <input type="text" id="prenom" name="prenom" value="<?= htmlspecialchars($prenom_val) ?>" autocomplete="given-name" pattern="[A-Za-zÀ-ÖØ-öø-ÿ' -]+" title="Utilisez uniquement des lettres, espaces, apostrophes ou tirets." required>
                         </div>
                     </div>
                     
@@ -265,7 +343,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     <div class="form-group">
                         <label for="telephone">Téléphone</label>
-                        <input type="tel" id="telephone" name="telephone" value="<?= htmlspecialchars($telephone_val) ?>">
+                        <input type="tel" id="telephone" name="telephone" value="<?= htmlspecialchars($telephone_val) ?>" autocomplete="tel" inputmode="tel" pattern="(?:\+33|0)[0-9 .-]{9,14}" title="Entrez un numéro français valide, par exemple 0612345678.">
                     </div>
                     
                     <div class="form-group">
@@ -286,11 +364,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="form-row">
                         <div class="form-group">
                             <label for="code_postal">Code Postal *</label>
-                            <input type="text" id="code_postal" name="code_postal" value="<?= htmlspecialchars($cp_val) ?>" required>
+                            <input type="text" id="code_postal" name="code_postal" value="<?= htmlspecialchars($cp_val) ?>" pattern="\d{5}" maxlength="5" inputmode="numeric" title="Le code postal doit contenir exactement 5 chiffres." required>
                         </div>
                         <div class="form-group">
                             <label for="ville">Ville *</label>
-                            <input type="text" id="ville" name="ville" value="<?= htmlspecialchars($ville_val) ?>" required>
+                            <input type="text" id="ville" name="ville" value="<?= htmlspecialchars($ville_val) ?>" autocomplete="address-level2" pattern="[A-Za-zÀ-ÖØ-öø-ÿ' -]+" title="Utilisez uniquement des lettres, espaces, apostrophes ou tirets." required>
                         </div>
                     </div>
                     

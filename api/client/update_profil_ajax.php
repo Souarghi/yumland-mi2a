@@ -4,6 +4,7 @@
 header('Content-Type: application/json');
 // La session est démarrée centralement dans config.php
 require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/input_validation.php';
 
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'Non connecté.']);
@@ -20,17 +21,33 @@ if (!isset($data['csrf_token']) || !isset($_SESSION['csrf_token']) || !hash_equa
 }
 
 // Validation basique côté serveur
-$nom     = trim($data['nom'] ?? '');
-$prenom  = trim($data['prenom'] ?? '');
-$tel     = trim($data['tel'] ?? '');
-$rue         = trim($data['rue'] ?? '');
+$nom     = normalizeFormValue($data['nom'] ?? '');
+$prenom  = normalizeFormValue($data['prenom'] ?? '');
+$tel     = normalizeFormValue($data['tel'] ?? '');
+$rue         = normalizeFormValue($data['rue'] ?? '');
 $code_postal = trim($data['code_postal'] ?? '');
-$ville       = trim($data['ville'] ?? '');
-$complement  = trim($data['complement'] ?? '');
+$ville       = normalizeFormValue($data['ville'] ?? '');
+$complement  = normalizeFormValue($data['complement'] ?? '');
 $pin         = trim($data['pin'] ?? '');
 
-if (strlen($nom) < 2 || strlen($prenom) < 2) {
-    echo json_encode(['success' => false, 'message' => 'Nom ou prénom trop court.']);
+if (!isValidPersonName($nom)) {
+    echo json_encode(['success' => false, 'message' => 'Le nom ne doit contenir que des lettres, espaces, apostrophes ou tirets.']);
+    exit;
+}
+if (!isValidPersonName($prenom)) {
+    echo json_encode(['success' => false, 'message' => 'Le prénom ne doit contenir que des lettres, espaces, apostrophes ou tirets.']);
+    exit;
+}
+if ($tel !== '' && !isValidFrenchPhoneNumber($tel)) {
+    echo json_encode(['success' => false, 'message' => 'Le numéro de téléphone doit être au format français valide.']);
+    exit;
+}
+if ($code_postal !== '' && !isValidFrenchPostalCode($code_postal)) {
+    echo json_encode(['success' => false, 'message' => 'Le code postal doit contenir exactement 5 chiffres.']);
+    exit;
+}
+if ($ville !== '' && !isValidCityName($ville)) {
+    echo json_encode(['success' => false, 'message' => 'La ville ne doit contenir que des lettres, espaces, apostrophes ou tirets.']);
     exit;
 }
 if ($pin !== '' && !preg_match('/^\d{6}$/', $pin)) {
