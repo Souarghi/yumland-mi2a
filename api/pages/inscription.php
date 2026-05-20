@@ -235,6 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const cpVal = cpInput ? cpInput.value.trim() : '';
             const villeVal = villeInput ? villeInput.value.trim() : '';
             const pinVal = document.getElementById('pin') ? document.getElementById('pin').value : '';
+            const rueVal = document.getElementById('rue') ? document.getElementById('rue').value.trim() : '';
             const errorDiv = document.getElementById('js-error-message');
             let errors = [];
             const personRegex = /^[\p{L}\p{M}]+(?:[ '\-][\p{L}\p{M}]+)*$/u;
@@ -259,11 +260,15 @@ document.addEventListener('DOMContentLoaded', function() {
             if (telephoneVal && !phoneRegex.test(telephoneVal)) {
                 errors.push("Le numéro de téléphone doit être au format français valide.");
             }
-            if (!/^\d{5}$/.test(cpVal)) {
-                errors.push("Le code postal doit contenir exactement 5 chiffres.");
-            }
-            if (!personRegex.test(villeVal)) {
-                errors.push("La ville ne doit contenir que des lettres, espaces, apostrophes ou tirets.");
+            if (!rueVal || !cpVal || !villeVal) {
+                errors.push("Veuillez rechercher et sélectionner une adresse valide dans les suggestions.");
+            } else {
+                if (!/^\d{5}$/.test(cpVal)) {
+                    errors.push("Le code postal doit contenir exactement 5 chiffres.");
+                }
+                if (!personRegex.test(villeVal)) {
+                    errors.push("La ville ne doit contenir que des lettres, espaces, apostrophes ou tirets.");
+                }
             }
             if (pinVal && !/^\d{6}$/.test(pinVal)) {
                 errors.push("Le code PIN doit contenir exactement 6 chiffres.");
@@ -290,6 +295,11 @@ document.addEventListener('DOMContentLoaded', function() {
         searchInput.addEventListener('input', function() {
             clearTimeout(timeoutId);
             const query = this.value;
+            
+            // Réinitialiser les champs d'adresse pour forcer l'utilisateur à en choisir une nouvelle
+            rueInput.value = '';
+            cpInput.value = '';
+            villeInput.value = '';
             
             if (query.length < 3) {
                 resultsList.innerHTML = '';
@@ -397,14 +407,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     
                     <div class="form-group autocomplete-container">
-                        <label for="adresse_search">Rechercher votre adresse (Autocomplétion)</label>
+                        <label for="adresse_search">Rechercher votre adresse *</label>
                         <input type="text" id="adresse_search" placeholder="Commencez à taper (ex: 10 rue de la Paix)..." autocomplete="off">
                         <ul id="adresse_results" class="autocomplete-results"></ul>
                     </div>
 
                     <div class="form-group">
                         <label for="rue">Nom de la voie *</label>
-                        <input type="text" id="rue" name="rue" value="<?= htmlspecialchars($rue_val) ?>" required>
+                        <input type="text" id="rue" name="rue" value="<?= htmlspecialchars($rue_val) ?>" class="readonly-input" readonly required placeholder="Rempli automatiquement">
                     </div>
                     
                     <div class="form-group">
@@ -415,11 +425,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="form-row">
                         <div class="form-group">
                             <label for="code_postal">Code Postal *</label>
-                            <input type="text" id="code_postal" name="code_postal" value="<?= htmlspecialchars($cp_val) ?>" pattern="\d{5}" maxlength="5" inputmode="numeric" title="Le code postal doit contenir exactement 5 chiffres." required>
+                            <input type="text" id="code_postal" name="code_postal" value="<?= htmlspecialchars($cp_val) ?>" class="readonly-input" readonly pattern="\d{5}" maxlength="5" inputmode="numeric" title="Le code postal doit contenir exactement 5 chiffres." required placeholder="Auto">
                         </div>
                         <div class="form-group">
                             <label for="ville">Ville *</label>
-                            <input type="text" id="ville" name="ville" value="<?= htmlspecialchars($ville_val) ?>" autocomplete="address-level2" pattern="[A-Za-zÀ-ÖØ-öø-ÿ' -]+" title="Utilisez uniquement des lettres, espaces, apostrophes ou tirets." required>
+                            <input type="text" id="ville" name="ville" value="<?= htmlspecialchars($ville_val) ?>" class="readonly-input" readonly autocomplete="address-level2" pattern="[A-Za-zÀ-ÖØ-öø-ÿ' -]+" title="Utilisez uniquement des lettres, espaces, apostrophes ou tirets." required placeholder="Auto">
                         </div>
                     </div>
                     
