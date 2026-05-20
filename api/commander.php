@@ -33,6 +33,7 @@ if ($miams_historique >= 3000) {
 
 $total_paye = $cart['total'];
 
+
 // ==============================================================
 // ETAPE 1 : Sauvegarde de la commande "En attente" dans la BDD
 // ==============================================================
@@ -143,6 +144,15 @@ $pageTitle = 'Redirection CY BANK';
 include_once __DIR__ . '/includes/header.php';
 ?>
 
+<script defer>
+    // Déclenche l'envoi du formulaire vers CY Bank après 1.5 seconde
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            document.getElementById('cybank-form').submit();
+        }, 1500);
+    });
+</script>
+
 
 <div class="redirect-wrapper">
     <div class="redirect-container">
@@ -167,14 +177,5 @@ include_once __DIR__ . '/includes/header.php';
         </a>
     </div>
 </div>
-
-<script defer>
-    // Déclenche l'envoi du formulaire vers CY Bank après 1.5 seconde
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(function() {
-            document.getElementById('cybank-form').submit();
-        }, 1500);
-    });
-</script>
 
 <?php include_once __DIR__ . '/includes/footer.php'; ?>
