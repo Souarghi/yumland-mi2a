@@ -23,6 +23,10 @@
 \definecolor{StoneGray}{HTML}{BDBDBD}
 \definecolor{DarkRed}{HTML}{B71C1C} % Pour le hover
 \definecolor{BrownVisited}{HTML}{5D4037} % Pour les liens visités
+% Nouvelles couleurs sémantiques pour les boutons et statuts
+\definecolor{SuccessGreen}{HTML}{2E7D32}
+\definecolor{GpsBlue}{HTML}{1565C0}
+\definecolor{HoverGray}{HTML}{9E9E9E}
 
 % --- Configuration de la page ---
 \pagecolor{white}
@@ -50,7 +54,7 @@ scale=1, angle=0, opacity=1, contents={
     \vspace{0.4cm}
     {\Huge \textbf{\color{CoalBlack}DOCUMENT DE \color{GrillRed}CONCEPTION}} \\
     \vspace{0.2cm}
-    \texttt{\small PROJET YUMLAND - PHASE 1 | LE GRAND MIAM} \\
+    \texttt{\small PROJET YUMLAND | LE GRAND MIAM} \\
     \vspace{0.2cm}
     \textit{\small Thème : Steakhouse \& Grillades Premium} \\
     \vspace{0.4cm}
@@ -58,23 +62,25 @@ scale=1, angle=0, opacity=1, contents={
     {\normalsize Myriam BENSAÏD \quad Sheryne OUARGHI-MHIRI \quad Kylian VANDEL} \\
     
 \end{center}
+\vspace{1cm}
 
 \section{1. Identité Visuelle et Concept}
 
-Le Grand Miam est un restaurant convivial spécialisé dans les viandes grillées et les portions généreuses. L'identité visuelle repose sur l'univers du "Grill" : chaleureux, robuste et appétissant.
+\textbf{Le Grand Miam} est un restaurant convivial spécialisé dans les viandes grillées et les portions généreuses. L'identité visuelle repose sur l'univers du "Grill" : un rendu à la fois chaleureux, robuste et appétissant.
 
-\begin{tcolorbox}[colback=SauceCream, colframe=CoalBlack, arc=2mm, boxrule=1pt]
-    \textbf{La Stratégie :} "Le Terroir pour Tous" \\
+\begin{tcolorbox}[colback=SauceCream, colframe=CoalBlack, arc=2mm, boxrule=1pt, drop shadow]
+    \textbf{\large La Stratégie : "Le Terroir pour Tous"} \\
     \textbf{La Gestion des Viandes :}
     \begin{itemize}[label=\textcolor{GrillRed}{\faCheck}, leftmargin=*]
         \item \textbf{Bœuf :} Mise en avant de l'origine France (Charolais/Limousin). Il est indiqué clairement : \textit{"Toutes nos pièces de bœuf sont disponibles en version Halal sur demande."}
         \item \textbf{Porc :} Présent dans une section isolée "Spécialités Charcutières" pour bien séparer les produits.
     \end{itemize}
+    \vspace{0.2cm}
     \textbf{L'interface est conçue pour être :}
     \begin{itemize}[label=\textcolor{GrillRed}{\faCheck}, leftmargin=*]
         \item \textbf{Gourmande :} Mise en avant de visuels de haute qualité.
         \item \textbf{Accessible :} Contrastes forts pour une lisibilité parfaite (client et livreur).
-        \item \textbf{Efficace :} Parcours utilisateur simplifié pour la commande rapide.
+        \item \textbf{Efficace :} Parcours utilisateur simplifié pour une commande rapide.
     \end{itemize}
 \end{tcolorbox}
 
@@ -82,20 +88,26 @@ Le Grand Miam est un restaurant convivial spécialisé dans les viandes grillée
 L'ambiance chromatique joue sur le contraste entre la chaleur du grill et la sobriété du charbon.
 
 \begin{center}
-\renewcommand{\arraystretch}{1.5}
-\begin{tabular}{|m{3.5cm}|c|>{\centering\arraybackslash}m{2cm}|m{7cm}|}
+\renewcommand{\arraystretch}{1.6}
+\begin{tabular}{|m{4.5cm}|c|>{\centering\arraybackslash}m{1.5cm}|m{7cm}|}
     \hline
     \rowcolor{CoalBlack} \textcolor{white}{\textbf{Nom}} & \textcolor{white}{\textbf{HEX}} & \textcolor{white}{\textbf{Aperçu}} & \textcolor{white}{\textbf{Usage Principal}} \\
     \hline
-    \textbf{Rouge "Grill"} & \#D32F2F & \cellcolor{GrillRed} & Couleur Primaire. Boutons (CTA), prix, titres, icônes. \\
+    \textbf{\textcolor{GrillRed}{\faCircle} Rouge "Grill"} & \#D32F2F & \cellcolor{GrillRed} & Couleur Primaire. Boutons (CTA), prix, titres, icônes. \\
     \hline
-    \textbf{Noir "Charbon"} & \#2D2D2D & \cellcolor{CoalBlack} & Couleur Secondaire. Header, Footer, navigation, textes. \\
+    \textbf{\textcolor{CoalBlack}{\faCircle} Noir "Charbon"} & \#2D2D2D & \cellcolor{CoalBlack} & Couleur Secondaire. Header, Footer, navigation, textes. \\
     \hline
-    \textbf{Crème "Sauce"} & \#FDFBF7 & \cellcolor{SauceCream} & Arrière-plan (Body). Réduit la fatigue visuelle. \\
+    \textbf{\textcolor{SauceCream}{\faCircle} Crème "Sauce"} & \#FDFBF7 & \cellcolor{SauceCream} & Arrière-plan (Body). Réduit la fatigue visuelle. \\
     \hline
-    \textbf{Or "Frites"} & \#FFC107 & \cellcolor{FryGold} & Accent. Étoiles, promotions, focus formulaires. \\
+    \textbf{\textcolor{FryGold}{\faCircle} Or "Frites"} & \#FFC107 & \cellcolor{FryGold} & Accent. Étoiles, promotions, focus formulaires. \\
     \hline
-    \textbf{Gris "Pierre"} & \#BDBDBD & \cellcolor{StoneGray} & Éléments passifs. Bordures, placeholders, textes II. \\
+    \textbf{\textcolor{StoneGray}{\faCircle} Gris "Pierre"} & \#BDBDBD & \cellcolor{StoneGray} & Éléments passifs. Bordures, placeholders, textes secondaires. \\
+    \hline
+    \multicolumn{4}{|c|}{\cellcolor{CoalBlack} \textcolor{white}{\textbf{Couleurs Sémantiques (Statuts \& Métiers)}}} \\
+    \hline
+    \textbf{\textcolor{SuccessGreen}{\faCircle} Vert "Succès"} & \#2E7D32 & \cellcolor{SuccessGreen} & Boutons "Valider/Livrée", alertes de succès. \\
+    \hline
+    \textbf{\textcolor{GpsBlue}{\faCircle} Bleu "GPS"} & \#1565C0 & \cellcolor{GpsBlue} & Bouton de navigation externe (Livreur). \\
     \hline
 \end{tabular}
 \end{center}
@@ -103,14 +115,14 @@ L'ambiance chromatique joue sur le contraste entre la chaleur du grill et la sob
 \section{3. Typographie (Google Fonts)}
 Combinaison de polices libres de droits pour allier caractère et lisibilité.
 
-\begin{tcolorbox}[colback=SauceCream, colframe=CoalBlack!20, arc=2mm, title=\color{CoalBlack}\textbf{Titres (H1, H2, H3) : OSWALD}, fonttitle=\small]
-    {\Large Grand par le goût, géant par l'appétit.} \\
+\begin{tcolorbox}[colback=SauceCream, colframe=CoalBlack!20, arc=2mm, title=\color{CoalBlack}\textbf{Titres (H1, H2, H3) : OSWALD}, fonttitle=\small, drop fuzzy shadow]
+    {\Large\bfseries Grand par le goût, géant par l'appétit.} \\
     \vspace{0.1cm}
     \small \textbf{Style :} Sans-serif, Condensé, Épais (Bold / 700). \\
     \textbf{Usage :} Titres de pages, noms des plats, slogans. Donne un aspect "enseigne" et "industriel" propre aux steakhouses.
 \end{tcolorbox}
 
-\begin{tcolorbox}[colback=white, colframe=CoalBlack!20, arc=2mm, title=\color{CoalBlack}\textbf{Corps de Texte : LATO} (Fallback : Roboto), fonttitle=\small]
+\begin{tcolorbox}[colback=white, colframe=CoalBlack!20, arc=2mm, title=\color{CoalBlack}\textbf{Corps de Texte : LATO} (Fallback : Roboto), fonttitle=\small, drop fuzzy shadow]
     {\large Toutes nos viandes sont sélectionnées avec soin auprès d'éleveurs locaux.} \\
     \vspace{0.1cm}
     \small \textbf{Style :} Sans-serif, Rond, Régulier (Regular / 400). \\
@@ -120,28 +132,58 @@ Combinaison de polices libres de droits pour allier caractère et lisibilité.
 
 \section{4. Éléments d'Interface (UI Kit)}
 
-\subsection{Boutons (CTA)}
+\subsection{Boutons (Call to Action \& Sémantiques)}
+L'interface utilise un système de boutons hiérarchisé pour guider l'utilisateur. Tous les boutons partagent des propriétés communes pour garantir une cohérence visuelle :
+\begin{itemize}[label=\textcolor{CoalBlack}{\tiny\faCircle}, itemsep=0pt]
+    \item \textbf{Typographie :} Majuscules (\texttt{text-transform: uppercase}), police \textit{Oswald} en gras (\texttt{font-weight: 700}).
+    \item \textbf{Forme \& Volume :} Arrondi strict (\texttt{border-radius: 4px}) et ombre portée (\texttt{box-shadow}) pour donner du relief.
+    \item \textbf{Interactions :} Au survol, effet de zoom (\texttt{transform: scale(1.02)}) et assombrissement du fond.
+\end{itemize}
+
+\vspace{0.3cm}
+\textbf{1. Bouton Primaire (Action principale / CTA)}
 \begin{center}
-    \begin{tcolorbox}[hbox, colback=GrillRed, colframe=DarkRed, arc=4px, boxrule=1.5pt, left=20pt, right=20pt]
-        \textcolor{SauceCream}{\textbf{\faPlusCircle \quad COMMANDER}}
+    \begin{tcolorbox}[hbox, colback=GrillRed, colframe=DarkRed, arc=4px, boxrule=1pt, left=15pt, right=15pt, top=5pt, bottom=5pt, drop fuzzy shadow]
+        \textcolor{SauceCream}{\textbf{\faCheck \quad COMMANDER / ENREGISTRER}}
     \end{tcolorbox}
 \end{center}
-\begin{itemize}[label=\textcolor{CoalBlack}{\tiny\faCircle}, itemsep=0pt]
-    \item \textbf{Forme :} Légèrement arrondis (\texttt{border-radius: 4px}). Ni trop ronds, ni trop carrés.
-    \item \textbf{État Normal :} Fond \#D32F2F, Texte \#FDFBF7. Ombre légère (\texttt{box-shadow}).
-    \item \textbf{État Survol (Hover) :} Fond \#B71C1C, élévation (\texttt{transform: scale(1.02)}).
-\end{itemize}
+\textit{Usage :} Ajouter au panier, enregistrer le profil, valider un formulaire. \\
+\textit{Style :} Fond Rouge "Grill" (\#D32F2F), texte Crème "Sauce" (\#FDFBF7). Survol : \#B71C1C.
+
+\vspace{0.3cm}
+\textbf{2. Bouton Secondaire (Annuler / Retour)}
+\begin{center}
+    \begin{tcolorbox}[hbox, colback=StoneGray, colframe=HoverGray, arc=4px, boxrule=1pt, left=15pt, right=15pt, top=5pt, bottom=5pt, drop fuzzy shadow]
+        \textcolor{CoalBlack}{\textbf{\faTimes \quad ANNULER}}
+    \end{tcolorbox}
+\end{center}
+\textit{Usage :} Annuler une édition (ex: profil client), fermer une fenêtre modale. \\
+\textit{Style :} Fond Gris "Pierre" (\#BDBDBD), texte Noir "Charbon" (\#2D2D2D). Survol : \#9E9E9E.
+
+\vspace{0.3cm}
+\textbf{3. Boutons Spécifiques Métiers (Livreur)}
+\begin{center}
+    \begin{tcolorbox}[hbox, colback=SuccessGreen, colframe=SuccessGreen!80!black, arc=4px, boxrule=1pt, left=15pt, right=15pt, top=5pt, bottom=5pt, drop fuzzy shadow]
+        \textcolor{white}{\textbf{\faCheckCircle \quad VALIDÉE}}
+    \end{tcolorbox}
+    \hspace{10pt}
+    \begin{tcolorbox}[hbox, colback=GpsBlue, colframe=GpsBlue!80!black, arc=4px, boxrule=1pt, left=15pt, right=15pt, top=5pt, bottom=5pt, drop fuzzy shadow]
+        \textcolor{white}{\textbf{\faMapMarkerAlt \quad GPS}}
+    \end{tcolorbox}
+\end{center}
+\textit{Usage :} Validation des courses et géolocalisation express. Adaptés pour un usage extérieur. \\
+\textit{Style :} Vert foncé (\#2E7D32) et Bleu foncé (\#1565C0). \textbf{Hauteur minimale imposée à 60px} pour la préhension avec des gants.
 
 \subsection{Formulaires \& Liens}
 \begin{itemize}[label=\textcolor{CoalBlack}{\tiny\faCircle}, itemsep=0pt]
     \item \textbf{Champs :} Fond blanc sur fond de page crème. Bordures \#BDBDBD au repos.
-    \item \textbf{Focus Saisie :} Bordure \#FFC107 (Or) et lueur externe (\texttt{box-shadow}).
+    \item \textbf{Focus Saisie :} Bordure \#FFC107 (Or) et lueur externe.
     \item \textbf{Liens :} \textbf{Défaut} (Souligné/gras \#2D2D2D) | \textbf{Visité} (Brun \#5D4037) | \textbf{Survol} (\#D32F2F sans soulignement).
 \end{itemize}
 
 \section{5. Ergonomie Spécifique : Profil Livreur \faMotorcycle}
 Pour répondre aux contraintes du livreur (smartphone, gants, extérieur) :
-\begin{tcolorbox}[colback=white, colframe=GrillRed, arc=0mm, boxrule=1pt]
+\begin{tcolorbox}[colback=white, colframe=GrillRed, arc=0mm, boxrule=1.5pt, drop fuzzy shadow]
     \begin{itemize}[label=\textcolor{GrillRed}{\faHandPointer}]
         \item \textbf{Zone de Toucher (Touch Target) :} Hauteur minimale de \textbf{60px} pour tous les éléments interactifs.
         \item \textbf{Espacement :} Marges de \textbf{20px} minimum pour éviter les erreurs ("Fat finger").
@@ -152,8 +194,83 @@ Pour répondre aux contraintes du livreur (smartphone, gants, extérieur) :
 \section{6. Maquettes et Structure (Wireframes)}
 \begin{itemize}[label=\textcolor{CoalBlack}{\faLayerGroup}]
     \item \textbf{Header :} Logo à gauche, Navigation centrée, Bouton "Connexion/Panier" à droite.
-    \item \textbf{Cartes Produits :} Visuel du plat en haut, Nom et description au centre, Prix et bouton d'ajout en bas. Effet d'ombre portée (\texttt{box-shadow}) pour simuler une assiette posée sur une table.
+    \item \textbf{Cartes Produits :} Visuel du plat en haut, Nom et description au centre, Prix et bouton d'ajout en bas. Effet d'ombre portée pour simuler une assiette posée sur une table.
     \item \textbf{Navigation Mobile :} Menu "Burger" simplifié pour les petits écrans.
+\end{itemize}
+
+\section{7. Accessibilité et Inclusivité}
+
+Afin de rendre l'application "Le Grand Miam" accessible à tous les publics et d'offrir un confort de navigation optimal, deux modes spécifiques complètent cette charte :
+
+\subsection{Thème Sombre (Dark Mode)}
+Pensé pour réduire la fatigue visuelle (notamment pour les livreurs en fin de service) et pour s'adapter aux préférences des utilisateurs.
+\begin{itemize}[label=\textcolor{CoalBlack}{\tiny\faCircle}, itemsep=0pt]
+    \item \textbf{Fonds et Surfaces :} Remplacement de la couleur \textit{Crème "Sauce"} par un noir absolu (\#000000) et des gris anthracites (\#121212, \#1A1A1A) pour les conteneurs et les cartes.
+    \item \textbf{Typographie :} Utilisation d'un gris très clair (\#E0E0E0) au lieu du blanc pur pour le texte, afin de limiter l'éblouissement.
+    \item \textbf{Identité Visuelle :} Le \textit{Rouge "Grill"} et l'\textit{Or "Frites"} restent identiques et servent de couleurs d'accentuation.
+\end{itemize}
+
+\subsection{Mode Dyslexique (Accessibilité Cognitive)}
+Une interface alternative repensée pour faciliter la lecture des personnes atteintes de dyslexie.
+\begin{tcolorbox}[colback=white, colframe=CoalBlack, arc=2mm, boxrule=1pt, drop fuzzy shadow]
+    \begin{itemize}[label=\textcolor{GrillRed}{\faCheck}, leftmargin=*]
+        \item \textbf{Polices adaptées :} Bascule temporaire sur une typographie ultra-lisible (comme \textit{OpenDyslexic}, ou \textit{Verdana}/\textit{Arial}), en remplacement des polices plus graphiques.
+        \item \textbf{Espacement accru :} Augmentation systématique de l'espacement entre les lettres (0.5px) et entre les mots (2px).
+        \item \textbf{Aération :} Interlignage élargi (à 1.6em minimum) pour éviter le chevauchement visuel des lignes de texte.
+    \end{itemize}
+\end{tcolorbox}
+
+\section{8. Iconographie (FontAwesome)}
+L'iconographie joue un rôle clé pour la navigation rapide, réduire la charge cognitive et aider au repérage visuel, particulièrement pour les profils métiers.
+\begin{itemize}[label=\textcolor{GrillRed}{\faChevronRight}]
+    \item \textbf{Style Général :} Utilisation de la bibliothèque \textbf{FontAwesome 6} (variante \textit{Solid} privilégiée).
+    \item \textbf{Navigation \& Actions :} \faHome (Accueil), \faUser (Espace Client), \faShoppingCart (Panier/Commande), \faSignOutAlt (Déconnexion), \faPlusCircle (Ajouter).
+    \item \textbf{Outils Métiers :} \faMotorcycle (Livreur - Courses), \faFireBurner (Cuisine - Préparation), \faShieldAlt (Administration).
+    \item \textbf{Indicateurs de Statut :} \faCheckCircle (Succès/Validé), \faExclamationTriangle (Alerte/Erreur), \faClock (En attente).
+\end{itemize}
+
+\section{9. Grille, Espacements et Responsive Design}
+La mise en page utilise un design fluide (Flexbox/Grid) qui s'adapte à tous les écrans tout en conservant une structure aérée.
+
+\begin{tcolorbox}[colback=SauceCream, colframe=CoalBlack!20, arc=2mm, title=\color{CoalBlack}\textbf{Règles d'Espacement (Marges \& Gouttières)}, fonttitle=\small, drop fuzzy shadow]
+    \begin{itemize}[label=\textcolor{CoalBlack}{\tiny\faCircle}, itemsep=0pt]
+        \item \textbf{Gouttières (Gaps) :} Minimum 15px à 20px entre les éléments (cartes, boutons) pour éviter toute surcharge.
+        \item \textbf{Paddings internes :} 20px pour les cartes et conteneurs pour garantir que le texte respire.
+        \item \textbf{Arrondis (Border-radius) :} Style hiérarchisé : \textbf{12px} pour les conteneurs principaux (cartes, modales) pour un look moderne et doux, et \textbf{4px} pour les éléments d'action (boutons, inputs) pour un aspect plus direct et structuré.
+    \end{itemize}
+\end{tcolorbox}
+
+\textbf{Points de rupture (Breakpoints) :}
+\begin{itemize}[label=\textcolor{GrillRed}{\faDesktop}]
+    \item \textbf{Desktop (> 1024px) :} Affichage en grille multiple (ex: 3 cartes produits par ligne), menu de navigation complet visible.
+    \item \textbf{Tablette (768px - 1024px) :} Optimisé pour le profil \textit{Restaurateur}. Affichage Kanban optimal.
+    \item \textbf{Mobile (< 768px) :} Optimisé pour les profils \textit{Client} et \textit{Livreur}. Affichage en colonne unique, menu condensé sous format "Burger" (\faBars).
+\end{itemize}
+
+\section{10. Badges et Retours Visuels (Feedback)}
+Les états des commandes et les alertes utilisent des codes couleurs universels pour une compréhension immédiate.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.6}
+\begin{tabular}{|m{4.5cm}|m{4cm}|m{6cm}|}
+    \hline
+    \rowcolor{CoalBlack} \textcolor{white}{\textbf{État / Statut}} & \textcolor{white}{\textbf{Style (Couleurs)}} & \textcolor{white}{\textbf{Utilisation typique}} \\
+    \hline
+    \textbf{En attente / Info} & Fond \textcolor{FryGold}{\textbf{Or}} (\#FFC107) & Nouvelle commande, en préparation. \\
+    \hline
+    \textbf{Succès / Validé} & Fond \textcolor{SuccessGreen}{\textbf{Vert}} (\#2E7D32) & Commande prête, paiement validé, livraison effectuée. \\
+    \hline
+    \textbf{Erreur / Annulée} & Fond \textcolor{GrillRed}{\textbf{Rouge}} (\#D32F2F) & Paiement refusé, rupture de stock, compte bloqué. \\
+    \hline
+    \textbf{Neutre / Historique} & Fond \textcolor{StoneGray}{\textbf{Gris}} (\#BDBDBD) & Commande passée, éléments désactivés. \\
+    \hline
+\end{tabular}
+\end{center}
+
+\section{11. Animations et Micro-interactions}
+\begin{itemize}[label=\textcolor{CoalBlack}{\tiny\faCircle}, itemsep=0pt]
+    \item \textbf{Survol (Hover) :} Au survol des boutons et des cartes produits, une transition douce (\texttt{transition: all 0.2s ease}) est appliquée avec un léger effet de zoom (\texttt{transform: scale(1.02)}) et l'accentuation de l'ombre portée pour inciter au clic.
+    \item \textbf{Menus et Modales :} L'apparition des menus déroulants ou des fenêtres modales se fait en fondu. Pour les modales, l'arrière-plan de la page s'assombrit (overlay noir à 50\% d'opacité) pour concentrer l'attention de l'utilisateur.
 \end{itemize}
 
 \end{document}
