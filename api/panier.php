@@ -4,6 +4,38 @@ require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/panier.php';
 require_once __DIR__ . '/includes/plats.php';
 
+// Fonction pour calculer la distance et les frais de livraison via l'API Adresse du gouvernement
+function calculateDeliveryFeeAndDistance($adresse) {
+    if (empty(trim($adresse))) return ['distance' => 0, 'fee' => 0];
+    $restaurant_lat = 49.0389; // 3 Fontaines Cergy
+    $restaurant_lon = 2.0811; 
+    $url = "https://api-adresse.data.gouv.fr/search/?q=" . urlencode($adresse) . "&limit=1";
+    $context = stream_context_create(["http" => ["method" => "GET", "header" => "User-Agent: Yumland/1.0\r\n"]]);
+    $response = @file_get_contents($url, false, $context);
+    if ($response) {
+        $data = json_decode($response, true);
+        if (!empty($data['features'])) {
+            $lon = $data['features'][0]['geometry']['coordinates'][0];
+            $lat = $data['features'][0]['geometry']['coordinates'][1];
+            $earth_radius = 6371; // Rayon de la terre en km
+            $dLat = deg2rad($lat - $restaurant_lat);
+            $dLon = deg2rad($lon - $restaurant_lon);
+            $a = sin($dLat/2) * sin($dLat/2) + cos(deg2rad($restaurant_lat)) * cos(deg2rad($lat)) * sin($dLon/2) * sin($dLon/2);
+            $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+            $distance = round($earth_radius * $c, 2);
+            
+            $fee = 0;
+            if ($distance < 5) $fee = 0;
+            elseif ($distance <= 10) $fee = 3;
+            elseif ($distance <= 15) $fee = 5;
+            else $fee = 10;
+            
+            return ['distance' => $distance, 'fee' => $fee];
+        }
+    }
+    return ['distance' => 0, 'fee' => 0];
+}
+
 // Traiter les actions sur le panier
 $message = '';
 
@@ -42,6 +74,15 @@ if ($action === 'update' || $action === 'save_edit' || $action === 'checkout') {
             if (!empty($code_postal) || !empty($ville)) $adresse_parts[] = trim($code_postal . ' ' . $ville);
             $adresse_livraison = implode(', ', $adresse_parts);
 
+            $mode_retrait = trim($_POST['mode_retrait'] ?? 'livraison');
+            $distance = 0;
+            $frais = 0;
+            if ($mode_retrait === 'livraison') {
+                $calc = calculateDeliveryFeeAndDistance($adresse_livraison);
+                $distance = $calc['distance'];
+                $frais = $calc['fee'];
+            }
+
             if (isset($_POST['save_address_profile']) && $_POST['save_address_profile'] === '1' && isLoggedIn()) {
                 $stmtUpdateProfile = $pdo->prepare("UPDATE Utilisateurs SET rue = ?, code_postal = ?, ville = ?, complement = ? WHERE id_user = ?");
                 $stmtUpdateProfile->execute([$rue, $code_postal, $ville, $complement, $_SESSION['user_id']]);
@@ -49,7 +90,9 @@ if ($action === 'update' || $action === 'save_edit' || $action === 'checkout') {
 
             // Sauvegarde de l'adresse en session avant d'aller vers CYBank
             $_SESSION['adresse_livraison_temp'] = $adresse_livraison;
-            $_SESSION['mode_retrait_temp'] = trim($_POST['mode_retrait'] ?? 'livraison');
+            $_SESSION['mode_retrait_temp'] = $mode_retrait;
+            $_SESSION['distance_km_temp'] = $distance;
+            $_SESSION['frais_livraison_temp'] = $frais;
             header('Location: /api/commander.php');
             exit;
         }
@@ -97,8 +140,20 @@ if ((isset($_GET['action']) && $_GET['action'] === 'save_edit') || ($action === 
             
             $mode_retrait = trim($_POST['mode_retrait'] ?? 'livraison');
             
-            if ($old_total !== false && $cart['total'] > $old_total) {
-                $pdo->prepare("UPDATE Commandes SET adresse_livraison = COALESCE(NULLIF(?, ''), adresse_livraison), mode_retrait = ? WHERE id_commande = ? AND id_client = ?")->execute([$adresse_livraison, $mode_retrait, $id_commande, $_SESSION['user_id']]);
+            $distance = 0;
+            $frais = 0;
+            if ($mode_retrait === 'livraison') {
+                $calc = calculateDeliveryFeeAndDistance($adresse_livraison);
+                $distance = $calc['distance'];
+                $frais = $calc['fee'];
+            }
+            
+            $total_avec_frais = $cart['total'] + $frais;
+            
+            if ($old_total !== false && $total_avec_frais > $old_total) {
+                $pdo->prepare("UPDATE Commandes SET adresse_livraison = COALESCE(NULLIF(?, ''), adresse_livraison), mode_retrait = ?, frais_livraison = ?, distance_km = ? WHERE id_commande = ? AND id_client = ?")->execute([$adresse_livraison, $mode_retrait, $frais, $distance, $id_commande, $_SESSION['user_id']]);
+                $_SESSION['distance_km_temp'] = $distance;
+                $_SESSION['frais_livraison_temp'] = $frais;
                 // Différence à payer -> Redirection vers la passerelle de paiement
                 header('Location: /api/commander.php?mode=supplement');
                 exit;
@@ -108,8 +163,8 @@ if ((isset($_GET['action']) && $_GET['action'] === 'save_edit') || ($action === 
             try {
                 $pdo->beginTransaction();
                 
-                $stmt = $pdo->prepare("UPDATE Commandes SET prix_total = ?, adresse_livraison = COALESCE(NULLIF(?, ''), adresse_livraison), mode_retrait = ? WHERE id_commande = ? AND id_client = ?");
-                $stmt->execute([$cart['total'], $adresse_livraison, $mode_retrait, $id_commande, $_SESSION['user_id']]);
+                $stmt = $pdo->prepare("UPDATE Commandes SET prix_total = ?, adresse_livraison = COALESCE(NULLIF(?, ''), adresse_livraison), mode_retrait = ?, frais_livraison = ?, distance_km = ? WHERE id_commande = ? AND id_client = ?");
+                $stmt->execute([$total_avec_frais, $adresse_livraison, $mode_retrait, $frais, $distance, $id_commande, $_SESSION['user_id']]);
                 
                 $pdo->prepare("DELETE FROM Contenu_Commandes WHERE id_commande = ?")->execute([$id_commande]);
                 
@@ -376,9 +431,14 @@ include_once __DIR__ . '/includes/header.php';
                     <?php endif; ?>
 
                     <div id="address-form" style="<?= $has_profile_address ? 'display: none;' : '' ?>">
+                        <div style="margin-bottom: 15px;" class="autocomplete-container">
+                            <label for="adresse_search" style="display:block; margin-bottom: 5px; font-weight: bold; color: var(--color-primary);">Rechercher votre adresse *</label>
+                            <input type="text" id="adresse_search" placeholder="Commencez à taper (ex: 3 Fontaines Cergy)..." autocomplete="off" class="cart-address-input" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                            <ul id="adresse_results" class="autocomplete-results"></ul>
+                        </div>
                         <div style="margin-bottom: 10px;">
                             <label for="rue" style="display:block; margin-bottom: 5px;">Rue/Numéro</label>
-                            <input type="text" name="rue" id="rue" value="<?= htmlspecialchars($rue_val) ?>" class="cart-address-input" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;" placeholder="Ex: 12 Rue de la Paix">
+                            <input type="text" name="rue" id="rue" value="<?= htmlspecialchars($rue_val) ?>" class="cart-address-input readonly-input" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; background-color: #f5f5f5;" readonly placeholder="Auto-rempli">
                         </div>
                         <div style="margin-bottom: 10px;">
                             <label for="complement" style="display:block; margin-bottom: 5px;">Complément d'adresse (Bâtiment, Étage...)</label>
@@ -387,11 +447,11 @@ include_once __DIR__ . '/includes/header.php';
                         <div style="display: flex; gap: 10px; margin-bottom: 10px;">
                             <div style="flex: 1;">
                                 <label for="code_postal" style="display:block; margin-bottom: 5px;">Code Postal</label>
-                                <input type="text" name="code_postal" id="code_postal" value="<?= htmlspecialchars($cp_val) ?>" class="cart-address-input" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;" placeholder="Ex: 75000">
+                                <input type="text" name="code_postal" id="code_postal" value="<?= htmlspecialchars($cp_val) ?>" class="cart-address-input readonly-input" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; background-color: #f5f5f5;" readonly placeholder="Auto">
                             </div>
                             <div style="flex: 2;">
                                 <label for="ville" style="display:block; margin-bottom: 5px;">Ville</label>
-                                <input type="text" name="ville" id="ville" value="<?= htmlspecialchars($ville_val) ?>" class="cart-address-input" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;" placeholder="Ex: Paris">
+                                <input type="text" name="ville" id="ville" value="<?= htmlspecialchars($ville_val) ?>" class="cart-address-input readonly-input" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; background-color: #f5f5f5;" readonly placeholder="Auto">
                             </div>
                         </div>
                         <?php if (isLoggedIn()): ?>
@@ -465,15 +525,37 @@ include_once __DIR__ . '/includes/header.php';
                 <?php endif; ?>
                 
                 <div class="cart-summary">
-                    <div class="cart-total">
-                        <p>Total de la commande</p>
+                    <div class="cart-total" style="padding: 20px; background: #f9f9f9; border-radius: 8px;">
+                        <h3 class="summary-title" style="margin-top: 0; margin-bottom: 20px; font-size: 1.3em; color: #333;">Récapitulatif</h3>
+                        
                         <?php if ($discount > 0): ?>
-                            <div class="discount-old-price"><?= number_format((float)$subtotal, 2, ',', ' ') ?> €</div>
-                            <strong class="discount-new-price"><?= number_format((float)($cart['total'] ?? 0), 2, ',', ' ') ?> €</strong>
-                            <p class="discount-info">✨ Remise LÉGENDE DU STEAK (-10%) appliquée !</p>
-                        <?php else: ?>
-                            <strong><?= number_format((float)($cart['total'] ?? 0), 2, ',', ' ') ?> €</strong>
+                            <div class="summary-line" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95em;">
+                                <span>Sous-total</span>
+                                <span class="discount-old-price" style="text-decoration: line-through; color: #888;"><?= number_format((float)$subtotal, 2, ',', ' ') ?> €</span>
+                            </div>
+                            <div class="summary-line" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95em;">
+                                <span>Remise "Légende" (-10%)</span>
+                                <span style="color: var(--color-success); font-weight: bold;">-<?= number_format((float)$discount, 2, ',', ' ') ?> €</span>
+                            </div>
+                            <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
                         <?php endif; ?>
+
+                        <div class="summary-line" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 1em;">
+                            <span>Total des articles</span>
+                            <span id="cart-subtotal-value"><?= number_format((float)($cart['total'] ?? 0), 2, ',', ' ') ?> €</span>
+                        </div>
+
+                        <div id="delivery-fee-line" class="summary-line" style="display: none; justify-content: space-between; margin-bottom: 8px; font-size: 1em; color: var(--color-primary);">
+                            <span>Frais de livraison</span>
+                            <strong id="delivery-fee-value">0,00 €</strong>
+                        </div>
+
+                        <hr style="border: 0; border-top: 1px solid #ddd; margin: 15px 0;">
+
+                        <div class="summary-line total-line" style="display: flex; justify-content: space-between; font-size: 1.4em; font-weight: bold; color: #000;">
+                            <span>Total à payer</span>
+                            <strong id="cart-grand-total"><?= number_format((float)($cart['total'] ?? 0), 2, ',', ' ') ?> €</strong>
+                        </div>
                     </div>
                     
                     <div class="cart-actions">
@@ -499,6 +581,125 @@ include_once __DIR__ . '/includes/header.php';
         <?php endif; ?>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('adresse_search');
+    const resultsList = document.getElementById('adresse_results');
+    const rueInput = document.getElementById('rue');
+    const cpInput = document.getElementById('code_postal');
+    const villeInput = document.getElementById('ville');
+    
+    const feeLine = document.getElementById('delivery-fee-line');
+    const feeValueSpan = document.getElementById('delivery-fee-value');
+    const grandTotalSpan = document.getElementById('cart-grand-total');
+    const subtotalSpan = document.getElementById('cart-subtotal-value');
+    
+    const subtotal = parseFloat(subtotalSpan.textContent.replace(/\s/g, '').replace(',', '.'));
+    let lastCalculatedFee = { fee: 0, distance: 0 };
+
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; 
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+
+    function updateSummary(fee, distance) {
+        const isDelivery = document.querySelector('input[name="mode_retrait"][value="livraison"]').checked;
+        
+        if (isDelivery) {
+            feeLine.style.display = 'flex';
+            feeValueSpan.textContent = fee > 0 ? `${fee.toLocaleString('fr-FR', {minimumFractionDigits: 2})} €` : 'Gratuit';
+            if (distance) feeValueSpan.title = `Distance estimée : ${distance.toFixed(1)} km`;
+            const newTotal = subtotal + fee;
+            grandTotalSpan.textContent = `${newTotal.toLocaleString('fr-FR', {minimumFractionDigits: 2})} €`;
+        } else {
+            feeLine.style.display = 'none';
+            grandTotalSpan.textContent = `${subtotal.toLocaleString('fr-FR', {minimumFractionDigits: 2})} €`;
+        }
+    }
+
+    if (searchInput) {
+        let timeoutId;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(timeoutId);
+            const query = this.value;
+            if (query.length < 3) { resultsList.innerHTML = ''; return; }
+            timeoutId = setTimeout(async () => {
+                const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=5`);
+                const data = await response.json();
+                resultsList.innerHTML = '';
+                data.features.forEach(feature => {
+                    const li = document.createElement('li');
+                    li.textContent = feature.properties.label;
+                    li.style.cssText = "padding: 10px; cursor: pointer; border-bottom: 1px solid #eee;";
+                    li.addEventListener('click', () => {
+                        searchInput.value = feature.properties.label;
+                        rueInput.value = feature.properties.name;
+                        cpInput.value = feature.properties.postcode;
+                        villeInput.value = feature.properties.city;
+                        resultsList.innerHTML = ''; 
+                        
+                        const distance = calculateDistance(49.0389, 2.0811, feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
+                        let fee = 0;
+                        if (distance < 5) fee = 0;
+                        else if (distance <= 10) fee = 3;
+                        else if (distance <= 15) fee = 5;
+                        else fee = 10;
+                        
+                        lastCalculatedFee = { fee, distance };
+                        updateSummary(fee, distance);
+                    });
+                    resultsList.appendChild(li);
+                });
+            }, 300);
+        });
+        document.addEventListener('click', (e) => { if (e.target !== searchInput) resultsList.innerHTML = ''; });
+    }
+    
+    document.querySelectorAll('input[name="mode_retrait"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'livraison') {
+                updateSummary(lastCalculatedFee.fee, lastCalculatedFee.distance);
+            } else {
+                updateSummary(0, null);
+            }
+        });
+    });
+
+    // Trigger initial fee calculation if a default address is present on page load
+    const hasDefaultAddress = <?= $has_profile_address ? 'true' : 'false' ?>;
+    const isDeliverySelectedOnLoad = document.querySelector('input[name="mode_retrait"][value="livraison"]:checked');
+
+    if (hasDefaultAddress && isDeliverySelectedOnLoad) {
+        const defaultAddress = "<?= addslashes(trim($rue_val . ' ' . $cp_val . ' ' . $ville_val)) ?>";
+        
+        if (defaultAddress) {
+            (async () => {
+                try {
+                    const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(defaultAddress)}&limit=1`);
+                    if (!response.ok) return;
+                    const data = await response.json();
+
+                    if (data.features && data.features.length > 0) {
+                        const feature = data.features[0];
+                        const distance = calculateDistance(49.0389, 2.0811, feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
+                        let fee = (distance < 5) ? 0 : (distance <= 10) ? 3 : (distance <= 15) ? 5 : 10;
+                        
+                        lastCalculatedFee = { fee, distance };
+                        updateSummary(fee, distance);
+                    }
+                } catch (error) {
+                    console.error("Erreur API Adresse au chargement:", error);
+                }
+            })();
+        }
+    }
+});
+</script>
 
 <?php
 // Inclure le footer

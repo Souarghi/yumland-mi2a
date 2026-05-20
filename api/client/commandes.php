@@ -190,14 +190,20 @@ include_once __DIR__ . '/../includes/header.php';
                                             <input type="hidden" name="csrf_token" value="<?= $csrf_token ?? '' ?>">
                                             <input type="hidden" name="action" value="modifier_adresse">
                                             <input type="hidden" name="id_commande" value="<?= $commande['id_commande'] ?>">
-                                            <div class="form-group">
-                                                <input type="text" name="nouvelle_adresse" value="<?= htmlspecialchars(!empty($commande['adresse_livraison']) ? $commande['adresse_livraison'] : ($commande['client_adresse'] ?? '')) ?>" required>
+                                            <div class="form-group autocomplete-container" style="position: relative;">
+                                                <input type="text" name="nouvelle_adresse" id="addr-input-<?= $commande['id_commande'] ?>" value="<?= htmlspecialchars(!empty($commande['adresse_livraison']) ? $commande['adresse_livraison'] : ($commande['client_adresse'] ?? '')) ?>" required class="cart-address-input" autocomplete="off" oninput="fetchAddr(this.value, <?= $commande['id_commande'] ?>)">
+                                                <ul id="addr-results-<?= $commande['id_commande'] ?>" class="autocomplete-results"></ul>
                                                 <div class="edit-actions-wrapper">
                                                     <button type="submit" class="btn-primary btn-sm">Enregistrer</button>
                                                     <button type="button" class="btn-secondary btn-sm" onclick="toggleEditAddr(<?= $commande['id_commande'] ?>, false, false)">Annuler</button>
                                                 </div>
                                             </div>
                                         </form>
+                                    <?php endif; ?>
+                                    
+                                    <?php if (isset($commande['distance_km']) && isset($commande['frais_livraison']) && strtolower($commande['mode_retrait'] ?? 'livraison') === 'livraison'): ?>
+                                        <p style="margin-top: 5px;"><strong>Distance:</strong> <?= number_format($commande['distance_km'], 2, ',', ' ') ?> km</p>
+                                        <p><strong>Frais de livraison:</strong> <?= $commande['frais_livraison'] > 0 ? number_format($commande['frais_livraison'], 2, ',', ' ') . ' €' : '<span style="color:var(--color-success);font-weight:bold;">Gratuit</span>' ?></p>
                                     <?php endif; ?>
                                 </div>
                             <?php endif; ?>
@@ -283,6 +289,45 @@ function toggleEditAddr(id, showForm, isSubmit = false) {
         }
     }
 }
+
+let addrTimeout;
+async function fetchAddr(query, id) {
+    clearTimeout(addrTimeout);
+    const resultsList = document.getElementById('addr-results-' + id);
+    const inputField = document.getElementById('addr-input-' + id);
+    
+    if (query.length < 3) {
+        resultsList.innerHTML = '';
+        return;
+    }
+    
+    addrTimeout = setTimeout(async () => {
+        try {
+            const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=5`);
+            const data = await response.json();
+            resultsList.innerHTML = '';
+            data.features.forEach(feature => {
+                const li = document.createElement('li');
+                li.textContent = feature.properties.label;
+                li.style.padding = "10px";
+                li.style.cursor = "pointer";
+                li.style.borderBottom = "1px solid #eee";
+                li.addEventListener('click', () => {
+                    inputField.value = feature.properties.label;
+                    resultsList.innerHTML = '';
+                });
+                resultsList.appendChild(li);
+            });
+        } catch (error) {
+            console.error("Erreur API Adresse :", error);
+        }
+    }, 300);
+}
+document.addEventListener('click', (e) => {
+    if (!e.target.classList.contains('cart-address-input')) {
+        document.querySelectorAll('.autocomplete-results').forEach(el => el.innerHTML = '');
+    }
+});
 </script>
 </section>
 

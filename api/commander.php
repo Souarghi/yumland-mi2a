@@ -31,7 +31,10 @@ if ($miams_historique >= 3000) {
     $cart['total'] = $cart['total'] * 0.90;
 }
 
-$total_paye = $cart['total'];
+$frais_livraison = $_SESSION['frais_livraison_temp'] ?? 0;
+$distance_km = $_SESSION['distance_km_temp'] ?? 0;
+
+$total_paye = $cart['total'] + $frais_livraison;
 
 
 // ==============================================================
@@ -51,13 +54,14 @@ try {
         $stmt->execute([$id_commande]);
         $old_total = $stmt->fetchColumn();
         
-        $difference = $cart['total'] - $old_total;
+        $nouveau_total = $cart['total'] + $frais_livraison;
+        $difference = $nouveau_total - $old_total;
         if ($difference <= 0) redirect('/api/panier.php');
         
         $total_paye = $difference; // On ne demande que la différence à la banque !
         
         // Mise à jour de la commande avec le nouveau prix global
-        $pdo->prepare("UPDATE Commandes SET prix_total = ? WHERE id_commande = ?")->execute([$cart['total'], $id_commande]);
+        $pdo->prepare("UPDATE Commandes SET prix_total = ? WHERE id_commande = ?")->execute([$nouveau_total, $id_commande]);
         
         // Remplacement des anciens plats par les nouveaux
         $pdo->prepare("DELETE FROM Contenu_Commandes WHERE id_commande = ?")->execute([$id_commande]);
@@ -92,8 +96,8 @@ try {
             }
         }
 
-        $stmt = $pdo->prepare("INSERT INTO Commandes (id_client, prix_total, statut, paiement_statut, date_commande, adresse_livraison, mode_retrait) VALUES (?, ?, 'En attente', 'Non payé', NOW(), ?, ?)");
-        $stmt->execute([$id_client, $total_paye, $adresse_livraison, $mode_retrait]);
+        $stmt = $pdo->prepare("INSERT INTO Commandes (id_client, prix_total, statut, paiement_statut, date_commande, adresse_livraison, mode_retrait, frais_livraison, distance_km) VALUES (?, ?, 'En attente', 'Non payé', NOW(), ?, ?, ?, ?)");
+        $stmt->execute([$id_client, $total_paye, $adresse_livraison, $mode_retrait, $frais_livraison, $distance_km]);
         $id_commande = $pdo->lastInsertId();
 
         $stmtContenu = $pdo->prepare("INSERT INTO Contenu_Commandes (id_commande, id_produit, quantite, prix_unitaire, options_choisies) VALUES (?, ?, ?, ?, ?)");
