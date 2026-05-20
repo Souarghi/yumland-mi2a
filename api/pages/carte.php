@@ -37,17 +37,18 @@ $catalogue = [
 // 3. GESTION DES SPÉCIFICITÉS (Vu qu'elles ne sont pas dans la DB, on les associe par l'ID)
 $specificites = [
     1  => ['type' => 'vege', 'html' => '<span class="spec-badge spec-vege"><i class="fas fa-leaf"></i> Végétarien</span>'],
-    2  => ['type' => 'halal', 'html' => '<span class="spec-badge spec-halal"><i class="fas fa-moon"></i> Halal possible</span>'],
+    2  => ['type' => 'halal', 'html' => '<span class="spec-badge spec-halal"><i class="fas fa-moon"></i> Option Halal</span>'],
     3  => ['type' => 'porc', 'html' => '<span class="spec-badge spec-porc"><i class="fas fa-bacon"></i> Contient Porc</span>'],
     4  => ['type' => 'halal', 'html' => '<span class="spec-badge spec-halal"><i class="fas fa-moon"></i> Option Halal</span>'],
     5  => ['type' => 'halal', 'html' => '<span class="spec-badge spec-halal"><i class="fas fa-moon"></i> Option Halal</span>'],
     6  => ['type' => 'halal', 'html' => '<span class="spec-badge spec-halal"><i class="fas fa-moon"></i> Option Halal</span>'],
-    7  => ['type' => 'porc', 'html' => '<span class="spec-badge spec-porc"><i class="fas fa-bacon"></i> 100% Porc</span>'],
-    9  => ['type' => 'poisson', 'html' => '<span class="spec-badge spec-poisson"><i class="fas fa-fish"></i> Option Poisson</span>'],
-    10 => ['type' => 'porc', 'html' => '<span class="spec-badge spec-porc"><i class="fas fa-bacon"></i> 100% Porc</span>'],
+    7  => ['type' => 'porc', 'html' => '<span class="spec-badge spec-porc"><i class="fas fa-bacon"></i> Contient Porc</span>'],
+    8  => ['type' => 'halal', 'html' => '<span class="spec-badge spec-halal"><i class="fas fa-moon"></i> Option Halal</span>'],
+    9  => ['type' => 'poisson', 'html' => '<span class="spec-badge spec-poisson"><i class="fas fa-fish"></i> Poisson</span>'],
+    10 => ['type' => 'porc', 'html' => '<span class="spec-badge spec-porc"><i class="fas fa-bacon"></i> Contient Porc</span>'],
     11 => ['type' => 'halal', 'html' => '<span class="spec-badge spec-halal"><i class="fas fa-moon"></i> Option Halal</span>'],
     12 => ['type' => 'halal', 'html' => '<span class="spec-badge spec-halal"><i class="fas fa-moon"></i> Option Halal</span>'],
-    13 => ['type' => 'porc', 'html' => '<span class="spec-badge spec-porc"><i class="fas fa-bacon"></i> (Lardons)</span>'],
+    13 => ['type' => 'porc', 'html' => '<span class="spec-badge spec-porc"><i class="fas fa-bacon"></i> Contient Porc (Lardons)</span>'],
     14 => ['type' => 'halal', 'html' => '<span class="spec-badge spec-halal"><i class="fas fa-moon"></i> Option Halal</span>'],
     15 => ['type' => 'vege', 'html' => '<span class="spec-badge spec-vege"><i class="fas fa-leaf"></i> Végétarien</span>'],
 ];
@@ -328,9 +329,43 @@ $csrf_token = generateCSRFToken();
                 $id = $produit['id_produit'];
                 $nom = htmlspecialchars($produit['nom'], ENT_QUOTES);
                 $desc = htmlspecialchars($produit['description']);
-                $prix = number_format($produit['prix'], 2, '.', '') . ' €';
+                
+                $prix_affiche = number_format($produit['prix'], 2, '.', '') . ' €';
                 $options = !empty($produit['options_config']) ? htmlspecialchars($produit['options_config'], ENT_QUOTES) : '';
                 
+                // Correction de l'affichage pour les boissons afin d'éviter les duplications et d'améliorer la lisibilité.
+                if ($catKey === 'Boissons' && $options) {
+                    $opts_array = json_decode($produit['options_config'], true);
+                    $all_options_parts = [];
+                    $is_main_choice = false;      // Flag pour savoir si c'est un choix de produit (ex: parfums de soda)
+                    $has_quantity_option = false; // Flag pour savoir si une option de format/quantité existe
+
+                    if (is_array($opts_array)) {
+                        foreach ($opts_array as $opt) {
+                            if (isset($opt['titre'])) {
+                                if ($opt['titre'] === 'Choix') {
+                                    $is_main_choice = true;
+                                }
+                                if (in_array($opt['titre'], ['Format', 'Quantité'])) {
+                                    $has_quantity_option = true;
+                                }
+                                if (in_array($opt['titre'], ['Format', 'Quantité', 'Type', 'Choix', 'Parfum', 'Marque'])) {
+                                    if (isset($opt['choix']) && !empty($opt['choix'])) {
+                                        $all_options_parts[] = htmlspecialchars(implode(' / ', $opt['choix']));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (!empty($all_options_parts)) {
+                        if ($has_quantity_option) $prix_affiche = 'Dès ' . $prix_affiche;
+                        // On ne remplace la description que pour les produits où l'option est un "Choix" (ex: Sodas),
+                        // pour les autres (bières, vins...), on garde la description originale pour ne pas perdre d'info.
+                        if ($is_main_choice) {
+                            $desc = implode('<br>', $all_options_parts);
+                        }
+                    }
+                }
                 // Gestion du badge de spécificité
                 $specType = isset($specificites[$id]) ? $specificites[$id]['type'] : '';
                 $specHtml = isset($specificites[$id]) ? $specificites[$id]['html'] : '';
@@ -338,7 +373,7 @@ $csrf_token = generateCSRFToken();
                 <tr>
                     <td><?= $nom ?></td>
                     <td><?= $desc ?></td>
-                    <td class="price-cell"><?= $prix ?></td>
+                    <td class="price-cell"><?= $prix_affiche ?></td>
                     <td data-spec="<?= $specType ?>"><?= $specHtml ?></td>
                     <td>
                         <?php if ($options): ?>
@@ -354,6 +389,23 @@ $csrf_token = generateCSRFToken();
     <?php endforeach; ?>
     
     <!-- MENUS & FORMULES (Traités séparément pour garder la belle mise en page HTML) -->
+    <?php
+    // Helper function to generate menu description from options
+    function buildMenuDescriptionFromOptions($options_config) {
+        $options = json_decode($options_config, true);
+        $desc_parts = [];
+        if (is_array($options)) {
+            foreach ($options as $opt) {
+                // On affiche seulement les choix principaux, pas les sous-options conditionnelles
+                if (isset($opt['titre']) && !isset($opt['condition']) && isset($opt['choix']) && !empty($opt['choix'])) {
+                    if (stripos($opt['titre'], 'sauce') !== false) continue;
+                    $desc_parts[] = '<strong>' . htmlspecialchars(ucfirst($opt['titre'])) . ' au choix :</strong> ' . htmlspecialchars(implode(' / ', $opt['choix']));
+                }
+            }
+        }
+        return implode('<br>', $desc_parts);
+    }
+    ?>
     <h2><i class="fas fa-concierge-bell"></i> Nos Menus & Formules</h2>
     
     <?php 
@@ -376,10 +428,9 @@ $csrf_token = generateCSRFToken();
     <div class="menu-formule">
         <h3><i class="fas fa-briefcase"></i> Formule "<?= htmlspecialchars($menuLunch['nom']) ?>" - <?= number_format($menuLunch['prix'], 2) ?> €</h3>
         <p class="formule-details"><em>Disponible uniquement le midi, du lundi au vendredi</em></p>
-        <ul>
-            <li><strong>PLAT</strong> (au choix) : Burger "Le Grand Miam", Le Pavé du Chef ou Veggie Grill</li>
-            <li><strong>BOISSON</strong> : Coca-Cola, Fanta, Sprite (33cl), Verre de vin (12cl) ou Café</li>
-        </ul>
+        <div class="menu-description-db">
+            <?= buildMenuDescriptionFromOptions($menuLunch['options_config']) ?>
+        </div>
         <button class="btn-primary"
                 data-id="<?= $menuLunch['id_produit'] ?>" 
                 data-nom="<?= htmlspecialchars($menuLunch['nom'], ENT_QUOTES) ?>" 
@@ -392,11 +443,9 @@ $csrf_token = generateCSRFToken();
     <div class="menu-formule">
         <h3><i class="fas fa-hat-cowboy"></i> Menu "<?= htmlspecialchars($menuCowboy['nom']) ?>" - <?= number_format($menuCowboy['prix'], 2) ?> €</h3>
         <p class="formule-details"><em>Pour les enfants de moins de 12 ans</em></p>
-        <ul>
-            <li><strong>PLAT</strong> : Mini Cheeseburger ou Nuggets de Poulet (x6)</li>
-            <li><strong>DESSERT</strong> : Sundae Vanille ou Compote de fruits</li>
-            <li><strong>BOISSON</strong> : Sirop à l'eau ou Jus de pomme</li>
-        </ul>
+        <div class="menu-description-db">
+            <?= buildMenuDescriptionFromOptions($menuCowboy['options_config']) ?>
+        </div>
         <button class="btn-primary"
                 data-id="<?= $menuCowboy['id_produit'] ?>" 
                 data-nom="<?= htmlspecialchars($menuCowboy['nom'], ENT_QUOTES) ?>" 
@@ -409,12 +458,9 @@ $csrf_token = generateCSRFToken();
     <div class="menu-formule">
         <h3><i class="fas fa-fire-alt"></i> Menu "<?= htmlspecialchars($menuGrill['nom']) ?>" - <?= number_format($menuGrill['prix'], 2) ?> €</h3>
         <p class="formule-details"><em>Menu complet disponible le soir et le week-end</em></p>
-        <ul>
-            <li><strong>ENTRÉE</strong> : Onion Rings, Os à Moelle ou Œuf Mayo</li>
-            <li><strong>PLAT</strong> : Burgers, BBQ Ribs, Magret, Pavé du Chef ou Saumon</li>
-            <li><strong>DESSERT</strong> : Cheesecake, Brioche Perdue ou Coupe de Glace</li>
-            <li><strong>BOISSON INCLUSE</strong> : Pinte de Bière (50cl) ou Soft au choix (50cl)</li>
-        </ul>
+        <div class="menu-description-db">
+            <?= buildMenuDescriptionFromOptions($menuGrill['options_config']) ?>
+        </div>
         <button class="btn-primary"
                 data-id="<?= $menuGrill['id_produit'] ?>" 
                 data-nom="<?= htmlspecialchars($menuGrill['nom'], ENT_QUOTES) ?>" 
@@ -427,12 +473,9 @@ $csrf_token = generateCSRFToken();
     <div class="menu-formule" style="border: 2px dashed #f39c12; background: linear-gradient(145deg, #1f1f1f, #2c3e50);">
         <h3><i class="fas fa-gift" style="color: #f39c12;"></i> <?= htmlspecialchars($menuMystere['nom']) ?> - <?= number_format($menuMystere['prix'], 2) ?> €</h3>
         <p class="formule-details" style="color: #f39c12;"><em>Laissez-vous surprendre ! Une entrée, un plat, un dessert et une boisson sélectionnés au hasard par notre Chef.</em></p>
-        <ul style="color: #fff;">
-            <li><strong>ENTRÉE</strong> : Sélection aléatoire parmi nos entrées.</li>
-            <li><strong>PLAT</strong> : Sélection aléatoire parmi nos viandes, poissons ou burgers.</li>
-            <li><strong>DESSERT</strong> : Sélection aléatoire parmi nos desserts.</li>
-            <li><strong>BOISSON</strong> : Sélection aléatoire parmi nos boissons.</li>
-        </ul>
+        <div class="menu-description-db" style="color: #fff;">
+            <?= nl2br(htmlspecialchars($menuMystere['description'])) ?>
+        </div>
         <div style="margin-top: 10px; margin-bottom: 15px;">
             <label for="mystere-restriction" style="color:#fff; font-weight:bold;"><i class="fas fa-exclamation-circle"></i> Restrictions alimentaires :</label>
             <select id="mystere-restriction" style="padding: 5px; border-radius: 5px; border: none; outline: none; margin-left: 10px; background-color: #34495e; color: #ecf0f1;">
