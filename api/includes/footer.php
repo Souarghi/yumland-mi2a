@@ -1,12 +1,39 @@
 <script defer>
+    function normalizeImagePath(imagePath) {
+        if (!imagePath) {
+            return '';
+        }
+
+        if (/^https?:\/\//i.test(imagePath) || imagePath.startsWith('/')) {
+            return imagePath;
+        }
+
+        return `/${imagePath.replace(/^\/+/, '')}`;
+    }
+
     // Ouvre la fenêtre et génère les listes déroulantes
-    function showOptionsModal(productId, productName, optionsJsonString, prixMiams = 0, cartIndex = '') {
+    function showOptionsModal(productId, productName, optionsJsonString, prixMiams = 0, cartIndex = '', productImage = '') {
         document.getElementById('optionsModal').style.display = 'flex';
         document.getElementById('modalMenuTitle').innerText = prixMiams > 0 ? productName + " 🎁" : productName;
         document.getElementById('modalProductId').value = productId;
         document.getElementById('modalPrixMiams').value = prixMiams;
         document.getElementById('modalCartIndex').value = cartIndex;
         document.getElementById('modalOptionsDispos').value = optionsJsonString || '[]';
+        document.getElementById('modalProductImage').value = normalizeImagePath(productImage);
+
+        const modalImage = document.getElementById('modalMenuImage');
+        const modalImageWrapper = document.getElementById('modalMenuImageWrapper');
+        const normalizedImage = normalizeImagePath(productImage);
+
+        if (modalImage && modalImageWrapper && normalizedImage) {
+            modalImage.src = normalizedImage;
+            modalImage.alt = productName;
+            modalImageWrapper.classList.remove('d-none');
+        } else if (modalImage && modalImageWrapper) {
+            modalImage.src = '';
+            modalImage.alt = '';
+            modalImageWrapper.classList.add('d-none');
+        }
         
         // Changer le texte du bouton si c'est une modification
         document.getElementById('btnSubmitModal').innerHTML = cartIndex !== '' ? '<i class="fas fa-sync"></i> Mettre à jour' : 'Ajouter au panier 🛒';
@@ -102,6 +129,7 @@
         formData.append('prix_miams', document.getElementById('modalPrixMiams').value);
         formData.append('cart_index', document.getElementById('modalCartIndex').value);
         formData.append('options_dispos', document.getElementById('modalOptionsDispos').value);
+        formData.append('image', document.getElementById('modalProductImage').value);
         
         // Envoi des options sous forme de tableau PHP (options[])
         optionsChoisies.forEach(opt => {
@@ -158,6 +186,10 @@
             <input type="hidden" id="modalPrixMiams" name="prix_miams" value="0">
             <input type="hidden" id="modalCartIndex" name="cart_index" value="">
             <input type="hidden" id="modalOptionsDispos" name="options_dispos" value="">
+            <input type="hidden" id="modalProductImage" name="image" value="">
+            <div id="modalMenuImageWrapper" class="modal-menu-image-wrapper d-none">
+                <img id="modalMenuImage" src="" alt="" class="modal-menu-image">
+            </div>
             <div id="optionsContainer" class="modal-options-container"></div>
             
             <div class="modal-actions">

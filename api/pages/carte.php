@@ -77,6 +77,19 @@ function getProduitById($id, $produits) {
     return null;
 }
 
+function normalizeProductImagePath(?string $imagePath): string {
+    $imagePath = trim((string) $imagePath);
+    if ($imagePath === '') {
+        return '';
+    }
+
+    if (preg_match('#^https?://#i', $imagePath) || str_starts_with($imagePath, '/')) {
+        return $imagePath;
+    }
+
+    return '/' . ltrim($imagePath, '/');
+}
+
 // Générer le token pour sécuriser l'ajout au panier en AJAX
 $csrf_token = generateCSRFToken();
 ?>
@@ -87,7 +100,8 @@ $csrf_token = generateCSRFToken();
         const id = btn.getAttribute('data-id');
         const nom = btn.getAttribute('data-nom');
         const options = btn.getAttribute('data-options');
-        showOptionsModal(id, nom, options);
+        const image = btn.getAttribute('data-image') || '';
+        showOptionsModal(id, nom, options, 0, '', image);
     }
 
     // --- FONCTION AJOUTER AU PANIER EN AJAX ---
@@ -122,7 +136,7 @@ $csrf_token = generateCSRFToken();
     }
 
     // --- FONCTION POUR LE MENU MYSTÈRE ---
-    function ajouterMenuMystere(id_produit) {
+    function ajouterMenuMystere(id_produit, imagePath = '') {
         const restriction = document.getElementById('mystere-restriction')
             ? document.getElementById('mystere-restriction').value
             : 'none';
@@ -218,10 +232,57 @@ $csrf_token = generateCSRFToken();
 
         // Afficher la modale
         if (typeof showOptionsModal === 'function') {
-            showOptionsModal(id_produit, "🎲 Votre Tirage Menu Mystère", JSON.stringify(modalOptions));
+            showOptionsModal(id_produit, "🎲 Votre Tirage Menu Mystère", JSON.stringify(modalOptions), 0, '', imagePath);
         } else {
             alert("Erreur: la fonction de modale n'est pas disponible.");
         }
+    }
+
+    function initMenuHoverPreview() {
+        const preview = document.getElementById('menuHoverPreview');
+        const previewImage = document.getElementById('menuHoverPreviewImage');
+        const previewLabel = document.getElementById('menuHoverPreviewLabel');
+
+        if (!preview || !previewImage || !previewLabel || window.matchMedia('(hover: none)').matches) {
+            return;
+        }
+
+        const movePreview = (event) => {
+            const offset = 24;
+            const previewWidth = preview.offsetWidth || 220;
+            const previewHeight = preview.offsetHeight || 260;
+            const left = Math.min(event.clientX + offset, window.innerWidth - previewWidth - 16);
+            const top = Math.min(Math.max(16, event.clientY - previewHeight / 2), window.innerHeight - previewHeight - 16);
+
+            preview.style.left = `${left}px`;
+            preview.style.top = `${top}px`;
+        };
+
+        document.querySelectorAll('.menu-item-row[data-image]').forEach((row) => {
+            const image = row.getAttribute('data-image');
+            const name = row.getAttribute('data-name') || '';
+
+            if (!image) {
+                return;
+            }
+
+            row.addEventListener('mouseenter', (event) => {
+                previewImage.src = image;
+                previewImage.alt = name;
+                previewLabel.textContent = name;
+                preview.classList.add('is-visible');
+                movePreview(event);
+            });
+
+            row.addEventListener('mousemove', movePreview);
+            row.addEventListener('mouseleave', () => {
+                preview.classList.remove('is-visible');
+            });
+        });
+
+        window.addEventListener('scroll', () => {
+            preview.classList.remove('is-visible');
+        }, { passive: true });
     }
 
     // --- FONCTION DE FILTRE DE RECHERCHE ---
@@ -262,6 +323,7 @@ $csrf_token = generateCSRFToken();
     
     document.addEventListener('DOMContentLoaded', () => {
         applyFilters();
+        initMenuHoverPreview();
         document.querySelectorAll('.menu-table td').forEach(td => {
             if (td.textContent.includes('€') && !td.querySelector('button')) {
                 td.classList.add('price-cell');
@@ -329,6 +391,7 @@ $csrf_token = generateCSRFToken();
                 $id = $produit['id_produit'];
                 $nom = htmlspecialchars($produit['nom'], ENT_QUOTES);
                 $desc = htmlspecialchars($produit['description']);
+                $imageUrl = normalizeProductImagePath($produit['image_url'] ?? '');
                 
                 $prix_affiche = number_format($produit['prix'], 2, '.', '') . ' €';
                 $options = !empty($produit['options_config']) ? htmlspecialchars($produit['options_config'], ENT_QUOTES) : '';
@@ -370,14 +433,14 @@ $csrf_token = generateCSRFToken();
                 $specType = isset($specificites[$id]) ? $specificites[$id]['type'] : '';
                 $specHtml = isset($specificites[$id]) ? $specificites[$id]['html'] : '';
             ?>
-                <tr>
+                <tr class="menu-item-row" data-image="<?= htmlspecialchars($imageUrl, ENT_QUOTES) ?>" data-name="<?= $nom ?>">
                     <td><?= $nom ?></td>
                     <td><?= $desc ?></td>
                     <td class="price-cell"><?= $prix_affiche ?></td>
                     <td data-spec="<?= $specType ?>"><?= $specHtml ?></td>
                     <td>
                         <?php if ($options): ?>
-                            <button class="btn-primary" data-id="<?= $id ?>" data-nom="<?= $nom ?>" data-options='<?= $options ?>' onclick="openMenuModal(this)"><i class="fas fa-cart-plus"></i> Ajouter</button>
+                            <button class="btn-primary" data-id="<?= $id ?>" data-nom="<?= $nom ?>" data-options='<?= $options ?>' data-image="<?= htmlspecialchars($imageUrl, ENT_QUOTES) ?>" onclick="openMenuModal(this)"><i class="fas fa-cart-plus"></i> Ajouter</button>
                         <?php else: ?>
                             <button class="btn-primary" onclick="ajouterAuPanier(<?= $id ?>)"><i class="fas fa-cart-plus"></i> Ajouter</button>
                         <?php endif; ?>
@@ -425,6 +488,7 @@ $csrf_token = generateCSRFToken();
     ?>
 
     <?php if ($menuLunch): ?>
+    <?php $menuLunchImage = normalizeProductImagePath($menuLunch['image_url'] ?? ''); ?>
     <div class="menu-formule">
         <h3><i class="fas fa-briefcase"></i> Formule "<?= htmlspecialchars($menuLunch['nom']) ?>" - <?= number_format($menuLunch['prix'], 2) ?> €</h3>
         <p class="formule-details"><em>Disponible uniquement le midi, du lundi au vendredi</em></p>
@@ -435,11 +499,13 @@ $csrf_token = generateCSRFToken();
                 data-id="<?= $menuLunch['id_produit'] ?>" 
                 data-nom="<?= htmlspecialchars($menuLunch['nom'], ENT_QUOTES) ?>" 
                 data-options='<?= htmlspecialchars($menuLunch['options_config'], ENT_QUOTES) ?>'
+                data-image="<?= htmlspecialchars($menuLunchImage, ENT_QUOTES) ?>"
                 onclick="openMenuModal(this)"><i class="fas fa-cart-plus"></i> Ajouter</button>
     </div>
     <?php endif; ?>
     
     <?php if ($menuCowboy): ?>
+    <?php $menuCowboyImage = normalizeProductImagePath($menuCowboy['image_url'] ?? ''); ?>
     <div class="menu-formule">
         <h3><i class="fas fa-hat-cowboy"></i> Menu "<?= htmlspecialchars($menuCowboy['nom']) ?>" - <?= number_format($menuCowboy['prix'], 2) ?> €</h3>
         <p class="formule-details"><em>Pour les enfants de moins de 12 ans</em></p>
@@ -450,11 +516,13 @@ $csrf_token = generateCSRFToken();
                 data-id="<?= $menuCowboy['id_produit'] ?>" 
                 data-nom="<?= htmlspecialchars($menuCowboy['nom'], ENT_QUOTES) ?>" 
                 data-options='<?= htmlspecialchars($menuCowboy['options_config'], ENT_QUOTES) ?>'
+                data-image="<?= htmlspecialchars($menuCowboyImage, ENT_QUOTES) ?>"
                 onclick="openMenuModal(this)"><i class="fas fa-cart-plus"></i> Ajouter</button>
     </div>
     <?php endif; ?>
     
     <?php if ($menuGrill): ?>
+    <?php $menuGrillImage = normalizeProductImagePath($menuGrill['image_url'] ?? ''); ?>
     <div class="menu-formule">
         <h3><i class="fas fa-fire-alt"></i> Menu "<?= htmlspecialchars($menuGrill['nom']) ?>" - <?= number_format($menuGrill['prix'], 2) ?> €</h3>
         <p class="formule-details"><em>Menu complet disponible le soir et le week-end</em></p>
@@ -465,11 +533,13 @@ $csrf_token = generateCSRFToken();
                 data-id="<?= $menuGrill['id_produit'] ?>" 
                 data-nom="<?= htmlspecialchars($menuGrill['nom'], ENT_QUOTES) ?>" 
                 data-options='<?= htmlspecialchars($menuGrill['options_config'], ENT_QUOTES) ?>'
+                data-image="<?= htmlspecialchars($menuGrillImage, ENT_QUOTES) ?>"
                 onclick="openMenuModal(this)"><i class="fas fa-cart-plus"></i> Ajouter</button>
     </div>
     <?php endif; ?>
 
     <?php if ($menuMystere): ?>
+    <?php $menuMystereImage = normalizeProductImagePath($menuMystere['image_url'] ?? ''); ?>
     <div class="menu-formule" style="border: 2px dashed #f39c12; background: linear-gradient(145deg, #1f1f1f, #2c3e50);">
         <h3><i class="fas fa-gift" style="color: #f39c12;"></i> <?= htmlspecialchars($menuMystere['nom']) ?> - <?= number_format($menuMystere['prix'], 2) ?> €</h3>
         <p class="formule-details" style="color: #f39c12;"><em>Laissez-vous surprendre ! Une entrée, un plat, un dessert et une boisson sélectionnés au hasard par notre Chef.</em></p>
@@ -485,7 +555,7 @@ $csrf_token = generateCSRFToken();
                 <option value="sans-porc">Sans Porc</option>
             </select>
         </div>
-        <button class="btn-primary" style="background: #e67e22; border-color: #d35400;" onclick="ajouterMenuMystere(<?= $menuMystere['id_produit'] ?>)"><i class="fas fa-magic"></i> Tirer au sort & Ajouter</button>
+        <button class="btn-primary" style="background: #e67e22; border-color: #d35400;" onclick='ajouterMenuMystere(<?= $menuMystere["id_produit"] ?>, <?= json_encode($menuMystereImage, JSON_HEX_APOS) ?>)'><i class="fas fa-magic"></i> Tirer au sort & Ajouter</button>
     </div>
     <?php endif; ?>
 
@@ -498,6 +568,11 @@ $csrf_token = generateCSRFToken();
     }
     ?>
     </div>
+</div>
+
+<div id="menuHoverPreview" class="menu-hover-preview" aria-hidden="true">
+    <img id="menuHoverPreviewImage" src="" alt="" class="menu-hover-preview-image">
+    <div id="menuHoverPreviewLabel" class="menu-hover-preview-label"></div>
 </div>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
