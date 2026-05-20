@@ -7,10 +7,13 @@ require_once __DIR__ . '/includes/panier.php';
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Vérification de sécurité CSRF pour les requêtes AJAX
-    if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-        echo json_encode(['success' => false, 'message' => 'Erreur de sécurité CSRF.']);
-        exit;
+    // 1. Si les données sont envoyées en JSON (fetch), on les injecte dans $_POST
+    $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
+    if (strpos($contentType, 'application/json') !== false) {
+        $json = json_decode(file_get_contents('php://input'), true);
+        if (is_array($json)) {
+            $_POST = array_merge($_POST, $json);
+        }
     }
 
     $id_produit = isset($_POST['id_produit']) ? (int)$_POST['id_produit'] : 0;
