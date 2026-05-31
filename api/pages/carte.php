@@ -1,4 +1,8 @@
 <?php
+$currentPage = 'carte';
+$pageTitle = 'Notre Carte';
+$additionalCss = ['/css/carte.css?v=' . time()];
+
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/config.php';
 // require_once __DIR__ . '/../includes/plats.php'; // Plus besoin si tout est dans la DB !
@@ -10,9 +14,6 @@ if (isset($_SESSION['cart_message'])) {
     $message = $_SESSION['cart_message'];
     unset($_SESSION['cart_message']);
 }
-
-$currentPage = 'carte';
-$pageTitle = 'Notre Carte';
 
 // Paramètres du fetch asynchrone (Phase 3)
 $is_ajax = isset($_GET['ajax']) && $_GET['ajax'] == '1';
@@ -540,22 +541,22 @@ $csrf_token = generateCSRFToken();
 
     <?php if ($menuMystere): ?>
     <?php $menuMystereImage = normalizeProductImagePath($menuMystere['image_url'] ?? ''); ?>
-    <div class="menu-formule" style="border: 2px dashed #f39c12; background: linear-gradient(145deg, #1f1f1f, #2c3e50);">
-        <h3><i class="fas fa-gift" style="color: #f39c12;"></i> <?= htmlspecialchars($menuMystere['nom']) ?> - <?= number_format($menuMystere['prix'], 2) ?> €</h3>
-        <p class="formule-details" style="color: #f39c12;"><em>Laissez-vous surprendre ! Une entrée, un plat, un dessert et une boisson sélectionnés au hasard par notre Chef.</em></p>
-        <div class="menu-description-db" style="color: #fff;">
+    <div class="menu-formule menu-formule-mystere">
+        <h3><i class="fas fa-gift"></i> <?= htmlspecialchars($menuMystere['nom']) ?> - <?= number_format($menuMystere['prix'], 2) ?> €</h3>
+        <p class="formule-details"><em>Laissez-vous surprendre ! Une entrée, un plat, un dessert et une boisson sélectionnés au hasard par notre Chef.</em></p>
+        <div class="menu-description-db">
             <?= nl2br(htmlspecialchars($menuMystere['description'])) ?>
         </div>
-        <div style="margin-top: 10px; margin-bottom: 15px;">
-            <label for="mystere-restriction" style="color:#fff; font-weight:bold;"><i class="fas fa-exclamation-circle"></i> Restrictions alimentaires :</label>
-            <select id="mystere-restriction" style="padding: 5px; border-radius: 5px; border: none; outline: none; margin-left: 10px; background-color: #34495e; color: #ecf0f1;">
+        <div class="mystere-options">
+            <label for="mystere-restriction"><i class="fas fa-exclamation-circle"></i> Restrictions alimentaires :</label>
+            <select id="mystere-restriction">
                 <option value="none">Aucune</option>
                 <option value="vege">Végétarien</option>
                 <option value="halal">Halal</option>
                 <option value="sans-porc">Sans Porc</option>
             </select>
         </div>
-        <button class="btn-primary" style="background: #e67e22; border-color: #d35400;" onclick='ajouterMenuMystere(<?= $menuMystere["id_produit"] ?>, <?= json_encode($menuMystereImage, JSON_HEX_APOS) ?>)'><i class="fas fa-magic"></i> Tirer au sort & Ajouter</button>
+        <button class="btn-primary btn-mystere" onclick='ajouterMenuMystere(<?= $menuMystere["id_produit"] ?>, <?= json_encode($menuMystereImage, JSON_HEX_APOS) ?>)'><i class="fas fa-magic"></i> Tirer au sort & Ajouter</button>
     </div>
     <?php endif; ?>
 
