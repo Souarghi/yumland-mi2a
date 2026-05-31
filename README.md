@@ -59,8 +59,8 @@ Le projet est construit de manière modulaire, marquant l'évolution entre la co
   * **Fin :** 17/05/2026 - commit `df33d47`
 
 * **Phase 4 : Standardisation, Sécurité et Soutenance Finale**
-  * **Début :** 
-  * **Fin :** 
+  * **Début :** 19/05/2026 - commit `aa1f8b2`
+  * **Fin :** 31/05/2026 - commit `f4c887c`
 
 ## 📂 Organisation du Projet
 
