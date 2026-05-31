@@ -493,7 +493,7 @@ include_once __DIR__ . '/includes/header.php';
                             <div class="shop-item <?= $miams_dispo >= 150 ? 'unlocked' : 'locked' ?>">
                                 <div><strong>150 Miams</strong> : Une Sauce Maison offerte 🥫</div>
                                 <button type="button" class="btn-primary shop-item-btn" 
-                                    onclick='showOptionsModal(<?= $id_sauce ?>, "Sauce Maison", "[{&quot;titre&quot;:&quot;Choix&quot;,&quot;choix&quot;:[&quot;Sauce BBQ&quot;,&quot;Sauce Béarnaise&quot;,&quot;Sauce au Poivre&quot;,&quot;Sauce Roquefort&quot;,&quot;Moutarde Ancienne&quot;]}]", 150, "", <?= json_encode($sauce_reward['image'] ?? '', JSON_HEX_APOS) ?>)' 
+                                    onclick='showOptionsModal(<?= $id_sauce ?>, "Sauce Maison", <?= json_encode('[{"titre":"Choix","choix":["Sauce BBQ","Sauce Béarnaise","Sauce au Poivre","Sauce Roquefort","Moutarde Ancienne"]}]', JSON_HEX_APOS) ?>, 150, "", <?= json_encode($sauce_reward['image'] ?? '', JSON_HEX_APOS) ?>)' 
                                     <?= $miams_dispo < 150 ? 'disabled' : '' ?>>Obtenir</button>
                             </div>
                             
@@ -501,7 +501,7 @@ include_once __DIR__ . '/includes/header.php';
                             <div class="shop-item <?= $miams_dispo >= 300 ? 'unlocked' : 'locked' ?>">
                                 <div><strong>300 Miams</strong> : Un Soft ou une Bière (25cl) 🍺</div>
                                 <button type="button" class="btn-primary shop-item-btn" 
-                                    onclick='showOptionsModal(<?= $id_boisson ?>, "Boisson Offerte", "[{&quot;titre&quot;:&quot;Choix&quot;,&quot;choix&quot;:[&quot;Coca-Cola (33cl)&quot;,&quot;Sprite (33cl)&quot;,&quot;Ice Tea (25cl)&quot;,&quot;Bière Blonde (25cl)&quot;,&quot;Bière IPA (25cl)&quot;]}]", 300, "", <?= json_encode($boisson_reward['image'] ?? '', JSON_HEX_APOS) ?>)' 
+                                    onclick='showOptionsModal(<?= $id_boisson ?>, "Boisson Offerte", <?= json_encode('[{"titre":"Choix","choix":["Coca-Cola (33cl)","Sprite (33cl)","Ice Tea (25cl)","Bière Blonde (25cl)","Bière IPA (25cl)"]}]', JSON_HEX_APOS) ?>, 300, "", <?= json_encode($boisson_reward['image'] ?? '', JSON_HEX_APOS) ?>)' 
                                     <?= $miams_dispo < 300 ? 'disabled' : '' ?>>Obtenir</button>
                             </div>
 
@@ -509,7 +509,7 @@ include_once __DIR__ . '/includes/header.php';
                             <div class="shop-item <?= $miams_dispo >= 800 ? 'unlocked' : 'locked' ?>">
                                 <div><strong>800 Miams</strong> : Un Dessert au choix 🍪</div>
                                 <button type="button" class="btn-primary shop-item-btn" 
-                                    onclick='showOptionsModal(<?= $id_dessert ?>, "Dessert Offert", "[{&quot;titre&quot;:&quot;Choix&quot;,&quot;choix&quot;:[&quot;Cookie Skillet&quot;,&quot;Cheesecake NY&quot;,&quot;Brioche Perdue&quot;]}]", 800, "", <?= json_encode($dessert_reward['image'] ?? '', JSON_HEX_APOS) ?>)' 
+                                    onclick='showOptionsModal(<?= $id_dessert ?>, "Dessert Offert", <?= json_encode('[{"titre":"Choix","choix":["Cookie Skillet","Cheesecake NY","Brioche Perdue"]}]', JSON_HEX_APOS) ?>, 800, "", <?= json_encode($dessert_reward['image'] ?? '', JSON_HEX_APOS) ?>)' 
                                     <?= $miams_dispo < 800 ? 'disabled' : '' ?>>Obtenir</button>
                             </div>
                             
@@ -517,7 +517,7 @@ include_once __DIR__ . '/includes/header.php';
                             <div class="shop-item <?= $miams_dispo >= 1500 ? 'unlocked' : 'locked' ?>">
                                 <div><strong>1500 Miams</strong> : Le Burger "Grand Miam" 🍔</div>
                                 <button type="button" class="btn-primary shop-item-btn" 
-                                    onclick='showOptionsModal(<?= $id_burger ?>, "Burger Grand Miam", "[{&quot;titre&quot;:&quot;Viande&quot;,&quot;choix&quot;:[&quot;Bœuf Limousin&quot;,&quot;Bœuf (Halal)&quot;,&quot;Poulet Croustillant&quot;,&quot;Galette Veggie&quot;]},{&quot;titre&quot;:&quot;Cuisson&quot;,&quot;choix&quot;:[&quot;Saignant&quot;,&quot;À point&quot;,&quot;Bien cuit&quot;]}]", 1500, "", <?= json_encode($burger_reward['image'] ?? '', JSON_HEX_APOS) ?>)' 
+                                    onclick='showOptionsModal(<?= $id_burger ?>, "Burger Grand Miam", <?= json_encode('[{"titre":"Viande","choix":["Bœuf Limousin","Bœuf (Halal)","Poulet Croustillant","Galette Veggie"]},{"titre":"Cuisson","choix":["Saignant","À point","Bien cuit"]}]', JSON_HEX_APOS) ?>, 1500, "", <?= json_encode($burger_reward['image'] ?? '', JSON_HEX_APOS) ?>)' 
                                     <?= $miams_dispo < 1500 ? 'disabled' : '' ?>>Obtenir</button>
                             </div>
                         </div>

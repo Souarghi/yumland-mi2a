@@ -33,36 +33,17 @@ try {
     $stmtLivreur->execute([$cible_id]);
 
     // Étape 2: Gérer le cas où l'utilisateur est un client
-    // On doit supprimer toutes les données liées à ses commandes.
-
-    // 2a. Récupérer les ID de toutes les commandes passées par le client.
-    $stmtCmdIds = $pdo->prepare("SELECT id_commande FROM Commandes WHERE id_client = ?");
-    $stmtCmdIds->execute([$cible_id]);
-    $commandes_a_supprimer_ids = $stmtCmdIds->fetchAll(PDO::FETCH_COLUMN);
-
-    if (!empty($commandes_a_supprimer_ids)) {
-        $placeholders = implode(',', array_fill(0, count($commandes_a_supprimer_ids), '?'));
-
-        // 2b. Supprimer les avis liés à ces commandes
-        $stmtAvis = $pdo->prepare("DELETE FROM Avis WHERE id_commande IN ($placeholders)");
-        $stmtAvis->execute($commandes_a_supprimer_ids);
-
-        // 2c. Supprimer les paiements liés à ces commandes
-        $stmtPaiements = $pdo->prepare("DELETE FROM Paiements WHERE id_commande IN ($placeholders)");
-        $stmtPaiements->execute($commandes_a_supprimer_ids);
-
-        // 2d. Supprimer le contenu détaillé de ces commandes
-        $stmtContenu = $pdo->prepare("DELETE FROM Contenu_Commandes WHERE id_commande IN ($placeholders)");
-        $stmtContenu->execute($commandes_a_supprimer_ids);
-    }
+    // Au lieu de supprimer ses commandes et avis, on les rend anonymes pour les garder dans l'historique
     
-    // 2e. Supprimer les avis du client qui ne seraient pas liés à une commande (sécurité)
-    $stmtAvisClient = $pdo->prepare("DELETE FROM Avis WHERE id_client = ?");
-    $stmtAvisClient->execute([$cible_id]);
+    // On s'assure d'abord que la table accepte les ID nulls
+    $pdo->exec("ALTER TABLE Commandes MODIFY id_client INT NULL");
+    $pdo->exec("ALTER TABLE Avis MODIFY id_client INT NULL");
+    $pdo->exec("ALTER TABLE Paiements MODIFY id_client INT NULL");
 
-    // 2f. Supprimer les commandes elles-mêmes
-    $stmtCommandes = $pdo->prepare("DELETE FROM Commandes WHERE id_client = ?");
-    $stmtCommandes->execute([$cible_id]);
+    // Détachement des données (Anonymisation)
+    $pdo->prepare("UPDATE Avis SET id_client = NULL WHERE id_client = ?")->execute([$cible_id]);
+    $pdo->prepare("UPDATE Paiements SET id_client = NULL WHERE id_client = ?")->execute([$cible_id]);
+    $pdo->prepare("UPDATE Commandes SET id_client = NULL WHERE id_client = ?")->execute([$cible_id]);
 
     // Étape 3: Supprimer l'utilisateur
     $stmtUser = $pdo->prepare("DELETE FROM Utilisateurs WHERE id_user = ?");
@@ -72,7 +53,7 @@ try {
 
     echo json_encode([
         'success' => true,
-        'message' => 'Utilisateur et toutes ses données associées ont été supprimés avec succès.'
+        'message' => 'L\'utilisateur a été supprimé. Ses commandes et avis ont été conservés anonymement.'
     ]);
 } catch (PDOException $e) {
     $pdo->rollBack();

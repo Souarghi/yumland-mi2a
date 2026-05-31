@@ -17,14 +17,14 @@ function getAllAvis(): array {
         if (!$tableExists) return [];
 
         $stmt = $pdo->query("
-            SELECT a.*, u.nom, u.prenom, c.date_commande,
+            SELECT a.*, COALESCE(u.nom, 'Ancien') AS nom, COALESCE(u.prenom, 'Client') AS prenom, c.date_commande,
             (SELECT GROUP_CONCAT(CONCAT(cc.quantite, 'x ', p.nom) SEPARATOR ', ')
              FROM Contenu_Commandes cc
              JOIN Produits p ON cc.id_produit = p.id_produit
              WHERE cc.id_commande = a.id_commande) AS plats_commandes
             FROM Avis a
-            JOIN Utilisateurs u ON a.id_client = u.id_user
-            JOIN Commandes c ON a.id_commande = c.id_commande
+            LEFT JOIN Utilisateurs u ON a.id_client = u.id_user
+            LEFT JOIN Commandes c ON a.id_commande = c.id_commande
             ORDER BY a.date_avis DESC
         ");
         return $stmt->fetchAll();
@@ -97,6 +97,11 @@ function saveAvis(int $commande_id, int $user_id, int $delivery_note, int $food_
         }
         $pdo->exec("DROP TABLE IF EXISTS Evaluations");
     }
+    
+    // S'assurer que id_client peut être NULL pour la suppression de compte
+    try {
+        $pdo->exec("ALTER TABLE Avis MODIFY id_client INT NULL");
+    } catch (Exception $e) {}
 
     $stmt = $pdo->prepare("
         INSERT INTO Avis (id_commande, id_client, note_globale, note_livreur, note_nourriture, commentaire)
