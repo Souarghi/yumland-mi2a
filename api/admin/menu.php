@@ -129,19 +129,19 @@ include_once __DIR__ . '/../includes/header.php';
 </section>
 
 <!-- Fenêtre modale gérant l'Ajout ET la Modification -->
-<div id="crudMenuModal" class="modal-overlay" style="display: none; opacity: 0; transition: opacity 0.3s ease; z-index: 10000;">
-    <div class="modal-container" style="max-width: 600px; width: 90%; transform: translateY(-50px); transition: transform 0.3s ease;">
+<div id="crudMenuModal" class="modal-overlay admin-menu-modal" style="display: none; opacity: 0; transition: opacity 0.3s ease; z-index: 10000;">
+    <div class="modal-container admin-menu-modal-container" style="transform: translateY(-50px); transition: transform 0.3s ease;">
         <h2 id="modal-menu-title" class="modal-title">Ajouter un plat</h2>
-        <form method="POST" action="/api/admin/menu.php" style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+        <form method="POST" action="/api/admin/menu.php" class="admin-menu-modal-form">
             <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
             <input type="hidden" name="action" id="modal-menu-action" value="add">
             <input type="hidden" name="id_produit" id="modal-menu-id" value="">
             
             <div class="form-group"><label>Nom du plat *</label><input type="text" name="nom" id="modal-menu-nom" required></div>
             
-            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                <div class="form-group" style="flex: 1;"><label>Prix unitaire (€) *</label><input type="number" step="0.01" name="prix" id="modal-menu-prix" required></div>
-                <div class="form-group" style="flex: 1;">
+            <div class="admin-menu-modal-row">
+                <div class="form-group"><label>Prix unitaire (€) *</label><input type="number" step="0.01" name="prix" id="modal-menu-prix" required></div>
+                <div class="form-group">
                     <label>Catégorie *</label>
                     <select name="categorie" id="modal-menu-cat" required>
                         <option value="Burgers">Burgers</option>
@@ -178,6 +178,7 @@ function openMenuModal(action, plat = null) {
     document.getElementById('modal-menu-opt').value = plat ? (plat.options_config || '[]') : '[\n  \n]';
     
     const modal = document.getElementById('crudMenuModal');
+    document.body.classList.add('modal-open');
     modal.style.display = 'flex';
     // Petit délai pour permettre au navigateur d'appliquer le display avant de lancer l'animation
     setTimeout(() => {
@@ -192,6 +193,7 @@ function closeMenuModal() {
     modal.querySelector('.modal-container').style.transform = 'translateY(-50px)';
     setTimeout(() => {
         modal.style.display = 'none';
+        document.body.classList.remove('modal-open');
     }, 300);
 }
 </script>

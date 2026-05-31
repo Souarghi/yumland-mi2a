@@ -1316,6 +1316,51 @@ footer {
     font-family: inherit;
 }
 
+body.modal-open {
+    overflow: hidden;
+}
+
+.admin-menu-modal {
+    align-items: center;
+    overscroll-behavior: contain;
+}
+
+.admin-menu-modal-container {
+    max-width: 600px;
+    width: min(90vw, 600px);
+    max-height: calc(100vh - 48px);
+}
+
+.admin-menu-modal-form {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 15px;
+    min-height: 0;
+    margin-top: 20px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 6px;
+}
+
+.admin-menu-modal-row {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.admin-menu-modal-row .form-group {
+    flex: 1 1 220px;
+    min-width: 0;
+}
+
+.admin-menu-modal-form .modal-actions {
+    position: sticky;
+    bottom: 0;
+    background: var(--color-bg);
+    padding-top: 10px;
+}
+
 @media screen and (max-width: 768px) {
     .modal-overlay {
         padding: 12px;
@@ -1336,6 +1381,23 @@ footer {
     .btn-cancel,
     .btn-modal-submit {
         width: 100%;
+    }
+
+    .admin-menu-modal-container {
+        width: 100%;
+        max-height: calc(100vh - 24px);
+    }
+
+    .admin-menu-modal-form {
+        padding-right: 0;
+    }
+
+    .admin-menu-modal-row {
+        gap: 15px;
+    }
+
+    .admin-menu-modal-row .form-group {
+        flex-basis: 100%;
     }
 }
 
