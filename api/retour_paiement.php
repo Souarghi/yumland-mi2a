@@ -20,8 +20,14 @@ $expected_control = md5($api_key . "#" . $transaction . "#" . $montant . "#" . $
 // On vire le préfixe "MI2A" (4 lettres) pour retrouver notre vrai ID de BDD auto-incrémenté
 $id_commande = (int)substr($transaction, 4);
 
-// Vérification ultime : bonne signature + statut ok + ID cohérent
-if ($control === $expected_control && $statut === 'accepted' && $id_commande > 0) {
+// Récupération du montant que NOUS avions demandé (stocké en session avant le départ vers CYBank),
+// puis comparaison avec la somme que la banque dit avoir encaissée. Si ça diverge
+// (URL trafiquée, montant modifié côté banque...), le paiement est refusé.
+$montant_attendu = $_SESSION['cybank_montant_attendu'][$transaction] ?? null;
+$montant_ok = $montant_attendu !== null && abs((float)$montant - (float)$montant_attendu) < 0.01;
+
+// Vérification ultime : bonne signature + statut ok + ID cohérent + montant payé conforme
+if ($control === $expected_control && $statut === 'accepted' && $id_commande > 0 && $montant_ok) {
     try {
         // Sécurisation des opérations multiples via transaction SQL
         $pdo->beginTransaction();
@@ -41,6 +47,9 @@ if ($control === $expected_control && $statut === 'accepted' && $id_commande > 0
 
         $pdo->commit();
 
+        // Le montant attendu n'a plus de raison d'être conservé une fois le paiement validé
+        unset($_SESSION['cybank_montant_attendu'][$transaction]);
+
         clearCart();
 
         header('Location: /api/client/commandes.php?success=commande_validee');
@@ -50,10 +59,12 @@ if ($control === $expected_control && $statut === 'accepted' && $id_commande > 0
         die("Erreur lors de l'enregistrement : " . $e->getMessage());
     }
 } else {
-    // En cas d'échec du paiement, la commande passe en annulée
+    // Paiement refusé : signature invalide, statut non accepté ou montant payé différent du montant attendu.
+    // La commande passe en annulée et le paiement est marqué refusé.
     if ($id_commande > 0) {
-        $pdo->prepare("UPDATE Commandes SET statut = 'Annulée', paiement_statut = 'Échec' WHERE id_commande = ?")->execute([$id_commande]);
+        $pdo->prepare("UPDATE Commandes SET statut = 'Annulée', paiement_statut = 'Paiement refusé' WHERE id_commande = ?")->execute([$id_commande]);
     }
+    unset($_SESSION['cybank_montant_attendu'][$transaction]);
     header('Location: /api/panier.php?error=paiement_refuse');
     exit;
 }

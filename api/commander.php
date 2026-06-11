@@ -129,6 +129,10 @@ $transaction = sprintf("MI2A%06d", $id_commande);
 // Attention, la banque veut un point pour les décimales, pas de virgule. Le number_format sert à forcer ça.
 $montant = number_format($total_paye, 2, '.', '');
 
+// Mémorisation du montant réellement demandé : au retour de CYBank, on comparera
+// le montant renvoyé par la banque avec celui-ci pour détecter toute manipulation.
+$_SESSION['cybank_montant_attendu'][$transaction] = $montant;
+
 // URL de retour une fois le paiement terminé
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
 $url_retour = $protocol . $_SERVER['HTTP_HOST'] . "/api/retour_paiement.php";
