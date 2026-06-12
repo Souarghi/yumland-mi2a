@@ -38,10 +38,23 @@ function calculateDeliveryFeeAndDistance($adresse) {
 
 // Traiter les actions sur le panier
 $message = '';
+$message_type = 'success';
 
 // Info depuis la modification de commande
 if (isset($_GET['info']) && $_GET['info'] === 'editing' && isset($_SESSION['edit_commande_id'])) {
     $message = '✏️ Vous modifiez actuellement la commande #' . $_SESSION['edit_commande_id'] . '. Ajustez vos plats et cliquez sur Enregistrer !';
+}
+
+// Messages de retour du paiement CYBank
+if (isset($_GET['error'])) {
+    if ($_GET['error'] === 'paiement_refuse') {
+        $message = '❌ Le paiement a été refusé par CY Bank. Votre commande a été annulée, votre panier vous attend toujours.';
+        $message_type = 'error';
+    } elseif ($_GET['error'] === 'montant_louche') {
+        // Easter egg : la somme payée ne correspond pas à l'addition...
+        $message = '🕵️ Tiens, tiens... La somme payée ne correspond pas à l\'addition. Bien tenté, mais Monsieur Miam, notre comptable, recompte tout jusqu\'au dernier centime. Paiement refusé — et lui, il n\'oublie jamais un visage. 🍔';
+        $message_type = 'error';
+    }
 }
 
 $action = $_POST['action'] ?? '';
@@ -304,7 +317,7 @@ include_once __DIR__ . '/includes/header.php';
         <h1>Mon Panier</h1>
         
         <?php if (!empty($message)): ?>
-            <div class="alert alert-success">
+            <div class="alert alert-<?= $message_type ?>">
                 <?= htmlspecialchars($message) ?>
             </div>
         <?php endif; ?>

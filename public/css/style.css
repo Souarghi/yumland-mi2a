@@ -1553,6 +1553,24 @@ body.modal-open {
 .d-flex { display: flex !important; }
 .hidden-alert { display: none; }
 
+/* Alertes du panier (retour de paiement CYBank) */
+.cart-section .alert {
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+}
+.cart-section .alert-success {
+    color: green;
+    border-color: green;
+    background-color: #e8f5e9;
+}
+.cart-section .alert-error {
+    color: #b71c1c;
+    border-color: #b71c1c;
+    background-color: #fdecea;
+}
+
 /* Livraisons */
 .container-small { max-width: 600px; margin: 0 auto; }
 .livraisons-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }

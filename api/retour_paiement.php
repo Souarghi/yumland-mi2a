@@ -65,7 +65,13 @@ if ($control === $expected_control && $statut === 'accepted' && $id_commande > 0
         $pdo->prepare("UPDATE Commandes SET statut = 'Annulée', paiement_statut = 'Paiement refusé' WHERE id_commande = ?")->execute([$id_commande]);
     }
     unset($_SESSION['cybank_montant_attendu'][$transaction]);
-    header('Location: /api/panier.php?error=paiement_refuse');
+
+    // Si tout était valide SAUF le montant, quelqu'un a probablement joué avec les chiffres...
+    // On lui réserve un petit message spécial sur la page panier. 🕵️
+    $erreur = (!$montant_ok && $control === $expected_control && $statut === 'accepted' && $id_commande > 0)
+        ? 'montant_louche'
+        : 'paiement_refuse';
+    header('Location: /api/panier.php?error=' . $erreur);
     exit;
 }
 ?>
